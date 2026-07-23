@@ -235,8 +235,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .login {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-end;
   height: 100%;
   background-image: url('../assets/images/login-background.jpg');
   background-size: cover;
@@ -263,15 +262,18 @@ onMounted(() => {
 }
 
 .login-form {
-  border-radius: var(--app-radius-lg);
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid rgba(255, 255, 255, 0.5);
   width: min(420px, 90vw);
-  padding: 32px 30px 12px 30px;
+  height: 100%;
+  padding: 200px 30px 12px 30px;
   z-index: 1;
   box-shadow: var(--app-shadow-lg);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
   .el-input {
     height: 40px;
     input {

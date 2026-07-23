@@ -1,74 +1,18 @@
 package org.dromara.common.web.config;
 
-import io.undertow.UndertowOptions;
-import io.undertow.server.DefaultByteBufferPool;
-import io.undertow.server.handlers.DisallowedMethodsHandler;
-import io.undertow.util.HttpString;
-import io.undertow.websockets.jsr.WebSocketDeploymentInfo;
-import org.dromara.common.core.utils.SpringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
-import org.springframework.boot.web.server.WebServerFactoryCustomizer;
-import org.springframework.core.task.VirtualThreadTaskExecutor;
-
 /**
- * Undertow 自定义配置
+ * UndertowConfig 类因 Spring Boot 4 移除 Undertow 支持而禁用。
+ * Spring Boot 4 默认使用 Tomcat 作为 Web 服务器。
+ * 如需 Tomcat 等效配置，请参考 Spring Boot 4 文档。
  *
  * @author Lion Li
+ * @deprecated Spring Boot 4 不再支持 Undertow，该类已废弃
  */
-@AutoConfiguration
-public class UndertowConfig implements WebServerFactoryCustomizer<UndertowServletWebServerFactory> {
-
-    @Autowired
-    private ServerProperties serverProperties;
-
-    /**
-     * 自定义 Undertow 配置
-     * <p>
-     * 主要配置内容包括：
-     * 1. 配置 WebSocket 部署信息
-     * 2. 在虚拟线程模式下使用虚拟线程池
-     * 3. 禁用不安全的 HTTP 方法，如 CONNECT、TRACE、TRACK
-     * </p>
-     *
-     * @param factory Undertow 的 Web 服务器工厂
-     */
-    @Override
-    public void customize(UndertowServletWebServerFactory factory) {
-        long bytes = serverProperties.getUndertow().getMaxHttpPostSize().toBytes();
-        factory.addBuilderCustomizers(builder -> {
-            builder.setServerOption(UndertowOptions.MULTIPART_MAX_ENTITY_SIZE, bytes);
-        });
-
-        factory.addDeploymentInfoCustomizers(deploymentInfo -> {
-            // 配置 WebSocket 部署信息，设置 WebSocket 使用的缓冲区池
-            WebSocketDeploymentInfo webSocketDeploymentInfo = new WebSocketDeploymentInfo();
-            webSocketDeploymentInfo.setBuffers(new DefaultByteBufferPool(true, 1024));
-            deploymentInfo.addServletContextAttribute("io.undertow.websockets.jsr.WebSocketDeploymentInfo", webSocketDeploymentInfo);
-
-            // 如果启用了虚拟线程，配置 Undertow 使用虚拟线程池
-            if (SpringUtils.isVirtual()) {
-                // 创建虚拟线程池，线程池前缀为 "undertow-"
-                VirtualThreadTaskExecutor executor = new VirtualThreadTaskExecutor("undertow-");
-                // 设置虚拟线程池为执行器和异步执行器
-                deploymentInfo.setExecutor(executor);
-                deploymentInfo.setAsyncExecutor(executor);
-            }
-
-            // 配置禁止某些不安全的 HTTP 方法（如 CONNECT、TRACE、TRACK）
-            deploymentInfo.addInitialHandlerChainWrapper(handler -> {
-                // 禁止三个方法 CONNECT/TRACE/TRACK 也是不安全的 避免爬虫骚扰
-                HttpString[] disallowedHttpMethods = {
-                    HttpString.tryFromString("CONNECT"),
-                    HttpString.tryFromString("TRACE"),
-                    HttpString.tryFromString("TRACK")
-                };
-                // 使用 DisallowedMethodsHandler 拦截并拒绝这些方法的请求
-                return new DisallowedMethodsHandler(handler, disallowedHttpMethods);
-            });
-        });
-    }
-
+// @AutoConfiguration
+public class UndertowConfig /* implements WebServerFactoryCustomizer<UndertowServletWebServerFactory> */ {
+    // Undertow 已被 Spring Boot 4 移除，相关配置已禁用
+    // 如需配置：
+    // - 虚拟线程: spring.threads.virtual.enabled=true (已在 application.yml 中启用)
+    // - HTTP 方法限制: 可通过 Spring Security 或 Tomcat 阀门配置
+    // - multipart 配置: spring.servlet.multipart.max-file-size (已在 application.yml 中配置)
 }

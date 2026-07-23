@@ -4,7 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
@@ -50,7 +50,7 @@ public class RedisConfig {
             om.setTimeZone(TimeZone.getDefault());
             om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
             // 指定序列化输入的类型，类必须是非final修饰的。序列化时将对象全类名一起保存下来
-            om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
+            om.activateDefaultTyping(om.getPolymorphicTypeValidator(), DefaultTyping.NON_FINAL);
             // org.apache.fory.logging.LoggerFactory 包别引入错了
             // LoggerFactory.useSlf4jLogging(true);
             // ForyCodec foryCodec = new ForyCodec();

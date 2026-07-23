@@ -1,6 +1,10 @@
 package org.dromara.common.json.config;
 
-import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -9,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.json.handler.BigNumberSerializer;
 import org.dromara.common.json.handler.CustomDateDeserializer;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 
 import java.math.BigDecimal;
@@ -26,12 +28,23 @@ import java.util.TimeZone;
  * @author Lion Li
  */
 @Slf4j
-@AutoConfiguration(before = JacksonAutoConfiguration.class)
+@AutoConfiguration
 public class JacksonConfig {
 
     @Bean
-    public Module registerJavaTimeModule() {
-        // 全局配置序列化返回 JSON 处理
+    public ObjectMapper objectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setTimeZone(TimeZone.getDefault());
+        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.registerModule(javaTimeModule());
+        log.info("初始化 jackson ObjectMapper 配置");
+        return objectMapper;
+    }
+
+    @Bean
+    public JavaTimeModule javaTimeModule() {
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         javaTimeModule.addSerializer(Long.class, BigNumberSerializer.INSTANCE);
         javaTimeModule.addSerializer(Long.TYPE, BigNumberSerializer.INSTANCE);
@@ -42,14 +55,6 @@ public class JacksonConfig {
         javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(formatter));
         javaTimeModule.addDeserializer(Date.class, new CustomDateDeserializer());
         return javaTimeModule;
-    }
-
-    @Bean
-    public Jackson2ObjectMapperBuilderCustomizer customizer() {
-        return builder -> {
-            builder.timeZone(TimeZone.getDefault());
-            log.info("初始化 jackson 配置");
-        };
     }
 
 }

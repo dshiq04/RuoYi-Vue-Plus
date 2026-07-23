@@ -5,20 +5,17 @@ server:
   servlet:
     # 应用的访问路径
     context-path: /
-  # undertow 配置
-  undertow:
-    # HTTP post内容的最大大小。当值为-1时，默认值为大小是无限的
-    max-http-post-size: 1GB
-    # 以下的配置会影响buffer,这些buffer会用于服务器连接的IO操作,有点类似netty的池化内存管理
-    # 每块buffer的空间大小,越小的空间被利用越充分
-    buffer-size: 512
-    # 是否分配的直接内存
-    direct-buffers: true
+  # tomcat 配置
+  tomcat:
+    # HTTP post内容的最大大小
+    max-http-form-post-size: 1GB
     threads:
-      # 设置IO线程数, 它主要执行非阻塞的任务,它们会负责多个连接, 默认设置每个CPU核心一个线程
-      io: 8
-      # 阻塞任务线程池, 当执行类似servlet请求阻塞操作, undertow会从这个线程池中取得线程,它的值设置取决于系统的负载
-      worker: 256
+      # 最大工作线程数
+      max: 256
+      # 最小工作线程数
+      min-spare: 10
+    # 连接超时时间
+    connection-timeout: 60000
 
 captcha:
   # 是否启用验证码校验
@@ -51,10 +48,18 @@ user:
 spring:
   application:
     name: RuoYi-Vue-Plus
+  main:
+    # 延迟初始化（提高启动速度）
+    lazy-initialization: false
+    # 允许 Bean 定义覆盖（Spring Boot 4 默认禁止）
+    allow-bean-definition-overriding: true
+  datasource:
+    # 延迟数据库连接获取（Spring Boot 4.1 新特性，提高启动速度）
+    connection-fetch: lazy
   threads:
     # 开启虚拟线程 仅jdk21可用
     virtual:
-      enabled: false
+      enabled: true
   task:
     execution:
       # 从 springboot 3.5 开始 spring自带线程池

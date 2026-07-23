@@ -14,9 +14,7 @@ import org.springframework.boot.context.metrics.buffering.BufferingApplicationSt
 public class DromaraApplication {
 
     public static void main(String[] args) {
-        SpringApplication application = new SpringApplication(DromaraApplication.class);
-        application.setApplicationStartup(new BufferingApplicationStartup(2048));
-        application.run(args);
+        SpringApplication.run(DromaraApplication.class, args);
         System.out.println("(♥◠‿◠)ﾉﾞ  RuoYi-Vue-Plus启动成功   ლ(´ڡ`ლ)ﾞ");
     }
 
