@@ -8,23 +8,28 @@ package org.dromara.common.core.constant;
 public interface CacheConstants {
 
     /**
+     * 登录令牌 redis key
+     */
+    String LOGIN_TOKEN_KEY = "LOGIN_TOKEN:";
+
+    /**
      * 在线用户 redis key
      */
-    String ONLINE_TOKEN_KEY = "online_tokens:";
+    String ONLINE_TOKEN_KEY = "ONLINE_TOKENS:";
 
     /**
      * 参数管理 cache key
      */
-    String SYS_CONFIG_KEY = "sys_config:";
+    String SYS_CONFIG_KEY = "SYS_CONFIG:";
 
     /**
      * 字典管理 cache key
      */
-    String SYS_DICT_KEY = "sys_dict:";
+    String SYS_DICT_KEY = "SYS_DICT:";
 
     /**
      * 登录账户密码错误次数 redis key
      */
-    String PWD_ERR_CNT_KEY = "pwd_err_cnt:";
+    String PWD_ERR_CNT_KEY = "PWD_ERR_CNT:";
 
 }

@@ -19,71 +19,71 @@ public interface CacheNames {
     /**
      * 演示案例
      */
-    String DEMO_CACHE = "demo:cache#60s#10m#20";
+    String DEMO_CACHE = "DEMO_CACHE#60s#10m#20";
 
     /**
      * 系统配置
      */
-    String SYS_CONFIG = "sys_config";
+    String SYS_CONFIG = "SYS_CONFIG";
 
     /**
      * 数据字典
      */
-    String SYS_DICT = "sys_dict";
+    String SYS_DICT = "SYS_DICT";
 
     /**
      * 数据字典类型
      */
-    String SYS_DICT_TYPE = "sys_dict_type";
+    String SYS_DICT_TYPE = "SYS_DICT_TYPE";
 
     /**
      * 租户
      */
-    String SYS_TENANT = GlobalConstants.GLOBAL_REDIS_KEY + "sys_tenant#30d";
+    String SYS_TENANT = GlobalConstants.GLOBAL_REDIS_KEY + "SYS_TENANT#30d";
 
     /**
      * 客户端
      */
-    String SYS_CLIENT = GlobalConstants.GLOBAL_REDIS_KEY + "sys_client#30d";
+    String SYS_CLIENT = GlobalConstants.GLOBAL_REDIS_KEY + "SYS_CLIENT#30d";
 
     /**
      * 用户账户
      */
-    String SYS_USER_NAME = "sys_user_name#30d";
+    String SYS_USER_NAME = "SYS_USER_NAME#30d";
 
     /**
      * 用户昵称
      */
-    String SYS_NICKNAME = "sys_nickname#30d";
+    String SYS_NICKNAME = "SYS_NICKNAME#30d";
 
     /**
      * 部门
      */
-    String SYS_DEPT = "sys_dept#30d";
+    String SYS_DEPT = "SYS_DEPT#30d";
 
     /**
      * OSS内容
      */
-    String SYS_OSS = "sys_oss#30d";
+    String SYS_OSS = "SYS_OSS#30d";
 
     /**
      * 角色自定义权限
      */
-    String SYS_ROLE_CUSTOM = "sys_role_custom#30d";
+    String SYS_ROLE_CUSTOM = "SYS_ROLE_CUSTOM#30d";
 
     /**
      * 部门及以下权限
      */
-    String SYS_DEPT_AND_CHILD = "sys_dept_and_child#30d";
+    String SYS_DEPT_AND_CHILD = "SYS_DEPT_AND_CHILD#30d";
 
     /**
      * OSS配置
      */
-    String SYS_OSS_CONFIG = GlobalConstants.GLOBAL_REDIS_KEY + "sys_oss_config";
+    String SYS_OSS_CONFIG = GlobalConstants.GLOBAL_REDIS_KEY + "SYS_OSS_CONFIG";
 
     /**
      * 在线用户
      */
-    String ONLINE_TOKEN = "online_tokens";
+    String ONLINE_TOKEN = "ONLINE_TOKENS";
 
 }
