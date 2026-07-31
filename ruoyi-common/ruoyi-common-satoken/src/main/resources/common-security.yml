@@ -2,6 +2,6 @@
 security:
   jwt:
     secret-key: abcdefghijklmnopqrstuvwxyz0123456789
-    expiration: 30
+    expiration: 10080
     token-prefix: "Bearer"
     header-name: Authorization

@@ -28,7 +28,7 @@ public class JwtUtils {
     @Value("${security.jwt.secret-key:abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789}")
     private String secretKey;
 
-    @Value("${security.jwt.expiration:30}")
+    @Value("${security.jwt.expiration:10080}")
     private long expiration;
 
     /**
