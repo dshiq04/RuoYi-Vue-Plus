@@ -9,8 +9,9 @@ public interface CacheConstants {
 
     /**
      * 登录令牌 redis key
+     * 使用GLOBAL前缀 避免被租户前缀隔离 令牌本身全局唯一
      */
-    String LOGIN_TOKEN_KEY = "LOGIN_TOKEN:";
+    String LOGIN_TOKEN_KEY = GlobalConstants.GLOBAL_REDIS_KEY + "LOGIN_TOKEN:";
 
     /**
      * 在线用户 redis key
