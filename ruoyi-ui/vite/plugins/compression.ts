@@ -55,6 +55,11 @@ function createCompressionPlugin(kind: CompressionKind): Plugin {
     },
     async closeBundle() {
       const outputDir = path.resolve(process.cwd(), config?.build.outDir ?? 'dist');
+      try {
+        await fs.access(outputDir);
+      } catch {
+        return;
+      }
       const files = await collectFiles(outputDir);
       const compressedEntries: Array<{ file: string; originalKb: string; compressedKb: string }> = [];
 
