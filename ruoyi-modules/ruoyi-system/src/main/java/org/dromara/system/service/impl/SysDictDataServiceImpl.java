@@ -11,13 +11,14 @@ import org.dromara.common.core.utils.MapstructUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
-import org.dromara.common.redis.utils.CacheUtils;
 import org.dromara.system.domain.SysDictData;
 import org.dromara.system.domain.bo.SysDictDataBo;
 import org.dromara.system.domain.vo.SysDictDataVo;
 import org.dromara.system.mapper.SysDictDataMapper;
 import org.dromara.system.service.ISysDictDataService;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -100,11 +101,10 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
      *
      * @param dictCodes 需要删除的字典数据ID
      */
+    @CacheEvict(cacheNames = CacheNames.SYS_DICT, allEntries = true)
     @Override
     public void deleteDictDataByIds(List<Long> dictCodes) {
-        List<SysDictData> list = baseMapper.selectByIds(dictCodes);
         baseMapper.deleteByIds(dictCodes);
-        list.forEach(x -> CacheUtils.evict(CacheNames.SYS_DICT, x.getDictType()));
     }
 
     /**
@@ -130,7 +130,10 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
      * @param bo 字典数据信息
      * @return 结果
      */
-    @CachePut(cacheNames = CacheNames.SYS_DICT, key = "#bo.dictType")
+    @Caching(
+        evict = @CacheEvict(cacheNames = CacheNames.SYS_DICT, allEntries = true),
+        put = @CachePut(cacheNames = CacheNames.SYS_DICT, key = "#bo.dictType")
+    )
     @Override
     public List<SysDictDataVo> updateDictData(SysDictDataBo bo) {
         SysDictData data = MapstructUtils.convert(bo, SysDictData.class);

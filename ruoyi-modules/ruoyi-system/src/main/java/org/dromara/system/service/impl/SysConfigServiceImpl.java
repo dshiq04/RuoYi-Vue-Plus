@@ -18,15 +18,16 @@ import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.json.utils.JsonUtils;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
-import org.dromara.common.redis.utils.CacheUtils;
 import org.dromara.common.tenant.helper.TenantHelper;
 import org.dromara.system.domain.SysConfig;
 import org.dromara.system.domain.bo.SysConfigBo;
 import org.dromara.system.domain.vo.SysConfigVo;
 import org.dromara.system.mapper.SysConfigMapper;
 import org.dromara.system.service.ISysConfigService;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -143,19 +144,17 @@ public class SysConfigServiceImpl implements ISysConfigService, ConfigService {
      * @param bo 参数配置信息
      * @return 结果
      */
-    @CachePut(cacheNames = CacheNames.SYS_CONFIG, key = "#bo.configKey")
+    @Caching(
+        evict = @CacheEvict(cacheNames = CacheNames.SYS_CONFIG, allEntries = true),
+        put = @CachePut(cacheNames = CacheNames.SYS_CONFIG, key = "#bo.configKey")
+    )
     @Override
     public String updateConfig(SysConfigBo bo) {
         int row = 0;
         SysConfig config = MapstructUtils.convert(bo, SysConfig.class);
         if (config.getConfigId() != null) {
-            SysConfig temp = baseMapper.selectById(config.getConfigId());
-            if (!StringUtils.equals(temp.getConfigKey(), config.getConfigKey())) {
-                CacheUtils.evict(CacheNames.SYS_CONFIG, temp.getConfigKey());
-            }
             row = baseMapper.updateById(config);
         } else {
-            CacheUtils.evict(CacheNames.SYS_CONFIG, config.getConfigKey());
             row = baseMapper.update(config, new LambdaQueryWrapper<SysConfig>()
                 .eq(SysConfig::getConfigKey, config.getConfigKey()));
         }
@@ -170,6 +169,7 @@ public class SysConfigServiceImpl implements ISysConfigService, ConfigService {
      *
      * @param configIds 需要删除的参数ID
      */
+    @CacheEvict(cacheNames = CacheNames.SYS_CONFIG, allEntries = true)
     @Override
     public void deleteConfigByIds(List<Long> configIds) {
         List<SysConfig> list = baseMapper.selectByIds(configIds);
@@ -177,7 +177,6 @@ public class SysConfigServiceImpl implements ISysConfigService, ConfigService {
             if (StringUtils.equals(SystemConstants.YES, config.getConfigType())) {
                 throw new ServiceException("内置参数【{}】不能删除", config.getConfigKey());
             }
-            CacheUtils.evict(CacheNames.SYS_CONFIG, config.getConfigKey());
         });
         baseMapper.deleteByIds(configIds);
     }
@@ -185,9 +184,9 @@ public class SysConfigServiceImpl implements ISysConfigService, ConfigService {
     /**
      * 重置参数缓存数据
      */
+    @CacheEvict(cacheNames = CacheNames.SYS_CONFIG, allEntries = true)
     @Override
     public void resetConfigCache() {
-        CacheUtils.clear(CacheNames.SYS_CONFIG);
     }
 
     /**

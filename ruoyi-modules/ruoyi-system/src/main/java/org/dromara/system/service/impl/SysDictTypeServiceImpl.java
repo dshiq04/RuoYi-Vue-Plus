@@ -19,7 +19,6 @@ import org.dromara.common.core.utils.StreamUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
-import org.dromara.common.redis.utils.CacheUtils;
 import org.dromara.system.domain.SysDictData;
 import org.dromara.system.domain.SysDictType;
 import org.dromara.system.domain.bo.SysDictTypeBo;
@@ -28,8 +27,10 @@ import org.dromara.system.domain.vo.SysDictTypeVo;
 import org.dromara.system.mapper.SysDictDataMapper;
 import org.dromara.system.mapper.SysDictTypeMapper;
 import org.dromara.system.service.ISysDictTypeService;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -136,6 +137,10 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService, DictService 
      *
      * @param dictIds 需要删除的字典ID
      */
+    @Caching(evict = {
+        @CacheEvict(cacheNames = CacheNames.SYS_DICT, allEntries = true),
+        @CacheEvict(cacheNames = CacheNames.SYS_DICT_TYPE, allEntries = true)
+    })
     @Override
     public void deleteDictTypeByIds(List<Long> dictIds) {
         List<SysDictType> list = baseMapper.selectByIds(dictIds);
@@ -147,19 +152,17 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService, DictService 
             }
         });
         baseMapper.deleteByIds(dictIds);
-        list.forEach(x -> {
-            CacheUtils.evict(CacheNames.SYS_DICT, x.getDictType());
-            CacheUtils.evict(CacheNames.SYS_DICT_TYPE, x.getDictType());
-        });
     }
 
     /**
      * 重置字典缓存数据
      */
+    @Caching(evict = {
+        @CacheEvict(cacheNames = CacheNames.SYS_DICT, allEntries = true),
+        @CacheEvict(cacheNames = CacheNames.SYS_DICT_TYPE, allEntries = true)
+    })
     @Override
     public void resetDictCache() {
-        CacheUtils.clear(CacheNames.SYS_DICT);
-        CacheUtils.clear(CacheNames.SYS_DICT_TYPE);
     }
 
     /**
@@ -186,7 +189,13 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService, DictService 
      * @param bo 字典类型信息
      * @return 结果
      */
-    @CachePut(cacheNames = CacheNames.SYS_DICT, key = "#bo.dictType")
+    @Caching(
+        evict = {
+            @CacheEvict(cacheNames = CacheNames.SYS_DICT, allEntries = true),
+            @CacheEvict(cacheNames = CacheNames.SYS_DICT_TYPE, allEntries = true)
+        },
+        put = @CachePut(cacheNames = CacheNames.SYS_DICT, key = "#bo.dictType")
+    )
     @Override
     @Transactional(rollbackFor = Exception.class)
     public List<SysDictDataVo> updateDictType(SysDictTypeBo bo) {
@@ -197,8 +206,6 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService, DictService 
             .eq(SysDictData::getDictType, oldDict.getDictType()));
         int row = baseMapper.updateById(dict);
         if (row > 0) {
-            CacheUtils.evict(CacheNames.SYS_DICT, oldDict.getDictType());
-            CacheUtils.evict(CacheNames.SYS_DICT_TYPE, oldDict.getDictType());
             return dictDataMapper.selectDictDataByType(dict.getDictType());
         }
         throw new ServiceException("操作失败");
