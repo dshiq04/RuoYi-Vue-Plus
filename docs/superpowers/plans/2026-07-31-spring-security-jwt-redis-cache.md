@@ -952,3 +952,10 @@ git commit -m "chore: 完成JWT+Redis鉴权与缓存注解化改造的编译测�
 **2. Placeholder scan：** 无 TBD/TODO；每个改动均含完整代码。
 
 **3. Type consistency：** `onLoginSuccess(LoginUser, String)` 在 Task 3 定义并在 5 个策略调用，签名一致；`CacheConstants.LOGIN_TOKEN_KEY` 在 Task 1 定义，Task 3/4/5 引用一致；`R.fail(int, String)` 已在 R.java 核实存在（第 70 行）；`jwtUtils.parseToken` 返回 `Map<String, Object>`，`payload.get("exp")` 为 `Number` 分支已处理。
+
+## 实施过程中发现并修复的问题（运行时验证后追加）
+
+1. **多租户 Redis 键前缀隔离导致令牌校验失败**：本项目启用 `tenant.enable=true`，Redisson 使用 `TenantKeyPrefixHandler` 给 Redis 键加 `<tenantId>:` 前缀。登录写令牌在 `TenantHelper.dynamic(tenantId, ...)` 内执行（键变为 `000000:LOGIN_TOKEN:<token>`），而过滤器读取时无租户上下文（键保持 `LOGIN_TOKEN:<token>`），键不匹配导致有效令牌一律 401。**修复**：将 `CacheConstants.LOGIN_TOKEN_KEY` 改为 `GlobalConstants.GLOBAL_REDIS_KEY + "LOGIN_TOKEN:"`（即 `GLOBAL:LOGIN_TOKEN:`）。`TenantKeyPrefixHandler` 对含 `GLOBAL:` 的键不做租户前缀，令牌本身全局唯一，过滤器无需租户上下文即可读写；`ONLINE_TOKENS` 保持租户隔离（在线用户列表按租户区分）。该模式与现有 `CacheNames.SYS_CLIENT`/`SYS_OSS_CONFIG` 一致。
+2. **本地仓库陈旧 jar 导致运行旧代码**：本机 Maven 本地仓库实际为 `E:\Maven_files`。`mvn spring-boot:run` 在 ruoyi-admin 单模块运行时从本地仓库解析兄弟模块 jar，需先 `mvn install` 才会使用新编译产物。
+3. **无权限返回形态**：`@PreAuthorize` 无权限时由 `GlobalExceptionHandler` 捕获并返回业务码 403（HTTP 200 + `{"code":403,...}`），前端按业务码弹出错误提示，符合 RuoYi 约定，满足"报错403并提示用户"。
+
