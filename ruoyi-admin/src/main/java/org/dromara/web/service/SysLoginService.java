@@ -4,7 +4,11 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.useragent.UserAgent;
+import cn.hutool.http.useragent.UserAgentUtil;
 import com.baomidou.lock.annotation.Lock4j;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.constant.CacheConstants;
@@ -13,11 +17,13 @@ import org.dromara.common.core.constant.SystemConstants;
 import org.dromara.common.core.constant.TenantConstants;
 import org.dromara.common.core.domain.dto.PostDTO;
 import org.dromara.common.core.domain.dto.RoleDTO;
+import org.dromara.common.core.domain.dto.UserOnlineDTO;
 import org.dromara.common.core.domain.model.LoginUser;
 import org.dromara.common.core.enums.LoginType;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.exception.user.UserException;
 import org.dromara.common.core.utils.*;
+import org.dromara.common.core.utils.ip.AddressUtils;
 import org.dromara.common.log.event.LogininforEvent;
 import org.dromara.common.mybatis.helper.DataPermissionHelper;
 import org.dromara.common.redis.utils.RedisUtils;
@@ -102,6 +108,11 @@ public class SysLoginService {
     public void logout() {
         try {
             LoginUser loginUser = LoginHelper.getLoginUser();
+            String token = resolveToken(ServletUtils.getRequest());
+            if (ObjectUtil.isNull(loginUser) && StrUtil.isNotBlank(token)) {
+                // 认证上下文为空时 尝试从redis取用户信息
+                loginUser = RedisUtils.getCacheObject(CacheConstants.LOGIN_TOKEN_KEY + token);
+            }
             if (ObjectUtil.isNull(loginUser)) {
                 return;
             }
@@ -109,11 +120,67 @@ public class SysLoginService {
                 // 超级管理员 登出清除动态租户
                 TenantHelper.clearDynamic();
             }
-            recordLogininfor(loginUser.getTenantId(), loginUser.getUsername(), Constants.LOGOUT, MessageUtils.message("user.logout.success"));
+            String tenantId = loginUser.getTenantId();
+            TenantHelper.dynamic(tenantId, () -> {
+                // 删除登录令牌与在线用户信息
+                RedisUtils.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + token);
+                RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + token);
+            });
+            recordLogininfor(tenantId, loginUser.getUsername(), Constants.LOGOUT, MessageUtils.message("user.logout.success"));
         } catch (Exception ignored) {
         } finally {
             SecurityContextHolder.clearContext();
         }
+    }
+
+    /**
+     * 从请求头或请求参数中解析JWT令牌
+     */
+    private String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (StrUtil.isNotBlank(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        bearerToken = request.getParameter("Authorization");
+        if (StrUtil.isNotBlank(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+    /**
+     * 登录成功后处理：存储令牌与用户/角色权限到redis、记录在线用户、写入登录日志、更新最近登录信息
+     *
+     * @param loginUser 登录用户
+     * @param token     JWT令牌
+     */
+    public void onLoginSuccess(LoginUser loginUser, String token) {
+        loginUser.setToken(token);
+        HttpServletRequest request = ServletUtils.getRequest();
+        UserAgent userAgent = UserAgentUtil.parse(request.getHeader("User-Agent"));
+        String ip = ServletUtils.getClientIP();
+        // 1. 令牌与用户/角色权限存入redis 有效期7天
+        // 2. 在线用户信息存入redis 有效期7天
+        TenantHelper.dynamic(loginUser.getTenantId(), () -> {
+            RedisUtils.setCacheObject(CacheConstants.LOGIN_TOKEN_KEY + token, loginUser, Duration.ofDays(7));
+            UserOnlineDTO dto = new UserOnlineDTO();
+            dto.setIpaddr(ip);
+            dto.setLoginLocation(AddressUtils.getRealAddressByIP(ip));
+            dto.setBrowser(userAgent.getBrowser().getName());
+            dto.setOs(userAgent.getOs().getName());
+            dto.setLoginTime(System.currentTimeMillis());
+            dto.setTokenId(token);
+            dto.setUserName(loginUser.getUsername());
+            dto.setClientKey(loginUser.getClientKey());
+            dto.setDeviceType(loginUser.getDeviceType());
+            dto.setDeptName(loginUser.getDeptName());
+            RedisUtils.setCacheObject(CacheConstants.ONLINE_TOKEN_KEY + token, dto, Duration.ofDays(7));
+        });
+        // 3. 记录登录日志
+        recordLogininfor(loginUser.getTenantId(), loginUser.getUsername(), Constants.LOGIN_SUCCESS, MessageUtils.message("user.login.success"));
+        // 4. 更新最近登录信息
+        recordLoginInfo(loginUser.getUserId(), ip);
+        log.info("user doLogin, userId:{}, token:***{}", loginUser.getUserId(), StringUtils.right(token, 8));
     }
 
     /**

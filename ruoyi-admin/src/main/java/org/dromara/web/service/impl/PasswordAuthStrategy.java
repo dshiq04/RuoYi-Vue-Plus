@@ -72,6 +72,8 @@ public class PasswordAuthStrategy implements IAuthStrategy {
         loginUser.setDeviceType(client.getDeviceType());
         LoginHelper.login(loginUser);
         String token = jwtUtils.createToken(loginUser);
+        // 登录成功后写入redis令牌与权限
+        loginService.onLoginSuccess(loginUser, token);
 
         LoginVo loginVo = new LoginVo();
         loginVo.setAccessToken(token);
