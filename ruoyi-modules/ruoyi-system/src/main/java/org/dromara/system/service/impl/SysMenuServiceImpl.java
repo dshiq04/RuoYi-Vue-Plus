@@ -99,6 +99,16 @@ public class SysMenuServiceImpl implements ISysMenuService {
     }
 
     /**
+     * 查询系统中所有菜单权限标识
+     *
+     * @return 权限列表
+     */
+    @Override
+    public Set<String> selectAllMenuPerms() {
+        return baseMapper.selectAllMenuPerms();
+    }
+
+    /**
      * 根据角色ID查询权限
      *
      * @param roleId 角色ID

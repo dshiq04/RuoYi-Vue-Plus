@@ -23,7 +23,6 @@
         <therapi-javadoc.version>0.15.0</therapi-javadoc.version>
         <fastexcel.version>1.3.0</fastexcel.version>
         <velocity.version>2.3</velocity.version>
-        <satoken.version>1.45.0</satoken.version>
         <mybatis-plus.version>3.5.17</mybatis-plus.version>
         <p6spy.version>3.9.1</p6spy.version>
         <hutool.version>5.8.43</hutool.version>
@@ -36,7 +35,6 @@
         <mapstruct-plus.lombok.version>0.2.0</mapstruct-plus.lombok.version>
         <lombok.version>1.18.44</lombok.version>
         <bouncycastle.version>1.83</bouncycastle.version>
-        <justauth.version>1.16.7</justauth.version>
         <!-- 离线IP地址定位库 -->
         <ip2region.version>3.3.7</ip2region.version>
         <!-- OSS 配置 -->
@@ -152,28 +150,17 @@
                 <version>${velocity.version}</version>
             </dependency>
 
-            <!-- Sa-Token 权限认证, 在线文档：http://sa-token.dev33.cn/ -->
+            <!-- Spring Security -->
             <dependency>
-                <groupId>cn.dev33</groupId>
-                <artifactId>sa-token-spring-boot4-starter</artifactId>
-                <version>${satoken.version}</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-security</artifactId>
+                <version>${spring-boot.version}</version>
             </dependency>
-            <!-- Sa-Token 整合 jwt -->
+            <!-- Spring Security OAuth2 Resource Server -->
             <dependency>
-                <groupId>cn.dev33</groupId>
-                <artifactId>sa-token-jwt</artifactId>
-                <version>${satoken.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>cn.hutool</groupId>
-                        <artifactId>hutool-all</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>cn.dev33</groupId>
-                <artifactId>sa-token-core</artifactId>
-                <version>${satoken.version}</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+                <version>${spring-boot.version}</version>
             </dependency>
 
             <!-- dynamic-datasource 多数据源-->
@@ -294,13 +281,6 @@
                 <groupId>org.dromara.warm</groupId>
                 <artifactId>warm-flow-plugin-ui-sb-web</artifactId>
                 <version>${warm-flow.version}</version>
-            </dependency>
-
-            <!-- JustAuth 的依赖配置-->
-            <dependency>
-                <groupId>me.zhyd.oauth</groupId>
-                <artifactId>JustAuth</artifactId>
-                <version>${justauth.version}</version>
             </dependency>
 
             <!-- 离线IP地址定位库 ip2region -->

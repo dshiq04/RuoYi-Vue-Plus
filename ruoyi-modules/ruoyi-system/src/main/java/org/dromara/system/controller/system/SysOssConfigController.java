@@ -1,6 +1,6 @@
 package org.dromara.system.controller.system;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
@@ -40,7 +40,7 @@ public class SysOssConfigController extends BaseController {
     /**
      * 查询对象存储配置列表
      */
-    @SaCheckPermission("system:ossConfig:list")
+    @PreAuthorize("hasAuthority('system:ossConfig:list')")
     @GetMapping("/list")
     public TableDataInfo<SysOssConfigVo> list(@Validated(QueryGroup.class) SysOssConfigBo bo, PageQuery pageQuery) {
         return ossConfigService.queryPageList(bo, pageQuery);
@@ -51,7 +51,7 @@ public class SysOssConfigController extends BaseController {
      *
      * @param ossConfigId OSS配置ID
      */
-    @SaCheckPermission("system:ossConfig:list")
+    @PreAuthorize("hasAuthority('system:ossConfig:list')")
     @GetMapping("/{ossConfigId}")
     public R<SysOssConfigVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long ossConfigId) {
@@ -61,7 +61,7 @@ public class SysOssConfigController extends BaseController {
     /**
      * 新增对象存储配置
      */
-    @SaCheckPermission("system:ossConfig:add")
+    @PreAuthorize("hasAuthority('system:ossConfig:add')")
     @Log(title = "对象存储配置", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
@@ -72,7 +72,7 @@ public class SysOssConfigController extends BaseController {
     /**
      * 修改对象存储配置
      */
-    @SaCheckPermission("system:ossConfig:edit")
+    @PreAuthorize("hasAuthority('system:ossConfig:edit')")
     @Log(title = "对象存储配置", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -85,7 +85,7 @@ public class SysOssConfigController extends BaseController {
      *
      * @param ossConfigIds OSS配置ID串
      */
-    @SaCheckPermission("system:ossConfig:remove")
+    @PreAuthorize("hasAuthority('system:ossConfig:remove')")
     @Log(title = "对象存储配置", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ossConfigIds}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
@@ -96,7 +96,7 @@ public class SysOssConfigController extends BaseController {
     /**
      * 状态修改
      */
-    @SaCheckPermission("system:ossConfig:edit")
+    @PreAuthorize("hasAuthority('system:ossConfig:edit')")
     @Log(title = "对象存储状态修改", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping("/changeStatus")

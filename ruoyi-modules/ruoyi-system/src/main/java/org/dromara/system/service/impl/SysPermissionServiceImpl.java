@@ -53,7 +53,11 @@ public class SysPermissionServiceImpl implements ISysPermissionService, Permissi
         Set<String> perms = new HashSet<>();
         // 管理员拥有所有权限
         if (LoginHelper.isSuperAdmin(userId)) {
+            // 保留通配符，供前端 hasPermi('*:*:*') 兼容判断使用
             perms.add("*:*:*");
+            // Spring Security 的 hasAuthority 为精确匹配，不支持通配符，
+            // 因此需要加载 sys_menu 中全部权限标识，保证 @PreAuthorize 校验通过
+            perms.addAll(menuService.selectAllMenuPerms());
         } else {
             perms.addAll(menuService.selectMenuPermsByUserId(userId));
         }

@@ -27,26 +27,26 @@ public class SaTokenAnnotationMetadataJavadocResolver extends AbstractMetadataJa
      */
     public static final Supplier<SaTokenSecurityMetadata> DEFAULT_METADATA_PROVIDER = SaTokenSecurityMetadata::new;
 
-    private static final String BASE_CLASS_NAME = "cn.dev33.satoken.annotation";
-    private static final String SA_CHECK_ROLE_CLASS_NAME = BASE_CLASS_NAME + ".SaCheckRole";
-    private static final String SA_CHECK_PERMISSION_CLASS_NAME = BASE_CLASS_NAME + ".SaCheckPermission";
-    private static final String SA_IGNORE_CLASS_NAME = BASE_CLASS_NAME + ".SaIgnore";
-    private static final String SA_CHECK_LOGIN_NAME = BASE_CLASS_NAME + ".SaCheckLogin";
+    private static final String BASE_CLASS_NAME = "org.springframework.security.access.prepost";
+    private static final String PRE_AUTHORIZE_CLASS_NAME = BASE_CLASS_NAME + ".PreAuthorize";
+    private static final String SECURED_CLASS_NAME = "org.springframework.security.access.annotation.Secured";
+    private static final String PERMIT_ALL_CLASS_NAME = "jakarta.annotation.security.PermitAll";
+    private static final String ROLES_ALLOWED_CLASS_NAME = "jakarta.annotation.security.RolesAllowed";
 
-    private static final Class<? extends Annotation> SA_CHECK_ROLE_CLASS;
-    private static final Class<? extends Annotation> SA_CHECK_PERMISSION_CLASS;
-    private static final Class<? extends Annotation> SA_IGNORE_CLASS;
-    private static final Class<? extends Annotation> SA_CHECK_LOGIN_CLASS;
+    private static final Class<? extends Annotation> PRE_AUTHORIZE_CLASS;
+    private static final Class<? extends Annotation> SECURED_CLASS;
+    private static final Class<? extends Annotation> PERMIT_ALL_CLASS;
+    private static final Class<? extends Annotation> ROLES_ALLOWED_CLASS;
 
 
     static {
         // 通过类加载器去加载注解类Class实例
-        SA_CHECK_ROLE_CLASS = (Class<? extends Annotation>) ClassLoaderUtil.loadClass(SA_CHECK_ROLE_CLASS_NAME, false);
-        SA_CHECK_PERMISSION_CLASS = (Class<? extends Annotation>) ClassLoaderUtil.loadClass(SA_CHECK_PERMISSION_CLASS_NAME, false);
-        SA_IGNORE_CLASS = (Class<? extends Annotation>) ClassLoaderUtil.loadClass(SA_IGNORE_CLASS_NAME, false);
-        SA_CHECK_LOGIN_CLASS = (Class<? extends Annotation>) ClassLoaderUtil.loadClass(SA_CHECK_LOGIN_NAME, false);
+        PRE_AUTHORIZE_CLASS = (Class<? extends Annotation>) ClassLoaderUtil.loadClass(PRE_AUTHORIZE_CLASS_NAME, false);
+        SECURED_CLASS = (Class<? extends Annotation>) ClassLoaderUtil.loadClass(SECURED_CLASS_NAME, false);
+        PERMIT_ALL_CLASS = (Class<? extends Annotation>) ClassLoaderUtil.loadClass(PERMIT_ALL_CLASS_NAME, false);
+        ROLES_ALLOWED_CLASS = (Class<? extends Annotation>) ClassLoaderUtil.loadClass(ROLES_ALLOWED_CLASS_NAME, false);
         if (log.isDebugEnabled()) {
-            log.debug("SaTokenAnnotationJavadocResolver init success, load annotation class: {}", List.of(SA_CHECK_ROLE_CLASS, SA_CHECK_PERMISSION_CLASS, SA_IGNORE_CLASS, SA_CHECK_LOGIN_CLASS));
+            log.debug("SecurityAnnotationJavadocResolver init success, load annotation class: {}", List.of(PRE_AUTHORIZE_CLASS, SECURED_CLASS, PERMIT_ALL_CLASS, ROLES_ALLOWED_CLASS));
         }
     }
 
@@ -68,75 +68,76 @@ public class SaTokenAnnotationMetadataJavadocResolver extends AbstractMetadataJa
 
     @Override
     public boolean supports(HandlerMethod handlerMethod) {
-        return hasAnnotation(handlerMethod, SA_CHECK_ROLE_CLASS) || hasAnnotation(handlerMethod, SA_CHECK_PERMISSION_CLASS) || hasAnnotation(handlerMethod, SA_IGNORE_CLASS);
+        return hasAnnotation(handlerMethod, PRE_AUTHORIZE_CLASS) || hasAnnotation(handlerMethod, SECURED_CLASS) || hasAnnotation(handlerMethod, PERMIT_ALL_CLASS) || hasAnnotation(handlerMethod, ROLES_ALLOWED_CLASS);
     }
 
     @Override
     public String resolve(HandlerMethod handlerMethod, Operation operation, SaTokenSecurityMetadata metadata) {
         // 检查是否忽略校验
-        if(hasAnnotation(handlerMethod, SA_IGNORE_CLASS_NAME)){
+        if(hasAnnotation(handlerMethod, PERMIT_ALL_CLASS_NAME)){
             metadata.setIgnore(true);
             return metadata.toMarkdownString();
         }
 
-        // 解析权限校验
-        resolvePermissionCheck(handlerMethod, metadata);
+        // 解析权限校验(@PreAuthorize)
+        resolvePreAuthorize(handlerMethod, metadata);
 
-        // 解析角色校验
+        // 解析角色校验(@Secured / @RolesAllowed)
         resolveRoleCheck(handlerMethod, metadata);
         return metadata.toMarkdownString();
     }
 
     /**
-     * 解析权限校验
+     * 解析权限校验(@PreAuthorize)
      */
-    private void resolvePermissionCheck(HandlerMethod handlerMethod, SaTokenSecurityMetadata metadata) {
-        // 解析获取方法上的注解角色信息
-        if (hasMethodAnnotation(handlerMethod, SA_CHECK_PERMISSION_CLASS_NAME)) {
-            Map<String, Object> annotationValueMap = getMethodAnnotationValueMap(handlerMethod, SA_CHECK_PERMISSION_CLASS);
-            resolvePermissionAnnotation(metadata, annotationValueMap);
+    private void resolvePreAuthorize(HandlerMethod handlerMethod, SaTokenSecurityMetadata metadata) {
+        // 解析获取方法上的注解权限信息
+        if (hasMethodAnnotation(handlerMethod, PRE_AUTHORIZE_CLASS_NAME)) {
+            Map<String, Object> annotationValueMap = getMethodAnnotationValueMap(handlerMethod, PRE_AUTHORIZE_CLASS);
+            resolvePreAuthorizeAnnotation(metadata, annotationValueMap);
         }
-        // 解析获取类上的注解角色信息
-        if (hasClassAnnotation(handlerMethod, SA_CHECK_PERMISSION_CLASS_NAME)) {
-            Map<String, Object> annotationValueMap = getClassAnnotationValueMap(handlerMethod, SA_CHECK_PERMISSION_CLASS);
-            resolvePermissionAnnotation(metadata, annotationValueMap);
+        // 解析获取类上的注解权限信息
+        if (hasClassAnnotation(handlerMethod, PRE_AUTHORIZE_CLASS_NAME)) {
+            Map<String, Object> annotationValueMap = getClassAnnotationValueMap(handlerMethod, PRE_AUTHORIZE_CLASS);
+            resolvePreAuthorizeAnnotation(metadata, annotationValueMap);
         }
     }
 
     /**
-     * 解析权限注解
+     * 解析@PreAuthorize注解
      */
-    private void resolvePermissionAnnotation(SaTokenSecurityMetadata metadata, Map<String, Object> annotationValueMap) {
+    private void resolvePreAuthorizeAnnotation(SaTokenSecurityMetadata metadata, Map<String, Object> annotationValueMap) {
         try {
-            // 反射获取注解属性
-            Object value = annotationValueMap.get( "value");
-            Object mode = annotationValueMap.get( "mode");
-            Object type = annotationValueMap.get( "type");
-            Object orRole = annotationValueMap.get( "orRole");
-
-            String[] values = Convert.toStrArray(value);
-            String modeStr = mode != null ? mode.toString() : "AND";
-            String typeStr = type != null ? type.toString() : "";
-            String[] orRoles = Convert.toStrArray(orRole);
-
-            metadata.addPermission(values, modeStr, typeStr, orRoles);
+            Object value = annotationValueMap.get("value");
+            if (value != null) {
+                String spelExpr = value.toString();
+                metadata.addPermission(new String[]{spelExpr}, "AND", "", new String[]{});
+            }
         } catch (Exception ignore) {
             // 忽略解析错误
         }
     }
 
     /**
-     * 解析角色校验
+     * 解析角色校验(@Secured / @RolesAllowed)
      */
     private void resolveRoleCheck(HandlerMethod handlerMethod, SaTokenSecurityMetadata metadata) {
-        // 解析获取方法上的注解角色信息
-        if (hasMethodAnnotation(handlerMethod, SA_CHECK_ROLE_CLASS_NAME)) {
-            Map<String, Object> annotationValueMap = getMethodAnnotationValueMap(handlerMethod, SA_CHECK_ROLE_CLASS);
+        // 解析@Secured
+        if (hasMethodAnnotation(handlerMethod, SECURED_CLASS_NAME)) {
+            Map<String, Object> annotationValueMap = getMethodAnnotationValueMap(handlerMethod, SECURED_CLASS);
             resolveRoleAnnotation(metadata, annotationValueMap);
         }
-        // 解析获取类上的注解角色信息
-        if (hasClassAnnotation(handlerMethod, SA_CHECK_ROLE_CLASS_NAME)) {
-            Map<String, Object> annotationValueMap = getClassAnnotationValueMap(handlerMethod, SA_CHECK_ROLE_CLASS);
+        if (hasClassAnnotation(handlerMethod, SECURED_CLASS_NAME)) {
+            Map<String, Object> annotationValueMap = getClassAnnotationValueMap(handlerMethod, SECURED_CLASS);
+            resolveRoleAnnotation(metadata, annotationValueMap);
+        }
+        // 解析@RolesAllowed
+        if (hasMethodAnnotation(handlerMethod, ROLES_ALLOWED_CLASS_NAME)) {
+            Map<String, Object> annotationValueMap = getMethodAnnotationValueMap(handlerMethod, ROLES_ALLOWED_CLASS);
+            resolveRoleAnnotation(metadata, annotationValueMap);
+        }
+        if (hasClassAnnotation(handlerMethod, ROLES_ALLOWED_CLASS_NAME)) {
+            Map<String, Object> annotationValueMap = getClassAnnotationValueMap(handlerMethod, ROLES_ALLOWED_CLASS);
             resolveRoleAnnotation(metadata, annotationValueMap);
         }
     }
@@ -146,16 +147,9 @@ public class SaTokenAnnotationMetadataJavadocResolver extends AbstractMetadataJa
      */
     private void resolveRoleAnnotation(SaTokenSecurityMetadata metadata, Map<String, Object> annotationValueMap) {
         try {
-            // 反射获取注解属性
             Object value = annotationValueMap.get("value");
-            Object mode = annotationValueMap.get("mode");
-            Object type = annotationValueMap.get("type");
-
             String[] values = Convert.toStrArray(value);
-            String modeStr = mode != null ? mode.toString() : "AND";
-            String typeStr = type != null ? type.toString() : "";
-
-            metadata.addRole(values, modeStr, typeStr);
+            metadata.addRole(values, "AND", "");
         } catch (Exception ignore) {
             // 忽略解析错误
         }

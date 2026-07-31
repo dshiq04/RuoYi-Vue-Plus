@@ -1,12 +1,8 @@
 package org.dromara.system.controller.system;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
-import cn.dev33.satoken.annotation.SaCheckRole;
-import cn.dev33.satoken.annotation.SaMode;
 import cn.hutool.core.lang.tree.Tree;
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.constant.SystemConstants;
-import org.dromara.common.core.constant.TenantConstants;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
@@ -14,6 +10,7 @@ import org.dromara.common.log.annotation.Log;
 import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.common.web.core.BaseController;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.dromara.system.domain.SysMenu;
 import org.dromara.system.domain.bo.SysMenuBo;
 import org.dromara.system.domain.vo.RouterVo;
@@ -52,11 +49,7 @@ public class SysMenuController extends BaseController {
     /**
      * 获取菜单列表
      */
-    @SaCheckRole(value = {
-        TenantConstants.SUPER_ADMIN_ROLE_KEY,
-        TenantConstants.TENANT_ADMIN_ROLE_KEY
-    }, mode = SaMode.OR)
-    @SaCheckPermission("system:menu:list")
+    @PreAuthorize("hasAnyRole('superadmin', 'admin') and hasAuthority('system:menu:list')")
     @GetMapping("/list")
     public R<List<SysMenuVo>> list(SysMenuBo menu) {
         List<SysMenuVo> menus = menuService.selectMenuList(menu, LoginHelper.getUserId());
@@ -68,11 +61,7 @@ public class SysMenuController extends BaseController {
      *
      * @param menuId 菜单ID
      */
-    @SaCheckRole(value = {
-        TenantConstants.SUPER_ADMIN_ROLE_KEY,
-        TenantConstants.TENANT_ADMIN_ROLE_KEY
-    }, mode = SaMode.OR)
-    @SaCheckPermission("system:menu:query")
+    @PreAuthorize("hasAnyRole('superadmin', 'admin') and hasAuthority('system:menu:query')")
     @GetMapping(value = "/{menuId}")
     public R<SysMenuVo> getInfo(@PathVariable Long menuId) {
         return R.ok(menuService.selectMenuById(menuId));
@@ -81,7 +70,7 @@ public class SysMenuController extends BaseController {
     /**
      * 获取菜单下拉树列表
      */
-    @SaCheckPermission("system:menu:query")
+    @PreAuthorize("hasAuthority('system:menu:query')")
     @GetMapping("/treeselect")
     public R<List<Tree<Long>>> treeselect(SysMenuBo menu) {
         List<SysMenuVo> menus = menuService.selectMenuList(menu, LoginHelper.getUserId());
@@ -93,7 +82,7 @@ public class SysMenuController extends BaseController {
      *
      * @param roleId 角色ID
      */
-    @SaCheckPermission("system:menu:query")
+    @PreAuthorize("hasAuthority('system:menu:query')")
     @GetMapping(value = "/roleMenuTreeselect/{roleId}")
     public R<MenuTreeSelectVo> roleMenuTreeselect(@PathVariable("roleId") Long roleId) {
         List<SysMenuVo> menus = menuService.selectMenuList(LoginHelper.getUserId());
@@ -108,8 +97,7 @@ public class SysMenuController extends BaseController {
      *
      * @param packageId 租户套餐ID
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:menu:query")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:menu:query')")
     @GetMapping(value = "/tenantPackageMenuTreeselect/{packageId}")
     public R<MenuTreeSelectVo> tenantPackageMenuTreeselect(@PathVariable("packageId") Long packageId) {
         List<SysMenuVo> menus = menuService.selectMenuList(LoginHelper.getUserId());
@@ -127,8 +115,7 @@ public class SysMenuController extends BaseController {
     /**
      * 新增菜单
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:menu:add")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:menu:add')")
     @Log(title = "菜单管理", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping
@@ -146,8 +133,7 @@ public class SysMenuController extends BaseController {
     /**
      * 修改菜单
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:menu:edit")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:menu:edit')")
     @Log(title = "菜单管理", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping
@@ -169,8 +155,7 @@ public class SysMenuController extends BaseController {
      *
      * @param menuId 菜单ID
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:menu:remove")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:menu:remove')")
     @Log(title = "菜单管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{menuId}")
     public R<Void> remove(@PathVariable("menuId") Long menuId) {
@@ -197,8 +182,7 @@ public class SysMenuController extends BaseController {
      *
      * @param menuIds 菜单ID串
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:menu:remove")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:menu:remove')")
     @Log(title = "菜单管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/cascade/{menuIds}")
     public R<Void> remove(@PathVariable("menuIds") Long[] menuIds) {

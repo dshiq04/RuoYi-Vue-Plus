@@ -1,108 +1,103 @@
 package org.dromara.common.security.config;
 
-import cn.dev33.satoken.exception.NotLoginException;
-import cn.dev33.satoken.filter.SaServletFilter;
-import cn.dev33.satoken.httpauth.basic.SaHttpBasicUtil;
-import cn.dev33.satoken.interceptor.SaInterceptor;
-import cn.dev33.satoken.router.SaRouter;
-import cn.dev33.satoken.stp.StpUtil;
-import cn.dev33.satoken.util.SaResult;
-import cn.dev33.satoken.util.SaTokenConsts;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.hutool.http.HttpStatus;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.dromara.common.core.constant.HttpStatus;
-import org.dromara.common.core.utils.ServletUtils;
-import org.dromara.common.core.utils.SpringUtils;
+import org.dromara.common.core.domain.R;
 import org.dromara.common.core.utils.StringUtils;
-import org.dromara.common.satoken.utils.LoginHelper;
+import org.dromara.common.satoken.utils.JwtUtils;
 import org.dromara.common.security.config.properties.SecurityProperties;
 import org.dromara.common.security.handler.AllUrlHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-/**
- * 权限安全配置
- *
- * @author Lion Li
- */
+import java.util.List;
 
 @Slf4j
 @AutoConfiguration
+@EnableWebSecurity
+@EnableMethodSecurity
 @EnableConfigurationProperties(SecurityProperties.class)
 @RequiredArgsConstructor
-public class SecurityConfig implements WebMvcConfigurer {
+public class SecurityConfig {
 
     private final SecurityProperties securityProperties;
+    private final JwtUtils jwtUtils;
     @Value("${sse.path}")
     private String ssePath;
 
-    /**
-     * 注册sa-token的拦截器
-     */
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        // 注册路由拦截器，自定义验证规则
-        registry.addInterceptor(new SaInterceptor(handler -> {
-                AllUrlHandler allUrlHandler = SpringUtils.getBean(AllUrlHandler.class);
-                // 登录验证 -- 排除多个路径
-                SaRouter
-                    // 获取所有的
-                    .match(allUrlHandler.getUrls())
-                    // 对未排除的路径进行检查
-                    .check(() -> {
-                        HttpServletRequest request = ServletUtils.getRequest();
-                        HttpServletResponse response = ServletUtils.getResponse();
-                        response.setContentType(SaTokenConsts.CONTENT_TYPE_APPLICATION_JSON);
-                        // 检查是否登录 是否有token
-                        StpUtil.checkLogin();
-
-                        // 检查 header 与 param 里的 clientid 与 token 里的是否一致
-                        String headerCid = request.getHeader(LoginHelper.CLIENT_KEY);
-                        String paramCid = ServletUtils.getParameter(LoginHelper.CLIENT_KEY);
-                        String clientId = StpUtil.getExtra(LoginHelper.CLIENT_KEY).toString();
-                        if (!StringUtils.equalsAny(clientId, headerCid, paramCid)) {
-                            // token 无效
-                            throw NotLoginException.newInstance(StpUtil.getLoginType(),
-                                "-100", "客户端ID与Token不匹配",
-                                StpUtil.getTokenValue());
-                        }
-
-                        // 有效率影响 用于临时测试
-                        // if (log.isDebugEnabled()) {
-                        //     log.info("剩余有效时间: {}", StpUtil.getTokenTimeout());
-                        //     log.info("临时有效时间: {}", StpUtil.getTokenActivityTimeout());
-                        // }
-
-                    });
-            })).addPathPatterns("/**")
-            // 排除不需要拦截的路径
-            .excludePathPatterns(securityProperties.getExcludes())
-            .excludePathPatterns(ssePath);
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtUtils);
     }
 
     /**
-     * 对 actuator 健康检查接口 做账号密码鉴权
+     * 防止JwtAuthenticationFilter被Spring Boot注册为Servlet Filter
+     * 只允许其在Spring Security过滤器链中使用
      */
     @Bean
-    public SaServletFilter getSaServletFilter() {
-        String username = SpringUtils.getProperty("spring.boot.admin.client.username");
-        String password = SpringUtils.getProperty("spring.boot.admin.client.password");
-        return new SaServletFilter()
-            .addInclude("/actuator", "/actuator/**")
-            .setAuth(obj -> {
-                SaHttpBasicUtil.check(username + ":" + password);
-            })
-            .setError(e -> {
-                HttpServletResponse response = ServletUtils.getResponse();
-                response.setContentType(SaTokenConsts.CONTENT_TYPE_APPLICATION_JSON);
-                return SaResult.error(e.getMessage()).setCode(HttpStatus.UNAUTHORIZED);
-            });
+    public FilterRegistrationBean<JwtAuthenticationFilter> jwtAuthenticationFilterRegistration(JwtAuthenticationFilter filter) {
+        FilterRegistrationBean<JwtAuthenticationFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
     }
 
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+        http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> {
+                auth.requestMatchers(securityProperties.getExcludes()).permitAll();
+                auth.requestMatchers(ssePath).permitAll();
+                auth.anyRequest().authenticated();
+            })
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write(new ObjectMapper().writeValueAsString(
+                        R.fail(HttpStatus.HTTP_UNAUTHORIZED, "认证失败，无法访问系统资源")
+                    ));
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.getWriter().write(new ObjectMapper().writeValueAsString(
+                        R.fail(HttpStatus.HTTP_FORBIDDEN, "没有访问权限，请联系管理员授权")
+                    ));
+                })
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 }

@@ -1,6 +1,6 @@
 package org.dromara.system.controller.system;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.springframework.security.access.prepost.PreAuthorize;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -60,7 +60,7 @@ public class SysUserController extends BaseController {
     /**
      * 获取用户列表
      */
-    @SaCheckPermission("system:user:list")
+    @PreAuthorize("hasAuthority('system:user:list')")
     @GetMapping("/list")
     public TableDataInfo<SysUserVo> list(SysUserBo user, PageQuery pageQuery) {
         return userService.selectPageUserList(user, pageQuery);
@@ -70,7 +70,7 @@ public class SysUserController extends BaseController {
      * 导出用户列表
      */
     @Log(title = "用户管理", businessType = BusinessType.EXPORT)
-    @SaCheckPermission("system:user:export")
+    @PreAuthorize("hasAuthority('system:user:export')")
     @PostMapping("/export")
     public void export(SysUserBo user, HttpServletResponse response) {
         List<SysUserExportVo> list = userService.selectUserExportList(user);
@@ -84,7 +84,7 @@ public class SysUserController extends BaseController {
      * @param updateSupport 是否更新已存在数据
      */
     @Log(title = "用户管理", businessType = BusinessType.IMPORT)
-    @SaCheckPermission("system:user:import")
+    @PreAuthorize("hasAuthority('system:user:import')")
     @PostMapping(value = "/importData", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public R<Void> importData(@RequestPart("file") MultipartFile file, boolean updateSupport) throws Exception {
         ExcelResult<SysUserImportVo> result = ExcelUtil.importExcel(file.getInputStream(), SysUserImportVo.class, new SysUserImportListener(updateSupport));
@@ -128,7 +128,7 @@ public class SysUserController extends BaseController {
      *
      * @param userId 用户ID
      */
-    @SaCheckPermission("system:user:query")
+    @PreAuthorize("hasAuthority('system:user:query')")
     @GetMapping(value = {"/", "/{userId}"})
     public R<SysUserInfoVo> getInfo(@PathVariable(value = "userId", required = false) Long userId) {
         SysUserInfoVo userInfoVo = new SysUserInfoVo();
@@ -155,7 +155,7 @@ public class SysUserController extends BaseController {
     /**
      * 新增用户
      */
-    @SaCheckPermission("system:user:add")
+    @PreAuthorize("hasAuthority('system:user:add')")
     @Log(title = "用户管理", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping
@@ -180,7 +180,7 @@ public class SysUserController extends BaseController {
     /**
      * 修改用户
      */
-    @SaCheckPermission("system:user:edit")
+    @PreAuthorize("hasAuthority('system:user:edit')")
     @Log(title = "用户管理", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping
@@ -203,7 +203,7 @@ public class SysUserController extends BaseController {
      *
      * @param userIds 角色ID串
      */
-    @SaCheckPermission("system:user:remove")
+    @PreAuthorize("hasAuthority('system:user:remove')")
     @Log(title = "用户管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{userIds}")
     public R<Void> remove(@PathVariable Long[] userIds) {
@@ -219,7 +219,7 @@ public class SysUserController extends BaseController {
      * @param userIds 用户ID串
      * @param deptId  部门ID
      */
-    @SaCheckPermission("system:user:query")
+    @PreAuthorize("hasAuthority('system:user:query')")
     @GetMapping("/optionselect")
     public R<List<SysUserVo>> optionselect(@RequestParam(required = false) Long[] userIds,
                                            @RequestParam(required = false) Long deptId) {
@@ -230,7 +230,7 @@ public class SysUserController extends BaseController {
      * 重置密码
      */
     @ApiEncrypt
-    @SaCheckPermission("system:user:resetPwd")
+    @PreAuthorize("hasAuthority('system:user:resetPwd')")
     @Log(title = "用户管理", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping("/resetPwd")
@@ -244,7 +244,7 @@ public class SysUserController extends BaseController {
     /**
      * 状态修改
      */
-    @SaCheckPermission("system:user:edit")
+    @PreAuthorize("hasAuthority('system:user:edit')")
     @Log(title = "用户管理", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping("/changeStatus")
@@ -259,7 +259,7 @@ public class SysUserController extends BaseController {
      *
      * @param userId 用户ID
      */
-    @SaCheckPermission("system:user:query")
+    @PreAuthorize("hasAuthority('system:user:query')")
     @GetMapping("/authRole/{userId}")
     public R<SysUserInfoVo> authRole(@PathVariable Long userId) {
         userService.checkUserDataScope(userId);
@@ -277,7 +277,7 @@ public class SysUserController extends BaseController {
      * @param userId  用户Id
      * @param roleIds 角色ID串
      */
-    @SaCheckPermission("system:user:edit")
+    @PreAuthorize("hasAuthority('system:user:edit')")
     @Log(title = "用户管理", businessType = BusinessType.GRANT)
     @RepeatSubmit()
     @PutMapping("/authRole")
@@ -290,7 +290,7 @@ public class SysUserController extends BaseController {
     /**
      * 获取部门树列表
      */
-    @SaCheckPermission("system:user:list")
+    @PreAuthorize("hasAuthority('system:user:list')")
     @GetMapping("/deptTree")
     public R<List<Tree<Long>>> deptTree(SysDeptBo dept) {
         return R.ok(deptService.selectDeptTreeList(dept));
@@ -299,7 +299,7 @@ public class SysUserController extends BaseController {
     /**
      * 获取部门下的所有用户信息
      */
-    @SaCheckPermission("system:user:list")
+    @PreAuthorize("hasAuthority('system:user:list')")
     @GetMapping("/list/dept/{deptId}")
     public R<List<SysUserVo>> listByDept(@PathVariable @NotNull Long deptId) {
         return R.ok(userService.selectUserListByDept(deptId));

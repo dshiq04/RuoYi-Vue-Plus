@@ -1,0 +1,7 @@
+# Spring Security JWT 内置配置
+security:
+  jwt:
+    secret-key: abcdefghijklmnopqrstuvwxyz0123456789
+    expiration: 30
+    token-prefix: "Bearer"
+    header-name: Authorization

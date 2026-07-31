@@ -1,6 +1,6 @@
 package org.dromara.system.controller.monitor;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.springframework.security.access.prepost.PreAuthorize;
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.core.utils.StringUtils;
@@ -28,7 +28,7 @@ public class CacheController {
     /**
      * 获取缓存监控列表
      */
-    @SaCheckPermission("monitor:cache:list")
+    @PreAuthorize("hasAuthority('monitor:cache:list')")
     @GetMapping()
     public R<CacheListInfoVo> getInfo() throws Exception {
         RedisConnection connection = connectionFactory.getConnection();

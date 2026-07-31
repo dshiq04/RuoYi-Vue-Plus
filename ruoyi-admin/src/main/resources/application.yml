@@ -34,6 +34,8 @@ logging:
     org.springframework: warn
     org.mybatis.spring.mapper: error
     org.apache.fury: warn
+    org.springframework.security: debug
+
   config: classpath:logback-plus.xml
 
 # 用户配置
@@ -48,6 +50,9 @@ user:
 spring:
   application:
     name: RuoYi-Vue-Plus
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
   main:
     # 延迟初始化（提高启动速度）
     lazy-initialization: false
@@ -97,19 +102,17 @@ spring:
       # 允许对象忽略json中不存在的属性
       fail_on_unknown_properties: false
 
-# Sa-Token配置
-sa-token:
-  # token名称 (同时也是cookie名称)
-  token-name: Authorization
-  # 是否允许同一账号并发登录 (为true时允许一起登录, 为false时新登录挤掉旧登录)
-  is-concurrent: true
-  # 在多人登录同一账号时，是否共用一个token (为true时所有登录共用一个token, 为false时每次登录新建一个token)
-  is-share: false
-  # jwt秘钥
-  jwt-secret-key: abcdefghijklmnopqrstuvwxyz
-
-# security配置
+# Security配置
 security:
+  jwt:
+    # jwt秘钥 (至少256位 / 32字符 for HS256)
+    secret-key: abcdefghijklmnopqrstuvwxyz0123456789
+    # token有效期(分钟)
+    expiration: 30
+    # token前缀
+    token-prefix: "Bearer"
+    # token header名称
+    header-name: Authorization
   # 排除路径
   excludes:
     - /*.html
@@ -121,6 +124,11 @@ security:
     - /*/api-docs
     - /*/api-docs/**
     - /warm-flow-ui/config
+    - /auth/**
+    - /resource/sms/code
+    - /resource/email/code
+    - /auth/code
+    - /
 
 # 多租户配置
 tenant:
@@ -266,4 +274,4 @@ warm-flow:
   # 是否渲染节点悬浮提示，默认true
   node-tooltip: true
   # 默认Authorization，如果有多个token，用逗号分隔
-  token-name: ${sa-token.token-name},clientid
+  token-name: Authorization,clientid

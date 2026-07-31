@@ -1,6 +1,6 @@
 package org.dromara.system.controller.system;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -40,7 +40,7 @@ public class SysClientController extends BaseController {
     /**
      * 查询客户端管理列表
      */
-    @SaCheckPermission("system:client:list")
+    @PreAuthorize("hasAuthority('system:client:list')")
     @GetMapping("/list")
     public TableDataInfo<SysClientVo> list(SysClientBo bo, PageQuery pageQuery) {
         return sysClientService.queryPageList(bo, pageQuery);
@@ -49,7 +49,7 @@ public class SysClientController extends BaseController {
     /**
      * 导出客户端管理列表
      */
-    @SaCheckPermission("system:client:export")
+    @PreAuthorize("hasAuthority('system:client:export')")
     @Log(title = "客户端管理", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(SysClientBo bo, HttpServletResponse response) {
@@ -62,7 +62,7 @@ public class SysClientController extends BaseController {
      *
      * @param id 主键
      */
-    @SaCheckPermission("system:client:query")
+    @PreAuthorize("hasAuthority('system:client:query')")
     @GetMapping("/{id}")
     public R<SysClientVo> getInfo(@NotNull(message = "主键不能为空")
                                   @PathVariable Long id) {
@@ -72,7 +72,7 @@ public class SysClientController extends BaseController {
     /**
      * 新增客户端管理
      */
-    @SaCheckPermission("system:client:add")
+    @PreAuthorize("hasAuthority('system:client:add')")
     @Log(title = "客户端管理", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
@@ -86,7 +86,7 @@ public class SysClientController extends BaseController {
     /**
      * 修改客户端管理
      */
-    @SaCheckPermission("system:client:edit")
+    @PreAuthorize("hasAuthority('system:client:edit')")
     @Log(title = "客户端管理", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -100,7 +100,7 @@ public class SysClientController extends BaseController {
     /**
      * 状态修改
      */
-    @SaCheckPermission("system:client:edit")
+    @PreAuthorize("hasAuthority('system:client:edit')")
     @Log(title = "客户端管理", businessType = BusinessType.UPDATE)
     @PutMapping("/changeStatus")
     public R<Void> changeStatus(@RequestBody SysClientBo bo) {
@@ -112,7 +112,7 @@ public class SysClientController extends BaseController {
      *
      * @param ids 主键串
      */
-    @SaCheckPermission("system:client:remove")
+    @PreAuthorize("hasAuthority('system:client:remove')")
     @Log(title = "客户端管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")

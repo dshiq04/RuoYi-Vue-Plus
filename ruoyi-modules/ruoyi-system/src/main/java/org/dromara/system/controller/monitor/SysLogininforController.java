@@ -1,6 +1,6 @@
 package org.dromara.system.controller.monitor;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.baomidou.lock.annotation.Lock4j;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class SysLogininforController extends BaseController {
     /**
      * 获取系统访问记录列表
      */
-    @SaCheckPermission("monitor:logininfor:list")
+    @PreAuthorize("hasAuthority('monitor:logininfor:list')")
     @GetMapping("/list")
     public TableDataInfo<SysLogininforVo> list(SysLogininforBo logininfor, PageQuery pageQuery) {
         return logininforService.selectPageLogininforList(logininfor, pageQuery);
@@ -48,7 +48,7 @@ public class SysLogininforController extends BaseController {
      * 导出系统访问记录列表
      */
     @Log(title = "登录日志", businessType = BusinessType.EXPORT)
-    @SaCheckPermission("monitor:logininfor:export")
+    @PreAuthorize("hasAuthority('monitor:logininfor:export')")
     @PostMapping("/export")
     public void export(SysLogininforBo logininfor, HttpServletResponse response) {
         List<SysLogininforVo> list = logininforService.selectLogininforList(logininfor);
@@ -59,7 +59,7 @@ public class SysLogininforController extends BaseController {
      * 批量删除登录日志
      * @param infoIds 日志ids
      */
-    @SaCheckPermission("monitor:logininfor:remove")
+    @PreAuthorize("hasAuthority('monitor:logininfor:remove')")
     @Log(title = "登录日志", businessType = BusinessType.DELETE)
     @DeleteMapping("/{infoIds}")
     public R<Void> remove(@PathVariable Long[] infoIds) {
@@ -69,7 +69,7 @@ public class SysLogininforController extends BaseController {
     /**
      * 清理系统访问记录
      */
-    @SaCheckPermission("monitor:logininfor:remove")
+    @PreAuthorize("hasAuthority('monitor:logininfor:remove')")
     @Log(title = "登录日志", businessType = BusinessType.CLEAN)
     @Lock4j
     @DeleteMapping("/clean")
@@ -78,7 +78,7 @@ public class SysLogininforController extends BaseController {
         return R.ok();
     }
 
-    @SaCheckPermission("monitor:logininfor:unlock")
+    @PreAuthorize("hasAuthority('monitor:logininfor:unlock')")
     @Log(title = "账户解锁", businessType = BusinessType.OTHER)
     @RepeatSubmit()
     @GetMapping("/unlock/{userName}")

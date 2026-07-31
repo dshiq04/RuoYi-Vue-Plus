@@ -1,12 +1,10 @@
 package org.dromara.common.tenant.config;
 
-import cn.dev33.satoken.dao.SaTokenDao;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor;
 import org.dromara.common.core.utils.reflect.ReflectUtils;
 import org.dromara.common.redis.config.RedisConfig;
 import org.dromara.common.redis.config.properties.RedissonProperties;
-import org.dromara.common.tenant.core.TenantSaTokenDao;
 import org.dromara.common.tenant.handle.PlusTenantLineHandler;
 import org.dromara.common.tenant.handle.TenantKeyPrefixHandler;
 import org.dromara.common.tenant.manager.TenantSpringCacheManager;
@@ -72,15 +70,6 @@ public class TenantConfig {
     @Bean
     public CacheManager tenantCacheManager() {
         return new TenantSpringCacheManager();
-    }
-
-    /**
-     * 多租户鉴权dao实现
-     */
-    @Primary
-    @Bean
-    public SaTokenDao tenantSaTokenDao() {
-        return new TenantSaTokenDao();
     }
 
 }

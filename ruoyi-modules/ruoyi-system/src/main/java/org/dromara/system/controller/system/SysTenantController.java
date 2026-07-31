@@ -1,7 +1,6 @@
 package org.dromara.system.controller.system;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
-import cn.dev33.satoken.annotation.SaCheckRole;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.baomidou.lock.annotation.Lock4j;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotBlank;
@@ -47,8 +46,7 @@ public class SysTenantController extends BaseController {
     /**
      * 查询租户列表
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:tenant:list")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenant:list')")
     @GetMapping("/list")
     public TableDataInfo<SysTenantVo> list(SysTenantBo bo, PageQuery pageQuery) {
         return tenantService.queryPageList(bo, pageQuery);
@@ -57,8 +55,7 @@ public class SysTenantController extends BaseController {
     /**
      * 导出租户列表
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:tenant:export")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenant:export')")
     @Log(title = "租户管理", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(SysTenantBo bo, HttpServletResponse response) {
@@ -71,8 +68,7 @@ public class SysTenantController extends BaseController {
      *
      * @param id 主键
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:tenant:query")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenant:query')")
     @GetMapping("/{id}")
     public R<SysTenantVo> getInfo(@NotNull(message = "主键不能为空")
                                   @PathVariable Long id) {
@@ -83,8 +79,7 @@ public class SysTenantController extends BaseController {
      * 新增租户
      */
     @ApiEncrypt
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:tenant:add")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenant:add')")
     @Log(title = "租户管理", businessType = BusinessType.INSERT)
     @Lock4j
     @RepeatSubmit()
@@ -99,8 +94,7 @@ public class SysTenantController extends BaseController {
     /**
      * 修改租户
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:tenant:edit")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenant:edit')")
     @Log(title = "租户管理", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -115,8 +109,7 @@ public class SysTenantController extends BaseController {
     /**
      * 状态修改
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:tenant:edit")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenant:edit')")
     @Log(title = "租户管理", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping("/changeStatus")
@@ -130,8 +123,7 @@ public class SysTenantController extends BaseController {
      *
      * @param ids 主键串
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:tenant:remove")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenant:remove')")
     @Log(title = "租户管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
@@ -144,7 +136,7 @@ public class SysTenantController extends BaseController {
      *
      * @param tenantId 租户ID
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
+    @PreAuthorize("hasRole('superadmin')")
     @GetMapping("/dynamic/{tenantId}")
     public R<Void> dynamicTenant(@NotBlank(message = "租户ID不能为空") @PathVariable String tenantId) {
         TenantHelper.setDynamic(tenantId, true);
@@ -154,7 +146,7 @@ public class SysTenantController extends BaseController {
     /**
      * 清除动态租户
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
+    @PreAuthorize("hasRole('superadmin')")
     @GetMapping("/dynamic/clear")
     public R<Void> dynamicClear() {
         TenantHelper.clearDynamic();
@@ -168,8 +160,7 @@ public class SysTenantController extends BaseController {
      * @param tenantId  租户id
      * @param packageId 套餐id
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:tenant:edit")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenant:edit')")
     @Log(title = "租户管理", businessType = BusinessType.UPDATE)
     @Lock4j
     @GetMapping("/syncTenantPackage")
@@ -181,7 +172,7 @@ public class SysTenantController extends BaseController {
     /**
      * 同步租户字典
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
+    @PreAuthorize("hasRole('superadmin')")
     @Log(title = "租户管理", businessType = BusinessType.INSERT)
     @Lock4j
     @GetMapping("/syncTenantDict")
@@ -196,7 +187,7 @@ public class SysTenantController extends BaseController {
     /**
      * 同步租户参数配置
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
+    @PreAuthorize("hasRole('superadmin')")
     @Log(title = "租户管理", businessType = BusinessType.INSERT)
     @Lock4j
     @GetMapping("/syncTenantConfig")

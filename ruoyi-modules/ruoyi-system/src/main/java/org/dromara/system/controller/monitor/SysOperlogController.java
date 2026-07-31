@@ -1,6 +1,6 @@
 package org.dromara.system.controller.monitor;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.baomidou.lock.annotation.Lock4j;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class SysOperlogController extends BaseController {
     /**
      * 获取操作日志记录列表
      */
-    @SaCheckPermission("monitor:operlog:list")
+    @PreAuthorize("hasAuthority('monitor:operlog:list')")
     @GetMapping("/list")
     public TableDataInfo<SysOperLogVo> list(SysOperLogBo operLog, PageQuery pageQuery) {
         return operLogService.selectPageOperLogList(operLog, pageQuery);
@@ -45,7 +45,7 @@ public class SysOperlogController extends BaseController {
      * 导出操作日志记录列表
      */
     @Log(title = "操作日志", businessType = BusinessType.EXPORT)
-    @SaCheckPermission("monitor:operlog:export")
+    @PreAuthorize("hasAuthority('monitor:operlog:export')")
     @PostMapping("/export")
     public void export(SysOperLogBo operLog, HttpServletResponse response) {
         List<SysOperLogVo> list = operLogService.selectOperLogList(operLog);
@@ -57,7 +57,7 @@ public class SysOperlogController extends BaseController {
      * @param operIds 日志ids
      */
     @Log(title = "操作日志", businessType = BusinessType.DELETE)
-    @SaCheckPermission("monitor:operlog:remove")
+    @PreAuthorize("hasAuthority('monitor:operlog:remove')")
     @DeleteMapping("/{operIds}")
     public R<Void> remove(@PathVariable Long[] operIds) {
         return toAjax(operLogService.deleteOperLogByIds(operIds));
@@ -67,7 +67,7 @@ public class SysOperlogController extends BaseController {
      * 清理操作日志记录
      */
     @Log(title = "操作日志", businessType = BusinessType.CLEAN)
-    @SaCheckPermission("monitor:operlog:remove")
+    @PreAuthorize("hasAuthority('monitor:operlog:remove')")
     @Lock4j
     @DeleteMapping("/clean")
     public R<Void> clean() {

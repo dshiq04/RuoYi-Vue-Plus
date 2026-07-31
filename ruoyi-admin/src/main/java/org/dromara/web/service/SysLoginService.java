@@ -1,7 +1,5 @@
 package org.dromara.web.service;
 
-import cn.dev33.satoken.exception.NotLoginException;
-import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
@@ -9,7 +7,6 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.lock.annotation.Lock4j;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.zhyd.oauth.model.AuthUser;
 import org.dromara.common.core.constant.CacheConstants;
 import org.dromara.common.core.constant.Constants;
 import org.dromara.common.core.constant.SystemConstants;
@@ -33,6 +30,7 @@ import org.dromara.system.domain.vo.*;
 import org.dromara.system.mapper.SysUserMapper;
 import org.dromara.system.service.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -64,31 +62,28 @@ public class SysLoginService {
     private final ISysPostService postService;
     private final SysUserMapper userMapper;
 
-
     /**
      * 绑定第三方用户
      *
-     * @param authUserData 授权响应实体
+     * @param userInfo OAuth2用户信息
      */
     @Lock4j
-    public void socialRegister(AuthUser authUserData) {
-        String authId = authUserData.getSource() + authUserData.getUuid();
-        // 第三方用户信息
-        SysSocialBo bo = BeanUtil.toBean(authUserData, SysSocialBo.class);
-        BeanUtil.copyProperties(authUserData.getToken(), bo);
-        Long userId = LoginHelper.getUserId();
-        bo.setUserId(userId);
+    public void socialRegister(org.dromara.common.social.utils.OAuth2UserInfo userInfo) {
+        String authId = userInfo.getSource() + userInfo.getUuid();
+        SysSocialBo bo = new SysSocialBo();
+        bo.setUserId(LoginHelper.getUserId());
         bo.setAuthId(authId);
-        bo.setOpenId(authUserData.getUuid());
-        bo.setUserName(authUserData.getUsername());
-        bo.setNickName(authUserData.getNickname());
+        bo.setOpenId(userInfo.getUuid());
+        bo.setUserName(userInfo.getUsername());
+        bo.setNickName(userInfo.getNickname());
+        bo.setSource(userInfo.getSource());
         List<SysSocialVo> checkList = sysSocialService.selectByAuthId(authId);
         if (CollUtil.isNotEmpty(checkList)) {
             throw new ServiceException("此三方账号已经被绑定!");
         }
         // 查询是否已经绑定用户
         SysSocialBo params = new SysSocialBo();
-        params.setUserId(userId);
+        params.setUserId(LoginHelper.getUserId());
         params.setSource(bo.getSource());
         List<SysSocialVo> list = sysSocialService.queryList(params);
         if (CollUtil.isEmpty(list)) {
@@ -98,11 +93,8 @@ public class SysLoginService {
             // 更新用户信息
             bo.setId(list.get(0).getId());
             sysSocialService.updateByBo(bo);
-            // 如果要绑定的平台账号已经被绑定过了 是否抛异常自行决断
-            // throw new ServiceException("此平台账号已经被绑定!");
         }
     }
-
 
     /**
      * 退出登录
@@ -118,12 +110,9 @@ public class SysLoginService {
                 TenantHelper.clearDynamic();
             }
             recordLogininfor(loginUser.getTenantId(), loginUser.getUsername(), Constants.LOGOUT, MessageUtils.message("user.logout.success"));
-        } catch (NotLoginException ignored) {
+        } catch (Exception ignored) {
         } finally {
-            try {
-                StpUtil.logout();
-            } catch (NotLoginException ignored) {
-            }
+            SecurityContextHolder.clearContext();
         }
     }
 

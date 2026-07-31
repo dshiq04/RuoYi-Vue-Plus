@@ -1,6 +1,6 @@
 package org.dromara.system.controller.system;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.springframework.security.access.prepost.PreAuthorize;
 import cn.hutool.core.util.ObjectUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +40,7 @@ public class SysDictDataController extends BaseController {
     /**
      * 查询字典数据列表
      */
-    @SaCheckPermission("system:dict:list")
+    @PreAuthorize("hasAuthority('system:dict:list')")
     @GetMapping("/list")
     public TableDataInfo<SysDictDataVo> list(SysDictDataBo dictData, PageQuery pageQuery) {
         return dictDataService.selectPageDictDataList(dictData, pageQuery);
@@ -50,7 +50,7 @@ public class SysDictDataController extends BaseController {
      * 导出字典数据列表
      */
     @Log(title = "字典数据", businessType = BusinessType.EXPORT)
-    @SaCheckPermission("system:dict:export")
+    @PreAuthorize("hasAuthority('system:dict:export')")
     @PostMapping("/export")
     public void export(SysDictDataBo dictData, HttpServletResponse response) {
         List<SysDictDataVo> list = dictDataService.selectDictDataList(dictData);
@@ -62,7 +62,7 @@ public class SysDictDataController extends BaseController {
      *
      * @param dictCode 字典code
      */
-    @SaCheckPermission("system:dict:query")
+    @PreAuthorize("hasAuthority('system:dict:query')")
     @GetMapping(value = "/{dictCode}")
     public R<SysDictDataVo> getInfo(@PathVariable Long dictCode) {
         return R.ok(dictDataService.selectDictDataById(dictCode));
@@ -85,7 +85,7 @@ public class SysDictDataController extends BaseController {
     /**
      * 新增字典数据
      */
-    @SaCheckPermission("system:dict:add")
+    @PreAuthorize("hasAuthority('system:dict:add')")
     @Log(title = "字典数据", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping
@@ -100,7 +100,7 @@ public class SysDictDataController extends BaseController {
     /**
      * 修改保存字典数据
      */
-    @SaCheckPermission("system:dict:edit")
+    @PreAuthorize("hasAuthority('system:dict:edit')")
     @Log(title = "字典数据", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping
@@ -117,7 +117,7 @@ public class SysDictDataController extends BaseController {
      *
      * @param dictCodes 字典code串
      */
-    @SaCheckPermission("system:dict:remove")
+    @PreAuthorize("hasAuthority('system:dict:remove')")
     @Log(title = "字典数据", businessType = BusinessType.DELETE)
     @DeleteMapping("/{dictCodes}")
     public R<Void> remove(@PathVariable Long[] dictCodes) {

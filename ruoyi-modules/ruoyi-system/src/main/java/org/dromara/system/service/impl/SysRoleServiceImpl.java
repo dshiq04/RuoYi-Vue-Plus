@@ -1,7 +1,5 @@
 package org.dromara.system.service.impl;
 
-import cn.dev33.satoken.exception.NotLoginException;
-import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -11,10 +9,12 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
+import org.dromara.common.core.constant.CacheConstants;
 import org.dromara.common.core.constant.CacheNames;
 import org.dromara.common.core.constant.SystemConstants;
 import org.dromara.common.core.constant.TenantConstants;
 import org.dromara.common.core.domain.model.LoginUser;
+import org.dromara.common.core.domain.dto.UserOnlineDTO;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.service.RoleService;
 import org.dromara.common.core.utils.MapstructUtils;
@@ -22,6 +22,7 @@ import org.dromara.common.core.utils.StreamUtils;
 import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
+import org.dromara.common.redis.utils.RedisUtils;
 import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.system.domain.SysRole;
 import org.dromara.system.domain.SysRoleDept;
@@ -532,7 +533,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
         if (num == 0) {
             return;
         }
-        List<String> keys = StpUtil.searchTokenValue("", 0, -1, false);
+        List<String> keys = new ArrayList<>(RedisUtils.keys(CacheConstants.ONLINE_TOKEN_KEY + "*"));
         if (CollUtil.isEmpty(keys)) {
             return;
         }
@@ -540,17 +541,18 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
         keys.parallelStream().forEach(key -> {
             String token = StringUtils.substringAfterLast(key, ":");
             // 如果已经过期则跳过
-            if (StpUtil.stpLogic.getTokenActiveTimeoutByToken(token) < -1) {
+            UserOnlineDTO onlineDTO = RedisUtils.getCacheObject(key);
+            if (onlineDTO == null) {
                 return;
             }
-            LoginUser loginUser = LoginHelper.getLoginUser(token);
+            LoginUser loginUser = LoginHelper.getLoginUserByToken(token);
             if (ObjectUtil.isNull(loginUser) || CollUtil.isEmpty(loginUser.getRoles())) {
                 return;
             }
             if (loginUser.getRoles().stream().anyMatch(r -> r.getRoleId().equals(roleId))) {
                 try {
-                    StpUtil.logoutByTokenValue(token);
-                } catch (NotLoginException ignored) {
+                    RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + token);
+                } catch (Exception ignored) {
                 }
             }
         });
@@ -568,7 +570,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
      */
     @Override
     public void cleanOnlineUser(List<Long> userIds) {
-        List<String> keys = StpUtil.searchTokenValue("", 0, -1, false);
+        List<String> keys = new ArrayList<>(RedisUtils.keys(CacheConstants.ONLINE_TOKEN_KEY + "*"));
         if (CollUtil.isEmpty(keys)) {
             return;
         }
@@ -576,17 +578,18 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
         keys.parallelStream().forEach(key -> {
             String token = StringUtils.substringAfterLast(key, ":");
             // 如果已经过期则跳过
-            if (StpUtil.stpLogic.getTokenActiveTimeoutByToken(token) < -1) {
+            UserOnlineDTO onlineDTO = RedisUtils.getCacheObject(key);
+            if (onlineDTO == null) {
                 return;
             }
-            LoginUser loginUser = LoginHelper.getLoginUser(token);
+            LoginUser loginUser = LoginHelper.getLoginUserByToken(token);
             if (ObjectUtil.isNull(loginUser)) {
                 return;
             }
             if (userIds.contains(loginUser.getUserId())) {
                 try {
-                    StpUtil.logoutByTokenValue(token);
-                } catch (NotLoginException ignored) {
+                    RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + token);
+                } catch (Exception ignored) {
                 }
             }
         });

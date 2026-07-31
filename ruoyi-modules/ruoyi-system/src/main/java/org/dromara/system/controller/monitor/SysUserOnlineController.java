@@ -1,8 +1,6 @@
 package org.dromara.system.controller.monitor;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
-import cn.dev33.satoken.exception.NotLoginException;
-import cn.dev33.satoken.stp.StpUtil;
+import org.springframework.security.access.prepost.PreAuthorize;
 import cn.hutool.core.bean.BeanUtil;
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.constant.CacheConstants;
@@ -15,6 +13,7 @@ import org.dromara.common.log.annotation.Log;
 import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.redis.utils.RedisUtils;
+import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.system.domain.SysUserOnline;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +40,7 @@ public class SysUserOnlineController extends BaseController {
      * @param ipaddr   IP地址
      * @param userName 用户名
      */
-    @SaCheckPermission("monitor:online:list")
+    @PreAuthorize("hasAuthority('monitor:online:list')")
     @GetMapping("/list")
     public TableDataInfo<SysUserOnline> list(String ipaddr, String userName) {
         // 获取所有未过期的 token
@@ -50,10 +49,11 @@ public class SysUserOnlineController extends BaseController {
         for (String key : keys) {
             String token = StringUtils.substringAfterLast(key, ":");
             // 如果已经过期则跳过
-            if (StpUtil.stpLogic.getTokenActiveTimeoutByToken(token) < -1) {
+            UserOnlineDTO onlineDTO = RedisUtils.getCacheObject(key);
+            if (onlineDTO == null) {
                 continue;
             }
-            userOnlineDTOList.add(RedisUtils.getCacheObject(CacheConstants.ONLINE_TOKEN_KEY + token));
+            userOnlineDTOList.add(onlineDTO);
         }
         if (StringUtils.isNotEmpty(ipaddr) && StringUtils.isNotEmpty(userName)) {
             userOnlineDTOList = StreamUtils.filter(userOnlineDTOList, userOnline ->
@@ -80,14 +80,14 @@ public class SysUserOnlineController extends BaseController {
      *
      * @param tokenId token值
      */
-    @SaCheckPermission("monitor:online:forceLogout")
+    @PreAuthorize("hasAuthority('monitor:online:forceLogout')")
     @Log(title = "在线用户", businessType = BusinessType.FORCE)
     @RepeatSubmit()
     @DeleteMapping("/{tokenId}")
     public R<Void> forceLogout(@PathVariable String tokenId) {
         try {
-            StpUtil.kickoutByTokenValue(tokenId);
-        } catch (NotLoginException ignored) {
+            RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + tokenId);
+        } catch (Exception ignored) {
         }
         return R.ok();
     }
@@ -97,11 +97,12 @@ public class SysUserOnlineController extends BaseController {
      */
     @GetMapping()
     public TableDataInfo<SysUserOnline> getInfo() {
-        // 获取指定账号 id 的 token 集合
-        List<String> tokenIds = StpUtil.getTokenValueListByLoginId(StpUtil.getLoginIdAsString());
-        List<UserOnlineDTO> userOnlineDTOList = tokenIds.stream()
-            .filter(token -> StpUtil.stpLogic.getTokenActiveTimeoutByToken(token) >= -1)
-            .map(token -> (UserOnlineDTO) RedisUtils.getCacheObject(CacheConstants.ONLINE_TOKEN_KEY + token))
+        // 获取当前用户的所有在线token
+        String username = LoginHelper.getUsername();
+        Collection<String> keys = RedisUtils.keys(CacheConstants.ONLINE_TOKEN_KEY + "*");
+        List<UserOnlineDTO> userOnlineDTOList = keys.stream()
+            .map(key -> (UserOnlineDTO) RedisUtils.getCacheObject(key))
+            .filter(dto -> dto != null && StringUtils.equals(username, dto.getUserName()))
             .collect(Collectors.toList());
         //复制和处理 SysUserOnline 对象列表
         Collections.reverse(userOnlineDTOList);
@@ -120,13 +121,15 @@ public class SysUserOnlineController extends BaseController {
     @DeleteMapping("/myself/{tokenId}")
     public R<Void> remove(@PathVariable("tokenId") String tokenId) {
         try {
-            // 获取指定账号 id 的 token 集合
-            List<String> keys = StpUtil.getTokenValueListByLoginId(StpUtil.getLoginIdAsString());
+            // 获取当前用户的所有在线token
+            String username = LoginHelper.getUsername();
+            Collection<String> keys = RedisUtils.keys(CacheConstants.ONLINE_TOKEN_KEY + "*");
             keys.stream()
-                .filter(key -> key.equals(tokenId))
+                .map(key -> (UserOnlineDTO) RedisUtils.getCacheObject(key))
+                .filter(dto -> dto != null && StringUtils.equals(username, dto.getUserName()) && StringUtils.equals(tokenId, dto.getTokenId()))
                 .findFirst()
-                .ifPresent(key -> StpUtil.kickoutByTokenValue(tokenId));
-        } catch (NotLoginException ignored) {
+                .ifPresent(dto -> RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + tokenId));
+        } catch (Exception ignored) {
         }
         return R.ok();
     }

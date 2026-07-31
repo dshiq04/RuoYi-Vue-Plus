@@ -1,7 +1,7 @@
 package org.dromara.system.service.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.ArrayUtil;
+import org.dromara.common.core.domain.model.LoginUser;
 import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.common.sensitive.core.SensitiveService;
 import org.dromara.common.tenant.helper.TenantHelper;
@@ -26,15 +26,16 @@ public class SysSensitiveServiceImpl implements SensitiveService {
         if (!LoginHelper.isLogin()) {
             return true;
         }
+        LoginUser loginUser = LoginHelper.getLoginUser();
         boolean roleExist = ArrayUtil.isNotEmpty(roleKey);
         boolean permsExist = ArrayUtil.isNotEmpty(perms);
         if (roleExist && permsExist) {
-            if (StpUtil.hasRoleOr(roleKey) && StpUtil.hasPermissionOr(perms)) {
+            if (hasRoleOr(loginUser, roleKey) && hasPermissionOr(loginUser, perms)) {
                 return false;
             }
-        } else if (roleExist && StpUtil.hasRoleOr(roleKey)) {
+        } else if (roleExist && hasRoleOr(loginUser, roleKey)) {
             return false;
-        } else if (permsExist && StpUtil.hasPermissionOr(perms)) {
+        } else if (permsExist && hasPermissionOr(loginUser, perms)) {
             return false;
         }
 
@@ -42,6 +43,36 @@ public class SysSensitiveServiceImpl implements SensitiveService {
             return !LoginHelper.isSuperAdmin() && !LoginHelper.isTenantAdmin();
         }
         return !LoginHelper.isSuperAdmin();
+    }
+
+    /**
+     * 判断用户是否拥有指定角色（任一匹配即可）
+     */
+    private boolean hasRoleOr(LoginUser loginUser, String[] roleKeys) {
+        if (loginUser.getRolePermission() == null) {
+            return false;
+        }
+        for (String roleKey : roleKeys) {
+            if (loginUser.getRolePermission().contains(roleKey)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断用户是否拥有指定权限（任一匹配即可）
+     */
+    private boolean hasPermissionOr(LoginUser loginUser, String[] perms) {
+        if (loginUser.getMenuPermission() == null) {
+            return false;
+        }
+        for (String perm : perms) {
+            if (loginUser.getMenuPermission().contains(perm)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

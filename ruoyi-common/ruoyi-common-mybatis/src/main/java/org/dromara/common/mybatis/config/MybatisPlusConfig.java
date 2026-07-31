@@ -5,10 +5,13 @@ import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.core.handlers.PostInitTableInfoHandler;
 import com.baomidou.mybatisplus.core.incrementer.DefaultIdentifierGenerator;
 import com.baomidou.mybatisplus.core.incrementer.IdentifierGenerator;
+import com.baomidou.mybatisplus.core.MybatisPlusVersion;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.factory.YmlPropertySourceFactory;
 import org.dromara.common.core.utils.SpringUtils;
 import org.dromara.common.mybatis.aspect.DataPermissionPointcutAdvisor;
@@ -33,7 +36,25 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement(proxyTargetClass = true)
 @MapperScan("${mybatis-plus.mapperPackage}")
 @PropertySource(value = "classpath:common-mybatis.yml", factory = YmlPropertySourceFactory.class)
+@Slf4j
 public class MybatisPlusConfig {
+
+    @PostConstruct
+    public void init() {
+        String version = MybatisPlusVersion.getVersion();
+        if (version == null || "unknown".equals(version)) {
+            // 在IDE或非标准类加载环境下，getVersion()可能返回null/unknown
+            // 尝试从包信息获取
+            Package pkg = MybatisPlusVersion.class.getPackage();
+            if (pkg != null) {
+                version = pkg.getImplementationVersion();
+            }
+            if (version == null) {
+                version = "3.5.17";
+            }
+        }
+        log.info("MyBatis-Plus 版本: {}", version);
+    }
 
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {

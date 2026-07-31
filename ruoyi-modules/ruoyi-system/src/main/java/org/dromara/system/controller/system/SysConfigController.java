@@ -1,6 +1,6 @@
 package org.dromara.system.controller.system;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.domain.R;
@@ -36,7 +36,7 @@ public class SysConfigController extends BaseController {
     /**
      * 获取参数配置列表
      */
-    @SaCheckPermission("system:config:list")
+    @PreAuthorize("hasAuthority('system:config:list')")
     @GetMapping("/list")
     public TableDataInfo<SysConfigVo> list(SysConfigBo config, PageQuery pageQuery) {
         return configService.selectPageConfigList(config, pageQuery);
@@ -46,7 +46,7 @@ public class SysConfigController extends BaseController {
      * 导出参数配置列表
      */
     @Log(title = "参数管理", businessType = BusinessType.EXPORT)
-    @SaCheckPermission("system:config:export")
+    @PreAuthorize("hasAuthority('system:config:export')")
     @PostMapping("/export")
     public void export(SysConfigBo config, HttpServletResponse response) {
         List<SysConfigVo> list = configService.selectConfigList(config);
@@ -58,7 +58,7 @@ public class SysConfigController extends BaseController {
      *
      * @param configId 参数ID
      */
-    @SaCheckPermission("system:config:query")
+    @PreAuthorize("hasAuthority('system:config:query')")
     @GetMapping(value = "/{configId}")
     public R<SysConfigVo> getInfo(@PathVariable Long configId) {
         return R.ok(configService.selectConfigById(configId));
@@ -77,7 +77,7 @@ public class SysConfigController extends BaseController {
     /**
      * 新增参数配置
      */
-    @SaCheckPermission("system:config:add")
+    @PreAuthorize("hasAuthority('system:config:add')")
     @Log(title = "参数管理", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping
@@ -92,7 +92,7 @@ public class SysConfigController extends BaseController {
     /**
      * 修改参数配置
      */
-    @SaCheckPermission("system:config:edit")
+    @PreAuthorize("hasAuthority('system:config:edit')")
     @Log(title = "参数管理", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping
@@ -107,7 +107,7 @@ public class SysConfigController extends BaseController {
     /**
      * 根据参数键名修改参数配置
      */
-    @SaCheckPermission("system:config:edit")
+    @PreAuthorize("hasAuthority('system:config:edit')")
     @Log(title = "参数管理", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping("/updateByKey")
@@ -121,7 +121,7 @@ public class SysConfigController extends BaseController {
      *
      * @param configIds 参数ID串
      */
-    @SaCheckPermission("system:config:remove")
+    @PreAuthorize("hasAuthority('system:config:remove')")
     @Log(title = "参数管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{configIds}")
     public R<Void> remove(@PathVariable Long[] configIds) {
@@ -132,7 +132,7 @@ public class SysConfigController extends BaseController {
     /**
      * 刷新参数缓存
      */
-    @SaCheckPermission("system:config:remove")
+    @PreAuthorize("hasAuthority('system:config:remove')")
     @Log(title = "参数管理", businessType = BusinessType.CLEAN)
     @DeleteMapping("/refreshCache")
     public R<Void> refreshCache() {

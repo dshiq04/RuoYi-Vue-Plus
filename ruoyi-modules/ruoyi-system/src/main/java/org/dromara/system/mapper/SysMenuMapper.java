@@ -96,6 +96,25 @@ public interface SysMenuMapper extends BaseMapperPlus<SysMenu, SysMenuVo> {
     }
 
     /**
+     * 查询系统中所有的菜单权限标识
+     *
+     * <p>
+     * 不经过角色-菜单关联表，直接从 sys_menu 读取全部权限标识，
+     * 用于超级管理员在 Spring Security 下的 @PreAuthorize 精确匹配校验
+     * </p>
+     *
+     * @return 权限列表
+     */
+    default Set<String> selectAllMenuPerms() {
+        List<String> list = this.selectObjs(
+            new LambdaQueryWrapper<SysMenu>()
+                .select(SysMenu::getPerms)
+                .isNotNull(SysMenu::getPerms)
+        );
+        return new HashSet<>(StreamUtils.filter(list, StringUtils::isNotBlank));
+    }
+
+    /**
      * 根据角色ID查询权限
      *
      * @param roleId 角色ID

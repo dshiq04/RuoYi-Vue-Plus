@@ -39,6 +39,10 @@ nbdist/
 .nb-gradle/
 
 ######################################################################
+# Maven Flatten Plugin
+.flattened-pom.xml
+
+######################################################################
 # Others
 *.log
 *.log.gz
@@ -49,4 +53,3 @@ nbdist/
 !*/build/*.html
 !*/build/*.xml
 
-.flattened-pom.xml

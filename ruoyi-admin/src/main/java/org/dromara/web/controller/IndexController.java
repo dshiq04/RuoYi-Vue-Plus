@@ -1,6 +1,5 @@
 package org.dromara.web.controller;
 
-import cn.dev33.satoken.annotation.SaIgnore;
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.utils.SpringUtils;
 import org.dromara.common.core.utils.StringUtils;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Lion Li
  */
-@SaIgnore
 @RequiredArgsConstructor
 @RestController
 public class IndexController {

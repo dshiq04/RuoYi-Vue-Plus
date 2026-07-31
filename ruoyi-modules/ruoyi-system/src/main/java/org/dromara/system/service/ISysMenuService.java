@@ -42,6 +42,15 @@ public interface ISysMenuService {
     Set<String> selectMenuPermsByUserId(Long userId);
 
     /**
+     * 查询系统中所有菜单权限标识
+     *
+     * <p>用于超级管理员加载全部权限，配合 Spring Security 的 @PreAuthorize 精确匹配</p>
+     *
+     * @return 权限列表
+     */
+    Set<String> selectAllMenuPerms();
+
+    /**
      * 根据角色ID查询权限
      *
      * @param roleId 角色ID

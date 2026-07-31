@@ -13,12 +13,17 @@ import java.util.List;
 public class SocialLoginConfigProperties {
 
     /**
-     * 应用 ID
+     * OAuth2 提供商的 Issuer URI
+     */
+    private String issuerUri;
+
+    /**
+     * 客户端 ID
      */
     private String clientId;
 
     /**
-     * 应用密钥
+     * 客户端密钥
      */
     private String clientSecret;
 
@@ -28,53 +33,13 @@ public class SocialLoginConfigProperties {
     private String redirectUri;
 
     /**
-     * 是否需要申请unionid，目前只针对qq登录
-     */
-    private Boolean unionId;
-
-    /**
-     * Microsoft Entra ID（原微软 AAD）中的租户 ID
-     */
-    private String tenantId;
-
-    /**
-     * Coding 企业名称
-     */
-    private String codingGroupName;
-
-    /**
-     * 支付宝公钥
-     */
-    private String alipayPublicKey;
-
-    /**
-     * 企业微信应用ID
-     */
-    private String agentId;
-
-    /**
-     * stackoverflow api key
-     */
-    private String stackOverflowKey;
-
-    /**
-     * 设备ID
-     */
-    private String deviceId;
-
-    /**
-     * 客户端系统类型
-     */
-    private String clientOsType;
-
-    /**
-     * maxkey 服务器地址
-     */
-    private String serverUrl;
-
-    /**
      * 请求范围
      */
     private List<String> scopes;
+
+    /**
+     * 客户端名称
+     */
+    private String clientName;
 
 }

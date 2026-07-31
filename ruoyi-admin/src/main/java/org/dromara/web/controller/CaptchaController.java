@@ -1,6 +1,5 @@
 package org.dromara.web.controller;
 
-import cn.dev33.satoken.annotation.SaIgnore;
 import cn.hutool.captcha.generator.CodeGenerator;
 import cn.hutool.captcha.generator.MathGenerator;
 import cn.hutool.captcha.generator.RandomGenerator;
@@ -42,7 +41,6 @@ import java.util.LinkedHashMap;
  *
  * @author Lion Li
  */
-@SaIgnore
 @Slf4j
 @Validated
 @RequiredArgsConstructor

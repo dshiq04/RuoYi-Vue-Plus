@@ -19,17 +19,17 @@ import java.util.stream.Collectors;
 public class SaTokenSecurityMetadata {
 
     /**
-     * 权限校验信息列表（对应 @SaCheckPermission 注解）
+     * 权限校验信息列表（对应 @PreAuthorize 注解）
      */
     private List<AuthInfo> permissions = new ArrayList<>();
 
     /**
-     * 角色校验信息列表（对应 @SaCheckRole 注解）
+     * 角色校验信息列表（对应 @Secured/@RolesAllowed 注解）
      */
     private List<AuthInfo> roles = new ArrayList<>();
 
     /**
-     * 是否忽略校验（对应 @SaIgnore 注解）
+     * 是否忽略校验（对应 @PermitAll 注解）
      */
     private boolean ignore = false;
 

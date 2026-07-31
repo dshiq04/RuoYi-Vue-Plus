@@ -1,6 +1,6 @@
 package org.dromara.generator.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
+import org.springframework.security.access.prepost.PreAuthorize;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.IoUtil;
 import com.baomidou.lock.annotation.Lock4j;
@@ -41,7 +41,7 @@ public class GenController extends BaseController {
     /**
      * 查询代码生成列表
      */
-    @SaCheckPermission("tool:gen:list")
+    @PreAuthorize("hasAuthority('tool:gen:list')")
     @GetMapping("/list")
     public TableDataInfo<GenTable> genList(GenTable genTable, PageQuery pageQuery) {
         return genTableService.selectPageGenTableList(genTable, pageQuery);
@@ -53,7 +53,7 @@ public class GenController extends BaseController {
      * @param tableId 表ID
      */
     @RepeatSubmit()
-    @SaCheckPermission("tool:gen:query")
+    @PreAuthorize("hasAuthority('tool:gen:query')")
     @GetMapping(value = "/{tableId}")
     public R<Map<String, Object>> getInfo(@PathVariable Long tableId) {
         GenTable table = genTableService.selectGenTableById(tableId);
@@ -69,7 +69,7 @@ public class GenController extends BaseController {
     /**
      * 查询数据库列表
      */
-    @SaCheckPermission("tool:gen:list")
+    @PreAuthorize("hasAuthority('tool:gen:list')")
     @GetMapping("/db/list")
     public TableDataInfo<GenTable> dataList(GenTable genTable, PageQuery pageQuery) {
         return genTableService.selectPageDbTableList(genTable, pageQuery);
@@ -80,7 +80,7 @@ public class GenController extends BaseController {
      *
      * @param tableId 表ID
      */
-    @SaCheckPermission("tool:gen:list")
+    @PreAuthorize("hasAuthority('tool:gen:list')")
     @GetMapping(value = "/column/{tableId}")
     public TableDataInfo<GenTableColumn> columnList(@PathVariable("tableId") Long tableId) {
         List<GenTableColumn> list = genTableService.selectGenTableColumnListByTableId(tableId);
@@ -93,7 +93,7 @@ public class GenController extends BaseController {
      * @param tables   表名串
      * @param dataName 数据源名称
      */
-    @SaCheckPermission("tool:gen:import")
+    @PreAuthorize("hasAuthority('tool:gen:import')")
     @Log(title = "代码生成", businessType = BusinessType.IMPORT)
     @Lock4j(keys = {"#dataName"}, acquireTimeout = 10000)
     @RepeatSubmit()
@@ -109,7 +109,7 @@ public class GenController extends BaseController {
     /**
      * 修改保存代码生成业务
      */
-    @SaCheckPermission("tool:gen:edit")
+    @PreAuthorize("hasAuthority('tool:gen:edit')")
     @Log(title = "代码生成", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping
@@ -124,7 +124,7 @@ public class GenController extends BaseController {
      *
      * @param tableIds 表ID串
      */
-    @SaCheckPermission("tool:gen:remove")
+    @PreAuthorize("hasAuthority('tool:gen:remove')")
     @Log(title = "代码生成", businessType = BusinessType.DELETE)
     @DeleteMapping("/{tableIds}")
     public R<Void> remove(@PathVariable Long[] tableIds) {
@@ -137,7 +137,7 @@ public class GenController extends BaseController {
      *
      * @param tableId 表ID
      */
-    @SaCheckPermission("tool:gen:preview")
+    @PreAuthorize("hasAuthority('tool:gen:preview')")
     @GetMapping("/preview/{tableId}")
     public R<Map<String, String>> preview(@PathVariable("tableId") Long tableId) throws IOException {
         Map<String, String> dataMap = genTableService.previewCode(tableId);
@@ -149,7 +149,7 @@ public class GenController extends BaseController {
      *
      * @param tableId 表ID
      */
-    @SaCheckPermission("tool:gen:code")
+    @PreAuthorize("hasAuthority('tool:gen:code')")
     @Log(title = "代码生成", businessType = BusinessType.GENCODE)
     @GetMapping("/download/{tableId}")
     public void download(HttpServletResponse response, @PathVariable("tableId") Long tableId) throws IOException {
@@ -162,7 +162,7 @@ public class GenController extends BaseController {
      *
      * @param tableId 表ID
      */
-    @SaCheckPermission("tool:gen:edit")
+    @PreAuthorize("hasAuthority('tool:gen:edit')")
     @Log(title = "代码生成", businessType = BusinessType.UPDATE)
     @Lock4j(keys = {"#tableId"}, acquireTimeout = 5000)
     @GetMapping("/synchDb/{tableId}")
@@ -176,7 +176,7 @@ public class GenController extends BaseController {
      *
      * @param tableIdStr 表ID串
      */
-    @SaCheckPermission("tool:gen:code")
+    @PreAuthorize("hasAuthority('tool:gen:code')")
     @Log(title = "代码生成", businessType = BusinessType.GENCODE)
     @GetMapping("/batchGenCode")
     public void batchGenCode(HttpServletResponse response, String tableIdStr) throws IOException {
@@ -201,7 +201,7 @@ public class GenController extends BaseController {
     /**
      * 查询数据源名称列表
      */
-    @SaCheckPermission("tool:gen:list")
+    @PreAuthorize("hasAuthority('tool:gen:list')")
     @GetMapping(value = "/getDataNames")
     public R<Object> getCurrentDataSourceNameList() {
         return R.ok(DataBaseHelper.getDataSourceNameList());

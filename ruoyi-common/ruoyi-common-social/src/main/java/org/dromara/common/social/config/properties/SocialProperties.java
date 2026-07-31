@@ -13,12 +13,13 @@ import java.util.Map;
  */
 @Data
 @Component
-@ConfigurationProperties(prefix = "justauth")
+@ConfigurationProperties(prefix = "spring.security.oauth2.client.social")
 public class SocialProperties {
 
     /**
-     * 授权类型
+     * OAuth2 提供商配置
+     * key 为 registrationId，value 为对应提供商配置
      */
-    private Map<String, SocialLoginConfigProperties> type;
+    private Map<String, SocialLoginConfigProperties> provider;
 
 }

@@ -1,8 +1,6 @@
 package org.dromara.system.controller.system;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
-import cn.dev33.satoken.annotation.SaCheckRole;
-import org.dromara.common.core.constant.TenantConstants;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.core.validate.AddGroup;
 import org.dromara.common.core.validate.EditGroup;
@@ -43,8 +41,7 @@ public class SysTenantPackageController extends BaseController {
     /**
      * 查询租户套餐列表
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:tenantPackage:list")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenantPackage:list')")
     @GetMapping("/list")
     public TableDataInfo<SysTenantPackageVo> list(SysTenantPackageBo bo, PageQuery pageQuery) {
         return tenantPackageService.queryPageList(bo, pageQuery);
@@ -53,8 +50,7 @@ public class SysTenantPackageController extends BaseController {
     /**
      * 查询租户套餐下拉选列表
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:tenantPackage:list")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenantPackage:list')")
     @GetMapping("/selectList")
     public R<List<SysTenantPackageVo>> selectList() {
         return R.ok(tenantPackageService.selectList());
@@ -63,8 +59,7 @@ public class SysTenantPackageController extends BaseController {
     /**
      * 导出租户套餐列表
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:tenantPackage:export")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenantPackage:export')")
     @Log(title = "租户套餐", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(SysTenantPackageBo bo, HttpServletResponse response) {
@@ -77,8 +72,7 @@ public class SysTenantPackageController extends BaseController {
      *
      * @param packageId 主键
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:tenantPackage:query")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenantPackage:query')")
     @GetMapping("/{packageId}")
     public R<SysTenantPackageVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long packageId) {
@@ -88,8 +82,7 @@ public class SysTenantPackageController extends BaseController {
     /**
      * 新增租户套餐
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:tenantPackage:add")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenantPackage:add')")
     @Log(title = "租户套餐", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
@@ -103,8 +96,7 @@ public class SysTenantPackageController extends BaseController {
     /**
      * 修改租户套餐
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:tenantPackage:edit")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenantPackage:edit')")
     @Log(title = "租户套餐", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -118,8 +110,7 @@ public class SysTenantPackageController extends BaseController {
     /**
      * 状态修改
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:tenantPackage:edit")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenantPackage:edit')")
     @Log(title = "租户套餐", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping("/changeStatus")
@@ -132,8 +123,7 @@ public class SysTenantPackageController extends BaseController {
      *
      * @param packageIds 主键串
      */
-    @SaCheckRole(TenantConstants.SUPER_ADMIN_ROLE_KEY)
-    @SaCheckPermission("system:tenantPackage:remove")
+    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenantPackage:remove')")
     @Log(title = "租户套餐", businessType = BusinessType.DELETE)
     @DeleteMapping("/{packageIds}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")

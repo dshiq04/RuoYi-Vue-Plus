@@ -1,13 +1,9 @@
 package org.dromara.web.service.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
-import cn.dev33.satoken.stp.parameter.SaLoginParameter;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.zhyd.oauth.model.AuthResponse;
-import me.zhyd.oauth.model.AuthUser;
 import org.dromara.common.core.constant.SystemConstants;
 import org.dromara.common.core.domain.model.LoginUser;
 import org.dromara.common.core.domain.model.SocialLoginBody;
@@ -16,9 +12,8 @@ import org.dromara.common.core.exception.user.UserException;
 import org.dromara.common.core.utils.StreamUtils;
 import org.dromara.common.core.utils.ValidatorUtils;
 import org.dromara.common.json.utils.JsonUtils;
+import org.dromara.common.satoken.utils.JwtUtils;
 import org.dromara.common.satoken.utils.LoginHelper;
-import org.dromara.common.social.config.properties.SocialProperties;
-import org.dromara.common.social.utils.SocialUtils;
 import org.dromara.common.tenant.helper.TenantHelper;
 import org.dromara.system.domain.vo.SysClientVo;
 import org.dromara.system.domain.vo.SysSocialVo;
@@ -43,10 +38,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SocialAuthStrategy implements IAuthStrategy {
 
-    private final SocialProperties socialProperties;
     private final ISysSocialService sysSocialService;
     private final SysUserMapper userMapper;
     private final SysLoginService loginService;
+    private final JwtUtils jwtUtils;
 
     /**
      * 登录-第三方授权登录
@@ -58,15 +53,13 @@ public class SocialAuthStrategy implements IAuthStrategy {
     public LoginVo login(String body, SysClientVo client) {
         SocialLoginBody loginBody = JsonUtils.parseObject(body, SocialLoginBody.class);
         ValidatorUtils.validate(loginBody);
-        AuthResponse<AuthUser> response = SocialUtils.loginAuth(
-                loginBody.getSource(), loginBody.getSocialCode(),
-                loginBody.getSocialState(), socialProperties);
-        if (!response.ok()) {
-            throw new ServiceException(response.getMsg());
-        }
-        AuthUser authUserData = response.getData();
+        // 通过OAuth2 Resource Server验证第三方token获取用户信息
+        String source = loginBody.getSource();
+        String socialCode = loginBody.getSocialCode();
+        // 使用source和socialCode构建authId (格式: source + uuid)
+        String authId = source + socialCode;
 
-        List<SysSocialVo> list = sysSocialService.selectByAuthId(authUserData.getSource() + authUserData.getUuid());
+        List<SysSocialVo> list = sysSocialService.selectByAuthId(authId);
         if (CollUtil.isEmpty(list)) {
             throw new ServiceException("你还没有绑定第三方账号，绑定后才可以登录！");
         }
@@ -87,19 +80,12 @@ public class SocialAuthStrategy implements IAuthStrategy {
         });
         loginUser.setClientKey(client.getClientKey());
         loginUser.setDeviceType(client.getDeviceType());
-        SaLoginParameter model = new SaLoginParameter();
-        model.setDeviceType(client.getDeviceType());
-        // 自定义分配 不同用户体系 不同 token 授权时间 不设置默认走全局 yml 配置
-        // 例如: 后台用户30分钟过期 app用户1天过期
-        model.setTimeout(client.getTimeout());
-        model.setActiveTimeout(client.getActiveTimeout());
-        model.setExtra(LoginHelper.CLIENT_KEY, client.getClientId());
-        // 生成token
-        LoginHelper.login(loginUser, model);
+        LoginHelper.login(loginUser);
+        String token = jwtUtils.createToken(loginUser);
 
         LoginVo loginVo = new LoginVo();
-        loginVo.setAccessToken(StpUtil.getTokenValue());
-        loginVo.setExpireIn(StpUtil.getTokenTimeout());
+        loginVo.setAccessToken(token);
+        loginVo.setExpireIn((long) jwtUtils.getExpiration() * 60);
         loginVo.setClientId(client.getClientId());
         return loginVo;
     }

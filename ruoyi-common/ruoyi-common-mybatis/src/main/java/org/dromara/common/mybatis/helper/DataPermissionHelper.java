@@ -1,7 +1,5 @@
 package org.dromara.common.mybatis.helper;
 
-import cn.dev33.satoken.context.SaHolder;
-import cn.dev33.satoken.context.model.SaStorage;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.plugins.IgnoreStrategy;
@@ -10,6 +8,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.dromara.common.core.utils.reflect.ReflectUtils;
 import org.dromara.common.mybatis.annotation.DataPermission;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -83,15 +83,17 @@ public class DataPermissionHelper {
     /**
      * 获取数据权限上下文
      *
-     * @return 存储在SaStorage中的Map对象，用于存储数据权限相关的上下文信息
+     * @return 存储在RequestAttributes中的Map对象，用于存储数据权限相关的上下文信息
      * @throws NullPointerException 如果数据权限上下文类型异常，则抛出NullPointerException
      */
     public static Map<String, Object> getContext() {
-        SaStorage saStorage = SaHolder.getStorage();
-        Object attribute = saStorage.get(DATA_PERMISSION_KEY);
+        RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
+        Object attribute = attrs != null ? attrs.getAttribute(DATA_PERMISSION_KEY, RequestAttributes.SCOPE_REQUEST) : null;
         if (ObjectUtil.isNull(attribute)) {
-            saStorage.set(DATA_PERMISSION_KEY, new HashMap<>());
-            attribute = saStorage.get(DATA_PERMISSION_KEY);
+            if (attrs != null) {
+                attrs.setAttribute(DATA_PERMISSION_KEY, new HashMap<>(), RequestAttributes.SCOPE_REQUEST);
+                attribute = attrs.getAttribute(DATA_PERMISSION_KEY, RequestAttributes.SCOPE_REQUEST);
+            }
         }
         if (attribute instanceof Map map) {
             return map;

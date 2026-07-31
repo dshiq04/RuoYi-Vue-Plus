@@ -1,7 +1,5 @@
 package org.dromara.common.tenant.helper;
 
-import cn.dev33.satoken.context.SaHolder;
-import cn.dev33.satoken.context.model.SaStorage;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ObjectUtil;
@@ -16,6 +14,8 @@ import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.core.utils.reflect.ReflectUtils;
 import org.dromara.common.redis.utils.RedisUtils;
 import org.dromara.common.satoken.utils.LoginHelper;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.util.Stack;
 import java.util.function.Supplier;
@@ -137,7 +137,10 @@ public class TenantHelper {
         }
         String cacheKey = DYNAMIC_TENANT_KEY + ":" + LoginHelper.getUserId();
         RedisUtils.setCacheObject(cacheKey, tenantId);
-        SaHolder.getStorage().set(cacheKey, tenantId);
+        RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
+        if (attrs != null) {
+            attrs.setAttribute(cacheKey, tenantId, RequestAttributes.SCOPE_REQUEST);
+        }
     }
 
     /**
@@ -157,15 +160,17 @@ public class TenantHelper {
         if (StringUtils.isNotBlank(tenantId)) {
             return tenantId;
         }
-        SaStorage storage = SaHolder.getStorage();
+        RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
         String cacheKey = DYNAMIC_TENANT_KEY + ":" + LoginHelper.getUserId();
-        tenantId = storage.getString(cacheKey);
+        tenantId = attrs != null ? (String) attrs.getAttribute(cacheKey, RequestAttributes.SCOPE_REQUEST) : null;
         // 如果为 -1 说明已经查过redis并且不存在值 则直接返回null
         if (StringUtils.isNotBlank(tenantId)) {
             return tenantId.equals("-1") ? null : tenantId;
         }
         tenantId = RedisUtils.getCacheObject(cacheKey);
-        storage.set(cacheKey, StringUtils.isBlank(tenantId) ? "-1" : tenantId);
+        if (attrs != null) {
+            attrs.setAttribute(cacheKey, StringUtils.isBlank(tenantId) ? "-1" : tenantId, RequestAttributes.SCOPE_REQUEST);
+        }
         return tenantId;
     }
 
@@ -183,7 +188,10 @@ public class TenantHelper {
         TEMP_DYNAMIC_TENANT.remove();
         String cacheKey = DYNAMIC_TENANT_KEY + ":" + LoginHelper.getUserId();
         RedisUtils.deleteObject(cacheKey);
-        SaHolder.getStorage().delete(cacheKey);
+        RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
+        if (attrs != null) {
+            attrs.removeAttribute(cacheKey, RequestAttributes.SCOPE_REQUEST);
+        }
     }
 
     /**

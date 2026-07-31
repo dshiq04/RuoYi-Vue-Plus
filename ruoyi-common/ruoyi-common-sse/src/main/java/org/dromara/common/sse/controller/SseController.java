@@ -1,7 +1,5 @@
 package org.dromara.common.sse.controller;
 
-import cn.dev33.satoken.annotation.SaIgnore;
-import cn.dev33.satoken.stp.StpUtil;
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.domain.R;
 import org.dromara.common.satoken.utils.LoginHelper;
@@ -30,10 +28,10 @@ public class SseController implements DisposableBean {
      */
     @GetMapping(value = "${sse.path}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter connect() {
-        if (!StpUtil.isLogin()) {
+        if (!LoginHelper.isLogin()) {
             return null;
         }
-        String tokenValue = StpUtil.getTokenValue();
+        String tokenValue = LoginHelper.getLoginUser().getToken();
         Long userId = LoginHelper.getUserId();
         return sseEmitterManager.connect(userId, tokenValue);
     }
@@ -41,10 +39,9 @@ public class SseController implements DisposableBean {
     /**
      * 关闭 SSE 连接
      */
-    @SaIgnore
     @GetMapping(value = "${sse.path}/close")
     public R<Void> close() {
-        String tokenValue = StpUtil.getTokenValue();
+        String tokenValue = LoginHelper.getLoginUser().getToken();
         Long userId = LoginHelper.getUserId();
         sseEmitterManager.disconnect(userId, tokenValue);
         return R.ok();
