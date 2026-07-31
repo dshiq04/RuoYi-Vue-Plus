@@ -86,6 +86,7 @@ public class SysUserOnlineController extends BaseController {
     @DeleteMapping("/{tokenId}")
     public R<Void> forceLogout(@PathVariable String tokenId) {
         try {
+            RedisUtils.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + tokenId);
             RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + tokenId);
         } catch (Exception ignored) {
         }
@@ -128,7 +129,10 @@ public class SysUserOnlineController extends BaseController {
                 .map(key -> (UserOnlineDTO) RedisUtils.getCacheObject(key))
                 .filter(dto -> dto != null && StringUtils.equals(username, dto.getUserName()) && StringUtils.equals(tokenId, dto.getTokenId()))
                 .findFirst()
-                .ifPresent(dto -> RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + tokenId));
+                .ifPresent(dto -> {
+                    RedisUtils.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + tokenId);
+                    RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + tokenId);
+                });
         } catch (Exception ignored) {
         }
         return R.ok();

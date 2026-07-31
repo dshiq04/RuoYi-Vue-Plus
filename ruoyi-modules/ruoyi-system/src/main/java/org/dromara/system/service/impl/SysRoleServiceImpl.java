@@ -551,6 +551,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
             }
             if (loginUser.getRoles().stream().anyMatch(r -> r.getRoleId().equals(roleId))) {
                 try {
+                    RedisUtils.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + token);
                     RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + token);
                 } catch (Exception ignored) {
                 }
@@ -588,6 +589,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
             }
             if (userIds.contains(loginUser.getUserId())) {
                 try {
+                    RedisUtils.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + token);
                     RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + token);
                 } catch (Exception ignored) {
                 }
