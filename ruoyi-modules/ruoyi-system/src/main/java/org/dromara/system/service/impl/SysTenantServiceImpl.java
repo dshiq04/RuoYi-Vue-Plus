@@ -245,12 +245,11 @@ public class SysTenantServiceImpl implements ISysTenantService {
     private Long createTenantRole(String tenantId, Long packageId) {
         // 获取租户套餐
         SysTenantPackage tenantPackage = tenantPackageMapper.selectById(packageId);
-        if (ObjectUtil.isNull(tenantPackage)) {
+        if (ObjectUtil.isEmpty(tenantPackage)) {
             throw new ServiceException("套餐不存在");
         }
         // 获取套餐菜单id
         List<Long> menuIds = StringUtils.splitTo(tenantPackage.getMenuIds(), Convert::toLong);
-
         // 创建角色
         SysRole role = new SysRole();
         role.setTenantId(tenantId);

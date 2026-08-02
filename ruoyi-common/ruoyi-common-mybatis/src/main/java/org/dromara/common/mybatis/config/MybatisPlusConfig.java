@@ -39,22 +39,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Slf4j
 public class MybatisPlusConfig {
 
-    @PostConstruct
-    public void init() {
-        String version = MybatisPlusVersion.getVersion();
-        if (version == null || "unknown".equals(version)) {
-            // 在IDE或非标准类加载环境下，getVersion()可能返回null/unknown
-            // 尝试从包信息获取
-            Package pkg = MybatisPlusVersion.class.getPackage();
-            if (pkg != null) {
-                version = pkg.getImplementationVersion();
-            }
-            if (version == null) {
-                version = "3.5.17";
-            }
-        }
-        log.info("MyBatis-Plus 版本: {}", version);
-    }
 
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {

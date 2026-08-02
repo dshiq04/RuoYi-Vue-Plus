@@ -266,12 +266,12 @@ websocket:
 --- # warm-flow工作流配置
 warm-flow:
   # 是否开启工作流，默认true
-  enabled: true
+  enabled: false
   # 是否开启设计器ui
-  ui: true
+  ui: false
   # 是否显示流程图顶部文字
-  top-text-show: true
+  top-text-show: false
   # 是否渲染节点悬浮提示，默认true
-  node-tooltip: true
+  node-tooltip: false
   # 默认Authorization，如果有多个token，用逗号分隔
   token-name: Authorization,clientid

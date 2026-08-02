@@ -49,6 +49,7 @@ public class GlobalExceptionHandler {
                                                        HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',不支持'{}'请求", requestURI, e.getMethod());
+        e.printStackTrace();
         return R.fail(HttpStatus.HTTP_BAD_METHOD, e.getMessage());
     }
 
@@ -58,6 +59,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ServiceException.class)
     public R<Void> handleServiceException(ServiceException e, HttpServletRequest request) {
         log.error(e.getMessage());
+        e.printStackTrace();
         Integer code = e.getCode();
         return ObjectUtil.isNotNull(code) ? R.fail(code, e.getMessage()) : R.fail(e.getMessage());
     }
@@ -70,6 +72,7 @@ public class GlobalExceptionHandler {
     public String handleNotLoginException(SseException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.debug("请求地址'{}',认证失败'{}',无法访问系统资源", requestURI, e.getMessage());
+        e.printStackTrace();
         return JsonUtils.toJsonString(R.fail(HttpStatus.HTTP_UNAUTHORIZED, "认证失败，无法访问系统资源"));
     }
 
@@ -80,6 +83,7 @@ public class GlobalExceptionHandler {
     public R<Void> handleServletException(ServletException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',发生未知异常.", requestURI, e);
+        e.printStackTrace();
         return R.fail("发生未知异常，请联系管理员");
     }
 
@@ -89,6 +93,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BaseException.class)
     public R<Void> handleBaseException(BaseException e, HttpServletRequest request) {
         log.error(e.getMessage());
+        e.printStackTrace();
         return R.fail(e.getMessage());
     }
 
@@ -99,6 +104,7 @@ public class GlobalExceptionHandler {
     public R<Void> handleMissingPathVariableException(MissingPathVariableException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求路径中缺少必需的路径变量'{}',发生系统异常.", requestURI);
+        e.printStackTrace();
         return R.fail(String.format("请求路径中缺少必需的路径变量[%s]", e.getVariableName()));
     }
 
@@ -109,6 +115,7 @@ public class GlobalExceptionHandler {
     public R<Void> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求参数类型不匹配'{}',发生系统异常.", requestURI);
+        e.printStackTrace();
         return R.fail(String.format("请求参数类型不匹配，参数[%s]要求类型为：'%s'，但输入值为：'%s'", e.getName(), e.getRequiredType().getName(), e.getValue()));
     }
 
@@ -119,6 +126,7 @@ public class GlobalExceptionHandler {
     public R<Void> handleNoHandlerFoundException(NoHandlerFoundException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}'不存在.", requestURI);
+        e.printStackTrace();
         return R.fail(HttpStatus.HTTP_NOT_FOUND, "请求地址不存在");
     }
 
@@ -134,6 +142,7 @@ public class GlobalExceptionHandler {
             return;
         }
         log.error("请求地址'{}',连接中断", requestURI, e);
+        e.printStackTrace();
     }
 
     /**
@@ -150,6 +159,7 @@ public class GlobalExceptionHandler {
     public R<Void> handleRuntimeException(RuntimeException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',发生未知异常.", requestURI, e);
+        e.printStackTrace();
         return R.fail("发生未知异常，请联系管理员");
     }
 
@@ -160,6 +170,7 @@ public class GlobalExceptionHandler {
     public R<Void> handleException(Exception e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',发生系统异常.", requestURI, e);
+        e.printStackTrace();
         return R.fail("发生系统异常，请联系管理员");
     }
 
@@ -169,6 +180,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BindException.class)
     public R<Void> handleBindException(BindException e) {
         log.error(e.getMessage());
+        e.printStackTrace();
         String message = StreamUtils.join(e.getAllErrors(), DefaultMessageSourceResolvable::getDefaultMessage, ", ");
         return R.fail(message);
     }
@@ -179,6 +191,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public R<Void> constraintViolationException(ConstraintViolationException e) {
         log.error(e.getMessage());
+        e.printStackTrace();
         String message = StreamUtils.join(e.getConstraintViolations(), ConstraintViolation::getMessage, ", ");
         return R.fail(message);
     }
@@ -189,6 +202,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public R<Void> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.error(e.getMessage());
+        e.printStackTrace();
         String message = StreamUtils.join(e.getBindingResult().getAllErrors(), DefaultMessageSourceResolvable::getDefaultMessage, ", ");
         return R.fail(message);
     }
@@ -199,6 +213,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HandlerMethodValidationException.class)
     public R<Void> handlerMethodValidationException(HandlerMethodValidationException e) {
         log.error(e.getMessage());
+        e.printStackTrace();
         String message = StreamUtils.join(e.getAllErrors(), MessageSourceResolvable::getDefaultMessage, ", ");
         return R.fail(message);
     }
@@ -211,6 +226,7 @@ public class GlobalExceptionHandler {
     public R<Void> handleJsonParseException(JsonParseException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}' 发生 JSON 解析异常: {}", requestURI, e.getMessage());
+        e.printStackTrace();
         return R.fail(HttpStatus.HTTP_BAD_REQUEST, "请求数据格式错误（JSON 解析失败）：" + e.getMessage());
     }
 
@@ -220,6 +236,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public R<Void> handleHttpMessageNotReadableException(HttpMessageNotReadableException e, HttpServletRequest request) {
         log.error("请求地址'{}', 参数解析失败: {}", request.getRequestURI(), e.getMessage());
+        e.printStackTrace();
         return R.fail(HttpStatus.HTTP_BAD_REQUEST, "请求参数格式错误：" + e.getMostSpecificCause().getMessage());
     }
 
@@ -229,6 +246,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ExpressionException.class)
     public R<Void> handleSpelException(ExpressionException e, HttpServletRequest request) {
         log.error("请求地址'{}'，SpEL解析异常: {}", request.getRequestURI(), e.getMessage());
+        e.printStackTrace();
         return R.fail(HttpStatus.HTTP_INTERNAL_ERROR, "SpEL解析失败：" + e.getMessage());
     }
 
