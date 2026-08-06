@@ -11,8 +11,11 @@ import org.dromara.common.tenant.core.TenantEntity;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 #end
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 #foreach ($import in $importList)
 import ${import};
 #end
@@ -31,6 +34,9 @@ import java.io.Serial;
 #set($Entity="BaseEntity")
 #end
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @TableName("${tableName}")
 public class ${ClassName} extends ${Entity} {

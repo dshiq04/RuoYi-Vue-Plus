@@ -9,7 +9,10 @@ import cn.idev.excel.annotation.ExcelProperty;
 import org.dromara.common.excel.annotation.ExcelDictFormat;
 import org.dromara.common.excel.convert.ExcelDictConvert;
 import io.github.linpeilie.annotations.AutoMapper;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -24,6 +27,9 @@ import java.util.Date;
  * @date ${datetime}
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ExcelIgnoreUnannotated
 @AutoMapper(target = ${ClassName}.class)
 public class ${ClassName}Vo implements Serializable {
