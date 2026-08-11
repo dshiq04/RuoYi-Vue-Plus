@@ -12,6 +12,9 @@ import { createCustomNameComponent } from '@/utils/createCustomNameComponent';
 
 // 匹配views里面所有的.vue文件
 const modules = import.meta.glob('./../../views/**/*.vue');
+
+// 拉取后端菜单路由(与 getInfo 并发使用，减少进入主页面的串行等待)
+export const loadRouters = (): ReturnType<typeof getRouters> => getRouters();
 export const usePermissionStore = defineStore('permission', () => {
   const routes = ref<RouteRecordRaw[]>([]);
   const addRoutes = ref<RouteRecordRaw[]>([]);
@@ -45,8 +48,7 @@ export const usePermissionStore = defineStore('permission', () => {
   const setSidebarRouters = (routes: RouteRecordRaw[]): void => {
     sidebarRouters.value = routes;
   };
-  const generateRoutes = async (): Promise<RouteRecordRaw[]> => {
-    const res = await getRouters();
+  const generateRoutes = async (res: Awaited<ReturnType<typeof getRouters>>): Promise<RouteRecordRaw[]> => {
     const { data } = res;
     const sdata = JSON.parse(JSON.stringify(data));
     const rdata = JSON.parse(JSON.stringify(data));

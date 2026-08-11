@@ -33,4 +33,10 @@ public interface CacheConstants {
      */
     String PWD_ERR_CNT_KEY = "PWD_ERR_CNT:";
 
+    /**
+     * 停用用户名单 redis key(Set集合) 存停用用户的userId
+     * 使用GLOBAL前缀 避免被租户前缀隔离 停用校验必须跨租户生效
+     */
+    String SYS_USER_DISABLE_KEY = GlobalConstants.GLOBAL_REDIS_KEY + "SYS_USER_DISABLE:";
+
 }

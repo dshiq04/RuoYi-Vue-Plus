@@ -363,6 +363,30 @@ public class RedisUtils {
     }
 
     /**
+     * 判断Set中是否存在该数据
+     *
+     * @param key  缓存的键值
+     * @param data 数据
+     * @return 是否存在
+     */
+    public static <T> boolean containsCacheSet(final String key, final T data) {
+        RSet<T> rSet = CLIENT.getSet(key);
+        return rSet.contains(data);
+    }
+
+    /**
+     * 从Set中移除数据
+     *
+     * @param key  缓存的键值
+     * @param data 数据
+     * @return 是否移除成功
+     */
+    public static <T> boolean removeCacheSet(final String key, final T data) {
+        RSet<T> rSet = CLIENT.getSet(key);
+        return rSet.remove(data);
+    }
+
+    /**
      * 获得缓存的set
      *
      * @param key 缓存的key

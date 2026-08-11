@@ -34,7 +34,7 @@ logging:
     org.springframework: warn
     org.mybatis.spring.mapper: error
     org.apache.fury: warn
-    org.springframework.security: debug
+    org.springframework.security: trace
 
   config: classpath:logback-plus.xml
 
@@ -196,6 +196,11 @@ springdoc:
   api-docs:
     # 是否开启接口文档
     enabled: true
+  swagger-ui:
+    # 是否开启 swagger-ui 页面
+    enabled: true
+    # 默认展开 api 分组(可选: list | full | none)
+    doc-expansion: none
   info:
     # 标题
     title: '标题：RuoYi-Vue-Plus多租户管理系统_接口文档'

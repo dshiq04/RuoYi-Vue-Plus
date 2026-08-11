@@ -64,8 +64,7 @@ export default defineConfig(({ mode, command }) => {
         'echarts',
         'vue-i18n',
         '@vueup/vue-quill',
-        'image-conversion',
-        'element-plus/es/components/**/css'
+        'image-conversion'
       ]
     }
   };

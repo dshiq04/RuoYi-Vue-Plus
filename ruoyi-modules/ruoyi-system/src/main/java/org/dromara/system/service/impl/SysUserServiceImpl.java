@@ -13,12 +13,15 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.dromara.common.core.constant.CacheConstants;
 import org.dromara.common.core.constant.CacheNames;
 import org.dromara.common.core.constant.SystemConstants;
 import org.dromara.common.core.domain.dto.UserDTO;
+import org.dromara.common.core.enums.UserStatus;
 import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.service.UserService;
 import org.dromara.common.core.utils.*;
+import org.dromara.common.redis.utils.RedisUtils;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.satoken.utils.LoginHelper;
@@ -380,10 +383,20 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
      */
     @Override
     public int updateUserStatus(Long userId, String status) {
-        return baseMapper.update(null,
+        int rows = baseMapper.update(null,
             new LambdaUpdateWrapper<SysUser>()
                 .set(SysUser::getStatus, status)
                 .eq(SysUser::getUserId, userId));
+        // 同步停用名单到redis：停用加入名单、解除停用从名单移除
+        // 供 JwtAuthenticationFilter 校验，停用用户的请求直接返回401
+        if (rows > 0) {
+            if (UserStatus.DISABLE.getCode().equals(status)) {
+                RedisUtils.addCacheSet(CacheConstants.SYS_USER_DISABLE_KEY, String.valueOf(userId));
+            } else {
+                RedisUtils.removeCacheSet(CacheConstants.SYS_USER_DISABLE_KEY, String.valueOf(userId));
+            }
+        }
+        return rows;
     }
 
     /**

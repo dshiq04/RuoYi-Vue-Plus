@@ -73,6 +73,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             writeError(response, HttpStatus.HTTP_UNAUTHORIZED, "jwt令牌不合法，请重新登录");
             return;
         }
+        // 停用用户拦截：账号被停用(在redis停用名单中)直接返回401
+        Long userId = loginUser.getUserId();
+        if (ObjectUtil.isNotNull(userId) && RedisUtils.containsCacheSet(CacheConstants.SYS_USER_DISABLE_KEY, String.valueOf(userId))) {
+            writeError(response, HttpStatus.HTTP_UNAUTHORIZED, "本账户已停用，请联系管理员");
+            return;
+        }
         // 从redis载入的用户信息含全部菜单/角色权限 注入springsecurity上下文
         loginUser.setToken(token);
         LoginUserDetails userDetails = new LoginUserDetails(loginUser);
