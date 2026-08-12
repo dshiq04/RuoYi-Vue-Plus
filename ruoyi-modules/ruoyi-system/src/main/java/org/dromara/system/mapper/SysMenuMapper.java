@@ -1,5 +1,6 @@
 package org.dromara.system.mapper;
 
+import cn.hutool.core.convert.Convert;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.dromara.common.core.constant.SystemConstants;
 import org.dromara.common.core.utils.StreamUtils;
@@ -160,7 +161,9 @@ public interface SysMenuMapper extends BaseMapperPlus<SysMenu, SysMenuVo> {
         if (menuCheckStrictly) {
             wrapper.notInSql(SysMenu::getMenuId, this.buildParentMenuByRoleSql(roleId));
         }
-        return this.selectObjs(wrapper);
+        return this.selectObjs(wrapper, x -> {
+            return Convert.toLong(x);
+        });
     }
 
 }

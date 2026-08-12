@@ -1,5 +1,6 @@
 package org.dromara.system.mapper;
 
+import cn.hutool.core.convert.Convert;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.dromara.common.mybatis.core.mapper.BaseMapperPlus;
 import org.dromara.system.domain.SysUserRole;
@@ -21,8 +22,9 @@ public interface SysUserRoleMapper extends BaseMapperPlus<SysUserRole, SysUserRo
      */
     default List<Long> selectUserIdsByRoleId(Long roleId) {
         return this.selectObjs(new LambdaQueryWrapper<SysUserRole>()
-            .select(SysUserRole::getUserId).eq(SysUserRole::getRoleId, roleId)
-        );
+            .select(SysUserRole::getUserId).eq(SysUserRole::getRoleId, roleId), x -> {
+            return Convert.toLong(x);
+        });
     }
 
 }

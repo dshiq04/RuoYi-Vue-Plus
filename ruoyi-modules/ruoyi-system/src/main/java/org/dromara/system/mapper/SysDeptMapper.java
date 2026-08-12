@@ -1,5 +1,6 @@
 package org.dromara.system.mapper;
 
+import cn.hutool.core.convert.Convert;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -137,7 +138,9 @@ public interface SysDeptMapper extends BaseMapperPlus<SysDept, SysDeptVo> {
         if (deptCheckStrictly) {
             wrapper.notInSql(SysDept::getDeptId, this.buildParentDeptByRoleSql(roleId));
         }
-        return this.selectObjs(wrapper);
+        return this.selectObjs(wrapper, x -> {
+            return Convert.toLong(x);
+        });
     }
 
 }
