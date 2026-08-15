@@ -23,6 +23,7 @@ import org.dromara.common.core.utils.StringUtils;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.redis.utils.RedisUtils;
+import org.dromara.common.satoken.utils.JwtUtils;
 import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.system.domain.SysRole;
 import org.dromara.system.domain.SysRoleDept;
@@ -54,6 +55,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
     private final SysRoleMenuMapper roleMenuMapper;
     private final SysUserRoleMapper userRoleMapper;
     private final SysRoleDeptMapper roleDeptMapper;
+    private final JwtUtils jwtUtils;
 
     /**
      * 分页查询角色列表
@@ -319,7 +321,10 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
         baseMapper.updateById(role);
         // 删除角色与菜单关联
         roleMenuMapper.delete(new LambdaQueryWrapper<SysRoleMenu>().eq(SysRoleMenu::getRoleId, role.getRoleId()));
-        return insertRoleMenu(bo);
+        int rows = insertRoleMenu(bo);
+        // 修改角色后 强制登出该角色关联的所有在线用户 使其重新登录加载最新角色权限
+        cleanOnlineUserByRole(role.getRoleId());
+        return rows;
     }
 
     /**
@@ -551,8 +556,8 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
             }
             if (loginUser.getRoles().stream().anyMatch(r -> r.getRoleId().equals(roleId))) {
                 try {
-                    RedisUtils.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + token);
-                    RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + token);
+                    // 使用令牌组件销毁令牌 同步删除redis登录令牌与在线用户信息
+                    jwtUtils.invalidateToken(token);
                 } catch (Exception ignored) {
                 }
             }
@@ -589,8 +594,8 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
             }
             if (userIds.contains(loginUser.getUserId())) {
                 try {
-                    RedisUtils.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + token);
-                    RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + token);
+                    // 使用令牌组件销毁令牌 同步删除redis登录令牌与在线用户信息
+                    jwtUtils.invalidateToken(token);
                 } catch (Exception ignored) {
                 }
             }

@@ -137,14 +137,16 @@ service.interceptors.response.use(
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          isRelogin.show = false;
-          useUserStore().logout().then(() => {
+          // 注销期间再次收到401时不再弹出二次确认框
+          isRelogin.show = true;
+          useUserStore().logout().finally(() => {
+            isRelogin.show = false;
             router.replace({
               path: '/login',
               query: {
                 redirect: encodeURIComponent(router.currentRoute.value.fullPath || '/')
               }
-            })
+            });
           });
         }).catch(() => {
           isRelogin.show = false;

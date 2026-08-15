@@ -34,6 +34,7 @@ import org.dromara.system.domain.vo.SysRoleVo;
 import org.dromara.system.domain.vo.SysUserExportVo;
 import org.dromara.system.domain.vo.SysUserVo;
 import org.dromara.system.mapper.*;
+import org.dromara.system.service.ISysRoleService;
 import org.dromara.system.service.ISysUserService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -58,6 +59,7 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
     private final SysPostMapper postMapper;
     private final SysUserRoleMapper userRoleMapper;
     private final SysUserPostMapper userPostMapper;
+    private final ISysRoleService roleService;
 
     @Override
     public TableDataInfo<SysUserVo> selectPageUserList(SysUserBo user, PageQuery pageQuery) {
@@ -359,6 +361,8 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         if (flag < 1) {
             throw new ServiceException("修改用户{}信息失败", user.getUserName());
         }
+        // 修改用户后 强制登出该用户 使其重新登录加载最新用户信息
+        roleService.cleanOnlineUser(List.of(user.getUserId()));
         return flag;
     }
 
@@ -372,6 +376,8 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
     @Transactional(rollbackFor = Exception.class)
     public void insertUserAuth(Long userId, Long[] roleIds) {
         insertUserRole(userId, roleIds, true);
+        // 分配角色后 强制登出该用户 使其重新登录加载最新角色权限
+        roleService.cleanOnlineUser(List.of(userId));
     }
 
     /**
@@ -441,10 +447,15 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
      */
     @Override
     public int resetUserPwd(Long userId, String password) {
-        return baseMapper.update(null,
+        int rows = baseMapper.update(null,
             new LambdaUpdateWrapper<SysUser>()
                 .set(SysUser::getPassword, password)
                 .eq(SysUser::getUserId, userId));
+        // 修改用户密码后 强制登出该用户 使其重新登录
+        if (rows > 0) {
+            roleService.cleanOnlineUser(List.of(userId));
+        }
+        return rows;
     }
 
     /**
@@ -554,6 +565,8 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         if (flag < 1) {
             throw new ServiceException("删除用户失败!");
         }
+        // 删除用户后 清除该用户在redis中的登录信息并强制登出
+        roleService.cleanOnlineUser(List.of(userId));
         return flag;
     }
 
@@ -580,6 +593,8 @@ public class SysUserServiceImpl implements ISysUserService, UserService {
         if (flag < 1) {
             throw new ServiceException("删除用户失败!");
         }
+        // 批量删除用户后 清除这些用户在redis中的登录信息并强制登出
+        roleService.cleanOnlineUser(ids);
         return flag;
     }
 

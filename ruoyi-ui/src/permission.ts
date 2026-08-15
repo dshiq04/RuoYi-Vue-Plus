@@ -45,13 +45,17 @@ router.beforeEach(async (to, from, next) => {
           } catch {
             /* ignore */
           }
+          isRelogin.show = false;
           ElMessage.error(err);
-          next({ path: '/' });
+          next({ path: '/login', replace: true, query: { redirect: encodeURIComponent(to.fullPath || '/') } });
+          NProgress.done();
         } else {
           const [routersErr, routersRes] = await tos(routersPromise);
           if (routersErr) {
             ElMessage.error(routersErr);
-            next({ path: '/' });
+            isRelogin.show = false;
+            next({ path: '/login', replace: true, query: { redirect: encodeURIComponent(to.fullPath || '/') } });
+            NProgress.done();
           } else {
             isRelogin.show = false;
             const accessRoutes = await usePermissionStore().generateRoutes(routersRes);

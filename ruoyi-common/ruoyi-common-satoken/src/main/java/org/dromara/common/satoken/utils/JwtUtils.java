@@ -3,7 +3,9 @@ package org.dromara.common.satoken.utils;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.dromara.common.core.constant.CacheConstants;
 import org.dromara.common.core.domain.model.LoginUser;
+import org.dromara.common.redis.utils.RedisUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -133,6 +135,22 @@ public class JwtUtils {
      */
     public long getExpiration() {
         return expiration;
+    }
+
+    /**
+     * 销毁令牌（强制登出）
+     * <p>
+     * 删除redis中该令牌对应的登录用户信息与在线用户信息，使令牌即刻失效
+     * </p>
+     *
+     * @param token 令牌
+     */
+    public void invalidateToken(String token) {
+        if (StrUtil.isBlank(token)) {
+            return;
+        }
+        RedisUtils.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + token);
+        RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + token);
     }
 
     private String base64UrlEncode(String data) {

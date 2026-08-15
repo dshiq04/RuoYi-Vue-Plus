@@ -27,6 +27,7 @@ import org.dromara.common.core.utils.ip.AddressUtils;
 import org.dromara.common.log.event.LogininforEvent;
 import org.dromara.common.mybatis.helper.DataPermissionHelper;
 import org.dromara.common.redis.utils.RedisUtils;
+import org.dromara.common.satoken.utils.JwtUtils;
 import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.common.tenant.exception.TenantException;
 import org.dromara.common.tenant.helper.TenantHelper;
@@ -67,6 +68,7 @@ public class SysLoginService {
     private final ISysDeptService deptService;
     private final ISysPostService postService;
     private final SysUserMapper userMapper;
+    private final JwtUtils jwtUtils;
 
     /**
      * 绑定第三方用户
@@ -121,11 +123,8 @@ public class SysLoginService {
                 TenantHelper.clearDynamic();
             }
             String tenantId = loginUser.getTenantId();
-            TenantHelper.dynamic(tenantId, () -> {
-                // 删除登录令牌与在线用户信息
-                RedisUtils.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + token);
-                RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + token);
-            });
+            // 使用令牌组件销毁令牌 删除redis中的登录用户信息与在线用户信息 强制登出
+            jwtUtils.invalidateToken(token);
             recordLogininfor(tenantId, loginUser.getUsername(), Constants.LOGOUT, MessageUtils.message("user.logout.success"));
         } catch (Exception ignored) {
         } finally {

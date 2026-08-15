@@ -59,11 +59,17 @@ export const useUserStore = defineStore('user', () => {
 
   // 注销
   const logout = async (): Promise<void> => {
-    await logoutApi();
-    token.value = '';
-    roles.value = [];
-    permissions.value = [];
-    removeToken();
+    try {
+      // 令牌失效时 logout 接口也会返回 401，此时不应阻塞本地状态清理
+      await logoutApi();
+    } catch {
+      /* ignore */
+    } finally {
+      token.value = '';
+      roles.value = [];
+      permissions.value = [];
+      removeToken();
+    }
   };
 
   const setAvatar = (value: string) => {
