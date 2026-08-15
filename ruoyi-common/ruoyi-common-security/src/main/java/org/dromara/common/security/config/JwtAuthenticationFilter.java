@@ -79,6 +79,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             writeError(response, HttpStatus.HTTP_UNAUTHORIZED, "本账户已停用，请联系管理员");
             return;
         }
+        // 在线令牌校验：前端令牌需与后端ONLINE_TOKEN比对 不存在则视为未登录或被清退
+        if (!RedisUtils.hasKey(CacheConstants.ONLINE_TOKEN_KEY + token)) {
+            writeError(response, HttpStatus.HTTP_UNAUTHORIZED, "用户在本平台未登录或者被清退");
+            return;
+        }
         // 从redis载入的用户信息含全部菜单/角色权限 注入springsecurity上下文
         loginUser.setToken(token);
         LoginUserDetails userDetails = new LoginUserDetails(loginUser);

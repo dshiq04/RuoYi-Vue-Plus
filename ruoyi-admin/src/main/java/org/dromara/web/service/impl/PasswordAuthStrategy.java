@@ -72,11 +72,11 @@ public class PasswordAuthStrategy implements IAuthStrategy {
         loginUser.setDeviceType(client.getDeviceType());
         LoginHelper.login(loginUser);
         String token = jwtUtils.createToken(loginUser);
-        // 登录成功后写入redis令牌与权限
-        loginService.onLoginSuccess(loginUser, token);
+        // 登录成功后写入redis令牌与权限 已有在线令牌则复用
+        String accessToken = loginService.onLoginSuccess(loginUser, token);
 
         LoginVo loginVo = new LoginVo();
-        loginVo.setAccessToken(token);
+        loginVo.setAccessToken(accessToken);
         loginVo.setExpireIn((long) jwtUtils.getExpiration() * 60);
         loginVo.setClientId(client.getClientId());
         return loginVo;

@@ -41,6 +41,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
@@ -149,37 +150,89 @@ public class SysLoginService {
 
     /**
      * 登录成功后处理：存储令牌与用户/角色权限到redis、记录在线用户、写入登录日志、更新最近登录信息
+     * <p>
+     * ONLINE_TOKEN 创建原则(注意平台)：同一用户在同一平台(客户端+设备类型)已存在在线令牌时，
+     * 不重复创建，直接复用已有令牌；不存在时才创建新的在线令牌。
      *
      * @param loginUser 登录用户
-     * @param token     JWT令牌
+     * @param newToken  本次登录生成的新JWT令牌
+     * @return 实际生效的令牌(复用已有令牌时返回已有令牌)
      */
-    public void onLoginSuccess(LoginUser loginUser, String token) {
-        loginUser.setToken(token);
+    public String onLoginSuccess(LoginUser loginUser, String newToken) {
         HttpServletRequest request = ServletUtils.getRequest();
         UserAgent userAgent = UserAgentUtil.parse(request.getHeader("User-Agent"));
         String ip = ServletUtils.getClientIP();
+        // 查找当前用户在当前平台是否已存在在线令牌
+        String existToken = getOnlineTokenByUserAndPlatform(loginUser);
+        String token;
+        if (StrUtil.isNotBlank(existToken)) {
+            // 已有在线令牌 复用 不重复创建 清理本次新生成的令牌缓存
+            RedisUtils.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + newToken);
+            token = existToken;
+        } else {
+            token = newToken;
+        }
         // 1. 令牌与用户/角色权限存入redis 有效期7天
-        // 2. 在线用户信息存入redis 有效期7天
+        // 2. 在线用户信息存入redis 有效期7天 (不存在才创建)
+        loginUser.setToken(token);
         TenantHelper.dynamic(loginUser.getTenantId(), () -> {
             RedisUtils.setCacheObject(CacheConstants.LOGIN_TOKEN_KEY + token, loginUser, Duration.ofDays(7));
-            UserOnlineDTO dto = new UserOnlineDTO();
-            dto.setIpaddr(ip);
-            dto.setLoginLocation(AddressUtils.getRealAddressByIP(ip));
-            dto.setBrowser(userAgent.getBrowser().getName());
-            dto.setOs(userAgent.getOs().getName());
-            dto.setLoginTime(System.currentTimeMillis());
-            dto.setTokenId(token);
-            dto.setUserName(loginUser.getUsername());
-            dto.setClientKey(loginUser.getClientKey());
-            dto.setDeviceType(loginUser.getDeviceType());
-            dto.setDeptName(loginUser.getDeptName());
-            RedisUtils.setCacheObject(CacheConstants.ONLINE_TOKEN_KEY + token, dto, Duration.ofDays(7));
+            if (StrUtil.isBlank(existToken)) {
+                // 不存在在线令牌 创建新的在线用户信息
+                UserOnlineDTO dto = new UserOnlineDTO();
+                dto.setIpaddr(ip);
+                dto.setLoginLocation(AddressUtils.getRealAddressByIP(ip));
+                dto.setBrowser(userAgent.getBrowser().getName());
+                dto.setOs(userAgent.getOs().getName());
+                dto.setLoginTime(System.currentTimeMillis());
+                dto.setTokenId(token);
+                dto.setUserName(loginUser.getUsername());
+                dto.setClientKey(loginUser.getClientKey());
+                dto.setDeviceType(loginUser.getDeviceType());
+                dto.setDeptName(loginUser.getDeptName());
+                RedisUtils.setCacheObject(CacheConstants.ONLINE_TOKEN_KEY + token, dto, Duration.ofDays(7));
+            } else {
+                // 已存在在线令牌 仅刷新登录信息与有效期
+                UserOnlineDTO dto = RedisUtils.getCacheObject(CacheConstants.ONLINE_TOKEN_KEY + token);
+                if (ObjectUtil.isNotNull(dto)) {
+                    dto.setIpaddr(ip);
+                    dto.setLoginLocation(AddressUtils.getRealAddressByIP(ip));
+                    dto.setBrowser(userAgent.getBrowser().getName());
+                    dto.setOs(userAgent.getOs().getName());
+                    dto.setLoginTime(System.currentTimeMillis());
+                    RedisUtils.setCacheObject(CacheConstants.ONLINE_TOKEN_KEY + token, dto, Duration.ofDays(7));
+                }
+            }
         });
         // 3. 记录登录日志
         recordLogininfor(loginUser.getTenantId(), loginUser.getUsername(), Constants.LOGIN_SUCCESS, MessageUtils.message("user.login.success"));
         // 4. 更新最近登录信息
         recordLoginInfo(loginUser.getUserId(), ip);
         log.info("user doLogin, userId:{}, token:***{}", loginUser.getUserId(), StringUtils.right(token, 8));
+        return token;
+    }
+
+    /**
+     * 查询当前用户在当前平台(客户端+设备类型)是否已有在线令牌
+     *
+     * @param loginUser 登录用户
+     * @return 已存在的在线令牌 无则返回null
+     */
+    private String getOnlineTokenByUserAndPlatform(LoginUser loginUser) {
+        Collection<String> keys = RedisUtils.keys(CacheConstants.ONLINE_TOKEN_KEY + "*");
+        for (String key : keys) {
+            UserOnlineDTO dto = RedisUtils.getCacheObject(key);
+            if (dto == null) {
+                continue;
+            }
+            // 注意平台：同一用户、同一客户端、同一设备类型才算已有在线令牌
+            if (StrUtil.equals(dto.getUserName(), loginUser.getUsername())
+                && StrUtil.equals(dto.getClientKey(), loginUser.getClientKey())
+                && StrUtil.equals(dto.getDeviceType(), loginUser.getDeviceType())) {
+                return dto.getTokenId();
+            }
+        }
+        return null;
     }
 
     /**
