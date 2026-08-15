@@ -2,6 +2,7 @@ package org.dromara.system.controller.monitor;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.constant.CacheConstants;
 import org.dromara.common.core.domain.R;
@@ -13,6 +14,7 @@ import org.dromara.common.log.annotation.Log;
 import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.redis.utils.RedisUtils;
+import org.dromara.common.satoken.utils.JwtUtils;
 import org.dromara.common.satoken.utils.LoginHelper;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.system.domain.SysUserOnline;
@@ -33,6 +35,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/monitor/online")
 public class SysUserOnlineController extends BaseController {
+
+    private final JwtUtils jwtUtils;
 
     /**
      * 获取在线用户监控列表
@@ -86,8 +90,7 @@ public class SysUserOnlineController extends BaseController {
     @DeleteMapping("/{tokenId}")
     public R<Void> forceLogout(@PathVariable String tokenId) {
         try {
-            RedisUtils.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + tokenId);
-            RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + tokenId);
+            forceLogoutToken(tokenId);
         } catch (Exception ignored) {
         }
         return R.ok();
@@ -129,13 +132,67 @@ public class SysUserOnlineController extends BaseController {
                 .map(key -> (UserOnlineDTO) RedisUtils.getCacheObject(key))
                 .filter(dto -> dto != null && StringUtils.equals(username, dto.getUserName()) && StringUtils.equals(tokenId, dto.getTokenId()))
                 .findFirst()
-                .ifPresent(dto -> {
-                    RedisUtils.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + tokenId);
-                    RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + tokenId);
-                });
+                .ifPresent(dto -> forceLogoutToken(tokenId));
         } catch (Exception ignored) {
         }
         return R.ok();
+    }
+
+    /**
+     * 强退指定令牌
+     * <p>
+     * 如果该用户剩余的 ONLINE_TOKENS 只剩 1 个或者已经没有，则直接在 redis 删除该用户的
+     * 全部 ONLINE_TOKENS 信息并将令牌注销；否则仅注销当前令牌。
+     * </p>
+     *
+     * @param tokenId token值
+     */
+    private void forceLogoutToken(String tokenId) {
+        Collection<String> keys = RedisUtils.keys(CacheConstants.ONLINE_TOKEN_KEY + "*");
+        if (CollUtil.isEmpty(keys)) {
+            // 没有任何在线记录 直接注销令牌
+            jwtUtils.invalidateToken(tokenId);
+            return;
+        }
+        String username = resolveUserName(keys, tokenId);
+        // 统计该用户剩余的在线令牌数量
+        long onlineCount = countOnlineToken(keys, username);
+        if (onlineCount <= 1) {
+            // 该用户的 ONLINE_TOKENS 只剩 1 个或没有 直接删除该用户的全部在线信息并注销令牌
+            keys.stream()
+                .map(key -> (UserOnlineDTO) RedisUtils.getCacheObject(key))
+                .filter(dto -> dto != null && StringUtils.equals(username, dto.getUserName()))
+                .forEach(dto -> {
+                    RedisUtils.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + dto.getTokenId());
+                    RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + dto.getTokenId());
+                });
+        } else {
+            // 还有其他在线设备 仅注销当前令牌
+            jwtUtils.invalidateToken(tokenId);
+        }
+    }
+
+    /**
+     * 定位令牌对应的用户名
+     */
+    private String resolveUserName(Collection<String> keys, String tokenId) {
+        for (String key : keys) {
+            UserOnlineDTO dto = RedisUtils.getCacheObject(key);
+            if (dto != null && StringUtils.equals(tokenId, dto.getTokenId())) {
+                return dto.getUserName();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 统计该用户剩余的在线令牌数量
+     */
+    private long countOnlineToken(Collection<String> keys, String username) {
+        return keys.stream()
+            .map(key -> (UserOnlineDTO) RedisUtils.getCacheObject(key))
+            .filter(dto -> dto != null && StringUtils.equals(username, dto.getUserName()))
+            .count();
     }
 
 }
