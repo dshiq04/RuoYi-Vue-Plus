@@ -16,6 +16,6 @@ public interface RoleService {
      * @param roleIds 角色 ID 列表
      * @return Map，其中 key 为角色 ID，value 为对应的角色名称
      */
-    Map<Long, String> selectRoleNamesByIds(List<Long> roleIds);
+    Map<String, String> selectRoleNamesByIds(List<String> roleIds);
 
 }

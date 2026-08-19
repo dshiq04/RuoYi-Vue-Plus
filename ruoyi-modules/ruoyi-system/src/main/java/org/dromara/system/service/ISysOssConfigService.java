@@ -24,7 +24,7 @@ public interface ISysOssConfigService {
     /**
      * 查询单个
      */
-    SysOssConfigVo queryById(Long ossConfigId);
+    SysOssConfigVo queryById(String ossConfigId);
 
     /**
      * 查询列表
@@ -54,7 +54,7 @@ public interface ISysOssConfigService {
      * @param isValid 是否校验,true-删除前校验,false-不校验
      * @return 结果
      */
-    Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+    Boolean deleteWithValidByIds(Collection<String> ids, Boolean isValid);
 
     /**
      * 启用停用状态

@@ -55,7 +55,7 @@ public class GenController extends BaseController {
     @RepeatSubmit()
     @PreAuthorize("hasAuthority('tool:gen:query')")
     @GetMapping(value = "/{tableId}")
-    public R<Map<String, Object>> getInfo(@PathVariable Long tableId) {
+    public R<Map<String, Object>> getInfo(@PathVariable String tableId) {
         GenTable table = genTableService.selectGenTableById(tableId);
         List<GenTable> tables = genTableService.selectGenTableAll();
         List<GenTableColumn> list = genTableService.selectGenTableColumnListByTableId(tableId);
@@ -82,7 +82,7 @@ public class GenController extends BaseController {
      */
     @PreAuthorize("hasAuthority('tool:gen:list')")
     @GetMapping(value = "/column/{tableId}")
-    public TableDataInfo<GenTableColumn> columnList(@PathVariable("tableId") Long tableId) {
+    public TableDataInfo<GenTableColumn> columnList(@PathVariable("tableId") String tableId) {
         List<GenTableColumn> list = genTableService.selectGenTableColumnListByTableId(tableId);
         return TableDataInfo.build(list);
     }
@@ -127,7 +127,7 @@ public class GenController extends BaseController {
     @PreAuthorize("hasAuthority('tool:gen:remove')")
     @Log(title = "代码生成", businessType = BusinessType.DELETE)
     @DeleteMapping("/{tableIds}")
-    public R<Void> remove(@PathVariable Long[] tableIds) {
+    public R<Void> remove(@PathVariable String[] tableIds) {
         genTableService.deleteGenTableByIds(tableIds);
         return R.ok();
     }
@@ -139,7 +139,7 @@ public class GenController extends BaseController {
      */
     @PreAuthorize("hasAuthority('tool:gen:preview')")
     @GetMapping("/preview/{tableId}")
-    public R<Map<String, String>> preview(@PathVariable("tableId") Long tableId) throws IOException {
+    public R<Map<String, String>> preview(@PathVariable("tableId") String tableId) throws IOException {
         Map<String, String> dataMap = genTableService.previewCode(tableId);
         return R.ok(dataMap);
     }
@@ -152,7 +152,7 @@ public class GenController extends BaseController {
     @PreAuthorize("hasAuthority('tool:gen:code')")
     @Log(title = "代码生成", businessType = BusinessType.GENCODE)
     @GetMapping("/download/{tableId}")
-    public void download(HttpServletResponse response, @PathVariable("tableId") Long tableId) throws IOException {
+    public void download(HttpServletResponse response, @PathVariable("tableId") String tableId) throws IOException {
         byte[] data = genTableService.downloadCode(tableId);
         genCode(response, data);
     }
@@ -166,7 +166,7 @@ public class GenController extends BaseController {
     @Log(title = "代码生成", businessType = BusinessType.UPDATE)
     @Lock4j(keys = {"#tableId"}, acquireTimeout = 5000)
     @GetMapping("/synchDb/{tableId}")
-    public R<Void> synchDb(@PathVariable("tableId") Long tableId) {
+    public R<Void> synchDb(@PathVariable("tableId") String tableId) {
         genTableService.synchDb(tableId);
         return R.ok();
     }

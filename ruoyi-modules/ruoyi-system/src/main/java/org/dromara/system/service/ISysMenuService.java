@@ -22,7 +22,7 @@ public interface ISysMenuService {
      * @param userId 用户ID
      * @return 菜单列表
      */
-    List<SysMenuVo> selectMenuList(Long userId);
+    List<SysMenuVo> selectMenuList(String userId);
 
     /**
      * 根据用户查询系统菜单列表
@@ -31,7 +31,7 @@ public interface ISysMenuService {
      * @param userId 用户ID
      * @return 菜单列表
      */
-    List<SysMenuVo> selectMenuList(SysMenuBo menu, Long userId);
+    List<SysMenuVo> selectMenuList(SysMenuBo menu, String userId);
 
     /**
      * 根据用户ID查询权限
@@ -39,7 +39,7 @@ public interface ISysMenuService {
      * @param userId 用户ID
      * @return 权限列表
      */
-    Set<String> selectMenuPermsByUserId(Long userId);
+    Set<String> selectMenuPermsByUserId(String userId);
 
     /**
      * 查询系统中所有菜单权限标识
@@ -56,7 +56,7 @@ public interface ISysMenuService {
      * @param roleId 角色ID
      * @return 权限列表
      */
-    Set<String> selectMenuPermsByRoleId(Long roleId);
+    Set<String> selectMenuPermsByRoleId(String roleId);
 
     /**
      * 根据用户ID查询菜单树信息
@@ -64,7 +64,7 @@ public interface ISysMenuService {
      * @param userId 用户ID
      * @return 菜单列表
      */
-    List<SysMenu> selectMenuTreeByUserId(Long userId);
+    List<SysMenu> selectMenuTreeByUserId(String userId);
 
     /**
      * 根据角色ID查询菜单树信息
@@ -72,7 +72,7 @@ public interface ISysMenuService {
      * @param roleId 角色ID
      * @return 选中菜单列表
      */
-    List<Long> selectMenuListByRoleId(Long roleId);
+    List<String> selectMenuListByRoleId(String roleId);
 
     /**
      * 根据租户套餐ID查询菜单树信息
@@ -80,7 +80,7 @@ public interface ISysMenuService {
      * @param packageId 租户套餐ID
      * @return 选中菜单列表
      */
-    List<Long> selectMenuListByPackageId(Long packageId);
+    List<String> selectMenuListByPackageId(String packageId);
 
     /**
      * 构建前端路由所需要的菜单
@@ -96,7 +96,7 @@ public interface ISysMenuService {
      * @param menus 菜单列表
      * @return 下拉树结构列表
      */
-    List<Tree<Long>> buildMenuTreeSelect(List<SysMenuVo> menus);
+    List<Tree<String>> buildMenuTreeSelect(List<SysMenuVo> menus);
 
     /**
      * 根据菜单ID查询信息
@@ -104,7 +104,7 @@ public interface ISysMenuService {
      * @param menuId 菜单ID
      * @return 菜单信息
      */
-    SysMenuVo selectMenuById(Long menuId);
+    SysMenuVo selectMenuById(String menuId);
 
     /**
      * 是否存在菜单子节点
@@ -112,7 +112,7 @@ public interface ISysMenuService {
      * @param menuId 菜单ID
      * @return 结果 true 存在 false 不存在
      */
-    boolean hasChildByMenuId(Long menuId);
+    boolean hasChildByMenuId(String menuId);
 
     /**
      * 是否存在菜单子节点
@@ -120,7 +120,7 @@ public interface ISysMenuService {
      * @param menuIds 菜单ID串
      * @return 结果 true 存在 false 不存在
      */
-    boolean hasChildByMenuId(List<Long> menuIds);
+    boolean hasChildByMenuId(List<String> menuIds);
 
     /**
      * 查询菜单是否存在角色
@@ -128,7 +128,7 @@ public interface ISysMenuService {
      * @param menuId 菜单ID
      * @return 结果 true 存在 false 不存在
      */
-    boolean checkMenuExistRole(Long menuId);
+    boolean checkMenuExistRole(String menuId);
 
     /**
      * 新增保存菜单信息
@@ -152,7 +152,7 @@ public interface ISysMenuService {
      * @param menuId 菜单ID
      * @return 结果
      */
-    int deleteMenuById(Long menuId);
+    int deleteMenuById(String menuId);
 
     /**
      * 批量删除菜单管理信息
@@ -160,7 +160,7 @@ public interface ISysMenuService {
      * @param menuIds 菜单ID串
      * @return 结果
      */
-    void deleteMenuById(List<Long> menuIds);
+    void deleteMenuById(List<String> menuIds);
 
     /**
      * 校验菜单名称是否唯一

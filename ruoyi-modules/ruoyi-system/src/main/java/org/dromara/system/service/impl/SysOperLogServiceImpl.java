@@ -116,7 +116,7 @@ public class SysOperLogServiceImpl implements ISysOperLogService {
      * @return 结果
      */
     @Override
-    public int deleteOperLogByIds(Long[] operIds) {
+    public int deleteOperLogByIds(String[] operIds) {
         return baseMapper.deleteByIds(Arrays.asList(operIds));
     }
 
@@ -127,7 +127,7 @@ public class SysOperLogServiceImpl implements ISysOperLogService {
      * @return 操作日志对象
      */
     @Override
-    public SysOperLogVo selectOperLogById(Long operId) {
+    public SysOperLogVo selectOperLogById(String operId) {
         return baseMapper.selectVoById(operId);
     }
 

@@ -31,12 +31,12 @@ public class SysDeptVo implements Serializable {
      * 部门id
      */
     @ExcelProperty(value = "部门id")
-    private Long deptId;
+    private String deptId;
 
     /**
      * 父部门id
      */
-    private Long parentId;
+    private String parentId;
 
     /**
      * 父部门名称
@@ -68,7 +68,7 @@ public class SysDeptVo implements Serializable {
     /**
      * 负责人ID
      */
-    private Long leader;
+    private String leader;
 
     /**
      * 负责人

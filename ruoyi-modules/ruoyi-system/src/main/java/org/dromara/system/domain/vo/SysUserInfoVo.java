@@ -20,7 +20,7 @@ public class SysUserInfoVo {
     /**
      * 角色ID列表
      */
-    private List<Long> roleIds;
+    private List<String> roleIds;
 
     /**
      * 角色列表
@@ -30,7 +30,7 @@ public class SysUserInfoVo {
     /**
      * 岗位ID列表
      */
-    private List<Long> postIds;
+    private List<String> postIds;
 
     /**
      * 岗位列表

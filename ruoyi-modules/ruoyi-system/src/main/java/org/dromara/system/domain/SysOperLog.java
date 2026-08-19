@@ -25,7 +25,7 @@ public class SysOperLog implements Serializable {
      * 日志主键
      */
     @TableId(value = "oper_id")
-    private Long operId;
+    private String operId;
 
     /**
      * 租户编号

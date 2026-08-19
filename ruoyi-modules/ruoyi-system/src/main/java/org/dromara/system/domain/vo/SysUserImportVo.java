@@ -27,13 +27,13 @@ public class SysUserImportVo implements Serializable {
      * 用户ID
      */
     @ExcelProperty(value = "用户序号")
-    private Long userId;
+    private String userId;
 
     /**
      * 部门ID
      */
     @ExcelProperty(value = "部门编号")
-    private Long deptId;
+    private String deptId;
 
     /**
      * 用户账号

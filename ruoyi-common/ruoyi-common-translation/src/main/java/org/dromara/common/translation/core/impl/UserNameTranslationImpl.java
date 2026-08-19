@@ -20,6 +20,6 @@ public class UserNameTranslationImpl implements TranslationInterface<String> {
 
     @Override
     public String translation(Object key, String other) {
-        return userService.selectUserNameById(Convert.toLong(key));
+        return userService.selectUserNameById(Convert.toStr(key));
     }
 }

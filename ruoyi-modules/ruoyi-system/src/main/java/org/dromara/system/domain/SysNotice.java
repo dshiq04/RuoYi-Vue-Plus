@@ -21,7 +21,7 @@ public class SysNotice extends TenantEntity {
      * 公告ID
      */
     @TableId(value = "notice_id")
-    private Long noticeId;
+    private String noticeId;
 
     /**
      * 公告标题

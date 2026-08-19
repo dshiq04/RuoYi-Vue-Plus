@@ -26,9 +26,9 @@ public interface SysRoleMapper extends BaseMapperPlus<SysRole, SysRoleVo> {
      * @param userId 用户ID
      * @return 查询用户对应角色ID的SQL语句字符串
      */
-    default String buildRoleByUserSql(Long userId) {
+    default String buildRoleByUserSql(String userId) {
         return """
-                select role_id from sys_user_role where user_id = %d
+                select role_id from sys_user_role where user_id = '%s'
             """.formatted(userId);
     }
 
@@ -71,7 +71,7 @@ public interface SysRoleMapper extends BaseMapperPlus<SysRole, SysRoleVo> {
         @DataColumn(key = "deptName", value = "create_dept"),
         @DataColumn(key = "userName", value = "create_by")
     })
-    default long selectRoleCount(List<Long> roleIds) {
+    default long selectRoleCount(List<String> roleIds) {
         return this.selectCount(new LambdaQueryWrapper<SysRole>().in(SysRole::getRoleId, roleIds));
     }
 
@@ -85,7 +85,7 @@ public interface SysRoleMapper extends BaseMapperPlus<SysRole, SysRoleVo> {
         @DataColumn(key = "deptName", value = "create_dept"),
         @DataColumn(key = "userName", value = "create_by")
     })
-    default SysRoleVo selectRoleById(Long roleId) {
+    default SysRoleVo selectRoleById(String roleId) {
         return this.selectVoById(roleId);
     }
 
@@ -95,7 +95,7 @@ public interface SysRoleMapper extends BaseMapperPlus<SysRole, SysRoleVo> {
      * @param userId 用户ID
      * @return 角色列表
      */
-    default List<SysRoleVo> selectRolesByUserId(Long userId) {
+    default List<SysRoleVo> selectRolesByUserId(String userId) {
         return this.selectVoList(new LambdaQueryWrapper<SysRole>()
             .select(SysRole::getRoleId, SysRole::getRoleName, SysRole::getRoleKey,
                 SysRole::getRoleSort, SysRole::getDataScope, SysRole::getStatus)

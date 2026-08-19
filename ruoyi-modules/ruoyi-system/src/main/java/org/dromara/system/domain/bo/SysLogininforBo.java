@@ -21,7 +21,7 @@ public class SysLogininforBo {
     /**
      * 访问ID
      */
-    private Long infoId;
+    private String infoId;
 
     /**
      * 租户编号

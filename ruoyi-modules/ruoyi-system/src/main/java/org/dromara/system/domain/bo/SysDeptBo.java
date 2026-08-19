@@ -24,12 +24,12 @@ public class SysDeptBo extends BaseEntity {
     /**
      * 部门id
      */
-    private Long deptId;
+    private String deptId;
 
     /**
      * 父部门ID
      */
-    private Long parentId;
+    private String parentId;
 
     /**
      * 部门名称
@@ -53,7 +53,7 @@ public class SysDeptBo extends BaseEntity {
     /**
      * 负责人
      */
-    private Long leader;
+    private String leader;
 
     /**
      * 联系电话
@@ -76,6 +76,6 @@ public class SysDeptBo extends BaseEntity {
     /**
      * 归属部门id（部门树）
      */
-    private Long belongDeptId;
+    private String belongDeptId;
 
 }

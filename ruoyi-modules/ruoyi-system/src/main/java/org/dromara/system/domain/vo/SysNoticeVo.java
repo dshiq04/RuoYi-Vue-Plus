@@ -27,7 +27,7 @@ public class SysNoticeVo implements Serializable {
     /**
      * 公告ID
      */
-    private Long noticeId;
+    private String noticeId;
 
     /**
      * 公告标题
@@ -57,7 +57,7 @@ public class SysNoticeVo implements Serializable {
     /**
      * 创建者
      */
-    private Long createBy;
+    private String createBy;
 
     /**
      * 创建人名称

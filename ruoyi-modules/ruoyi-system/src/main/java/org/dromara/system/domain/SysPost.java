@@ -21,12 +21,12 @@ public class SysPost extends TenantEntity {
      * 岗位序号
      */
     @TableId(value = "post_id")
-    private Long postId;
+    private String postId;
 
     /**
      * 部门id
      */
-    private Long deptId;
+    private String deptId;
 
     /**
      * 岗位编码

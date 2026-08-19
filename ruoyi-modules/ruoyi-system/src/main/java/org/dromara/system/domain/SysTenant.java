@@ -27,7 +27,7 @@ public class SysTenant extends BaseEntity {
      * id
      */
     @TableId(value = "id")
-    private Long id;
+    private String id;
 
     /**
      * 租户编号
@@ -77,7 +77,7 @@ public class SysTenant extends BaseEntity {
     /**
      * 租户套餐编号
      */
-    private Long packageId;
+    private String packageId;
 
     /**
      * 过期时间

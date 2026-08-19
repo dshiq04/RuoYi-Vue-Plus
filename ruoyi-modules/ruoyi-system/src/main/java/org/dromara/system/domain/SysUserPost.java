@@ -19,11 +19,11 @@ public class SysUserPost {
      * 用户ID
      */
     @TableId(type = IdType.INPUT)
-    private Long userId;
+    private String userId;
 
     /**
      * 岗位ID
      */
-    private Long postId;
+    private String postId;
 
 }

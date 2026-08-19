@@ -31,7 +31,7 @@ public class SysClientVo implements Serializable {
      * id
      */
     @ExcelProperty(value = "id")
-    private Long id;
+    private String id;
 
     /**
      * 客户端id

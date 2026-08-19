@@ -23,7 +23,7 @@ public class SysNoticeBo extends BaseEntity {
     /**
      * 公告ID
      */
-    private Long noticeId;
+    private String noticeId;
 
     /**
      * 公告标题

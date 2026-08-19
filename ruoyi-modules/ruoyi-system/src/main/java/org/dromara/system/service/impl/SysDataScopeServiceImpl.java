@@ -39,7 +39,7 @@ public class SysDataScopeServiceImpl implements ISysDataScopeService {
      */
     @Cacheable(cacheNames = CacheNames.SYS_ROLE_CUSTOM, key = "#roleId", condition = "#roleId != null")
     @Override
-    public String getRoleCustom(Long roleId) {
+    public String getRoleCustom(String roleId) {
         if (ObjectUtil.isNull(roleId)) {
             return "-1";
         }
@@ -61,11 +61,11 @@ public class SysDataScopeServiceImpl implements ISysDataScopeService {
      */
     @Cacheable(cacheNames = CacheNames.SYS_DEPT_AND_CHILD, key = "#deptId", condition = "#deptId != null")
     @Override
-    public String getDeptAndChild(Long deptId) {
+    public String getDeptAndChild(String deptId) {
         if (ObjectUtil.isNull(deptId)) {
             return "-1";
         }
-        List<Long> deptIds = deptMapper.selectDeptAndChildById(deptId);
+        List<String> deptIds = deptMapper.selectDeptAndChildById(deptId);
         return CollUtil.isNotEmpty(deptIds) ? StreamUtils.join(deptIds, Convert::toStr) : "-1";
     }
 

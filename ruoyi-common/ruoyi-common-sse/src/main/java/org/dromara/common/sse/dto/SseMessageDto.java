@@ -20,7 +20,7 @@ public class SseMessageDto implements Serializable {
     /**
      * 需要推送到的session key 列表
      */
-    private List<Long> userIds;
+    private List<String> userIds;
 
     /**
      * 需要发送的消息

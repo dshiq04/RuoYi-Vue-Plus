@@ -19,11 +19,11 @@ public class SysRoleDept {
      * 角色ID
      */
     @TableId(type = IdType.INPUT)
-    private Long roleId;
+    private String roleId;
 
     /**
      * 部门ID
      */
-    private Long deptId;
+    private String deptId;
 
 }

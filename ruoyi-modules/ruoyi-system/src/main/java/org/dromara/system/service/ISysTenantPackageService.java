@@ -18,7 +18,7 @@ public interface ISysTenantPackageService {
     /**
      * 查询租户套餐
      */
-    SysTenantPackageVo queryById(Long packageId);
+    SysTenantPackageVo queryById(String packageId);
 
     /**
      * 查询租户套餐列表
@@ -58,5 +58,5 @@ public interface ISysTenantPackageService {
     /**
      * 校验并批量删除租户套餐信息
      */
-    Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+    Boolean deleteWithValidByIds(Collection<String> ids, Boolean isValid);
 }

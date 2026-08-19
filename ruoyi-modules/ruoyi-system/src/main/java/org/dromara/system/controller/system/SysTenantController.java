@@ -71,7 +71,7 @@ public class SysTenantController extends BaseController {
     @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenant:query')")
     @GetMapping("/{id}")
     public R<SysTenantVo> getInfo(@NotNull(message = "主键不能为空")
-                                  @PathVariable Long id) {
+                                  @PathVariable String id) {
         return R.ok(tenantService.queryById(id));
     }
 
@@ -127,7 +127,7 @@ public class SysTenantController extends BaseController {
     @Log(title = "租户管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long[] ids) {
+                          @PathVariable String[] ids) {
         return toAjax(tenantService.deleteWithValidByIds(List.of(ids), true));
     }
 
@@ -165,7 +165,7 @@ public class SysTenantController extends BaseController {
     @Lock4j
     @GetMapping("/syncTenantPackage")
     public R<Void> syncTenantPackage(@NotBlank(message = "租户ID不能为空") String tenantId,
-                                     @NotNull(message = "套餐ID不能为空") Long packageId) {
+                                     @NotNull(message = "套餐ID不能为空") String packageId) {
         return toAjax(TenantHelper.ignore(() -> tenantService.syncTenantPackage(tenantId, packageId)));
     }
 

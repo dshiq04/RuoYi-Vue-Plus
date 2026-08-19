@@ -73,7 +73,7 @@ public interface ISysUserService {
      * @param userId 用户ID
      * @return 用户对象信息
      */
-    SysUserVo selectUserById(Long userId);
+    SysUserVo selectUserById(String userId);
 
     /**
      * 通过用户ID串查询用户
@@ -82,7 +82,7 @@ public interface ISysUserService {
      * @param deptId  部门id
      * @return 用户列表信息
      */
-    List<SysUserVo> selectUserByIds(List<Long> userIds, Long deptId);
+    List<SysUserVo> selectUserByIds(List<String> userIds, String deptId);
 
     /**
      * 根据用户ID查询用户所属角色组
@@ -90,7 +90,7 @@ public interface ISysUserService {
      * @param userId 用户ID
      * @return 结果
      */
-    String selectUserRoleGroup(Long userId);
+    String selectUserRoleGroup(String userId);
 
     /**
      * 根据用户ID查询用户所属岗位组
@@ -98,7 +98,7 @@ public interface ISysUserService {
      * @param userId 用户ID
      * @return 结果
      */
-    String selectUserPostGroup(Long userId);
+    String selectUserPostGroup(String userId);
 
     /**
      * 校验用户账号是否唯一
@@ -129,14 +129,14 @@ public interface ISysUserService {
      *
      * @param userId 用户ID
      */
-    void checkUserAllowed(Long userId);
+    void checkUserAllowed(String userId);
 
     /**
      * 校验用户是否有数据权限
      *
      * @param userId 用户id
      */
-    void checkUserDataScope(Long userId);
+    void checkUserDataScope(String userId);
 
     /**
      * 新增用户信息
@@ -168,7 +168,7 @@ public interface ISysUserService {
      * @param userId  用户ID
      * @param roleIds 角色组
      */
-    void insertUserAuth(Long userId, Long[] roleIds);
+    void insertUserAuth(String userId, String[] roleIds);
 
     /**
      * 修改用户状态
@@ -177,7 +177,7 @@ public interface ISysUserService {
      * @param status 账号状态
      * @return 结果
      */
-    int updateUserStatus(Long userId, String status);
+    int updateUserStatus(String userId, String status);
 
     /**
      * 修改用户基本信息
@@ -194,7 +194,7 @@ public interface ISysUserService {
      * @param avatar 头像地址
      * @return 结果
      */
-    boolean updateUserAvatar(Long userId, Long avatar);
+    boolean updateUserAvatar(String userId, String avatar);
 
     /**
      * 重置用户密码
@@ -203,7 +203,7 @@ public interface ISysUserService {
      * @param password 密码
      * @return 结果
      */
-    int resetUserPwd(Long userId, String password);
+    int resetUserPwd(String userId, String password);
 
     /**
      * 通过用户ID删除用户
@@ -211,7 +211,7 @@ public interface ISysUserService {
      * @param userId 用户ID
      * @return 结果
      */
-    int deleteUserById(Long userId);
+    int deleteUserById(String userId);
 
     /**
      * 批量删除用户信息
@@ -219,7 +219,7 @@ public interface ISysUserService {
      * @param userIds 需要删除的用户ID
      * @return 结果
      */
-    int deleteUserByIds(Long[] userIds);
+    int deleteUserByIds(String[] userIds);
 
     /**
      * 通过部门id查询当前部门所有用户
@@ -227,5 +227,5 @@ public interface ISysUserService {
      * @param deptId 部门id
      * @return 结果
      */
-    List<SysUserVo> selectUserListByDept(Long deptId);
+    List<SysUserVo> selectUserListByDept(String deptId);
 }

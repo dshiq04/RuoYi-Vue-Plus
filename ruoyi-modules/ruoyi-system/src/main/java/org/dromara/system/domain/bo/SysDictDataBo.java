@@ -23,7 +23,7 @@ public class SysDictDataBo extends BaseEntity {
     /**
      * 字典编码
      */
-    private Long dictCode;
+    private String dictCode;
 
     /**
      * 字典排序
@@ -70,7 +70,7 @@ public class SysDictDataBo extends BaseEntity {
     /**
      * 创建部门
      */
-    private Long createDept;
+    private String createDept;
 
     /**
      * 备注

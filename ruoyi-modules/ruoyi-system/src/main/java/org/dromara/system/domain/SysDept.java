@@ -30,12 +30,12 @@ public class SysDept extends TenantEntity {
      * 部门ID
      */
     @TableId(value = "dept_id")
-    private Long deptId;
+    private String deptId;
 
     /**
      * 父部门ID
      */
-    private Long parentId;
+    private String parentId;
 
     /**
      * 部门名称
@@ -55,7 +55,7 @@ public class SysDept extends TenantEntity {
     /**
      * 负责人
      */
-    private Long leader;
+    private String leader;
 
     /**
      * 联系电话

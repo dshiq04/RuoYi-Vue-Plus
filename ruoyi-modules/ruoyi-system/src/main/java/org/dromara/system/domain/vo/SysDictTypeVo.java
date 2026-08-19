@@ -30,7 +30,7 @@ public class SysDictTypeVo implements Serializable {
      * 字典主键
      */
     @ExcelProperty(value = "字典主键")
-    private Long dictId;
+    private String dictId;
 
     /**
      * 字典名称

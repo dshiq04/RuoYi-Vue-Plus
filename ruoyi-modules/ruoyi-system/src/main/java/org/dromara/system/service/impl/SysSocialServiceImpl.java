@@ -48,7 +48,7 @@ public class SysSocialServiceImpl implements ISysSocialService {
     }
 
     @Override
-    public List<SysSocialVo> queryListByUserId(Long userId) {
+    public List<SysSocialVo> queryListByUserId(String userId) {
         return baseMapper.selectVoList(new LambdaQueryWrapper<SysSocial>().eq(SysSocial::getUserId, userId));
     }
 
@@ -93,7 +93,7 @@ public class SysSocialServiceImpl implements ISysSocialService {
      * 删除社会化关系
      */
     @Override
-    public Boolean deleteWithValidById(Long id) {
+    public Boolean deleteWithValidById(String id) {
         return baseMapper.deleteById(id) > 0;
     }
 

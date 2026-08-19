@@ -29,7 +29,7 @@ public class GenTable extends BaseEntity {
      * 编号
      */
     @TableId(value = "table_id")
-    private Long tableId;
+    private String tableId;
 
     /**
      * 数据源名称
@@ -156,7 +156,7 @@ public class GenTable extends BaseEntity {
      * 菜单id列表
      */
     @TableField(exist = false)
-    private List<Long> menuIds;
+    private List<String> menuIds;
 
     /**
      * 上级菜单ID字段

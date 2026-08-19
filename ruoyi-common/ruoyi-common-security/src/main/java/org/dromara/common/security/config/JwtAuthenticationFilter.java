@@ -75,7 +75,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         // 停用用户拦截：账号被停用(在redis停用名单中)直接返回401
-        Long userId = loginUser.getUserId();
+        String userId = loginUser.getUserId();
         if (ObjectUtil.isNotNull(userId) && RedisUtils.containsCacheSet(CacheConstants.SYS_USER_DISABLE_KEY, String.valueOf(userId))) {
             writeError(response, HttpStatus.HTTP_UNAUTHORIZED, "本账户已停用，请联系管理员");
             return;

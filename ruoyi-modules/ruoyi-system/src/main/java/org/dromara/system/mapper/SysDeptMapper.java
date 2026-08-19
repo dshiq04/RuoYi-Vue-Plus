@@ -9,9 +9,11 @@ import org.dromara.common.mybatis.annotation.DataColumn;
 import org.dromara.common.mybatis.annotation.DataPermission;
 import org.dromara.common.mybatis.core.mapper.BaseMapperPlus;
 import org.dromara.common.mybatis.helper.DataBaseHelper;
+import cn.hutool.core.util.ObjectUtil;
 import org.dromara.system.domain.SysDept;
 import org.dromara.system.domain.vo.SysDeptVo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,11 +31,11 @@ public interface SysDeptMapper extends BaseMapperPlus<SysDept, SysDeptVo> {
      * @param roleId 角色ID
      * @return 查询部门ID的 SQL 语句字符串
      */
-    default String buildDeptByRoleSql(Long roleId) {
+    default String buildDeptByRoleSql(String roleId) {
         return """
                 select srd.dept_id from sys_role_dept srd
                     left join sys_role sr on sr.role_id = srd.role_id
-                    where srd.role_id = %d and sr.status = '0'
+                    where srd.role_id = '%s' and sr.status = '0'
             """.formatted(roleId);
     }
 
@@ -47,12 +49,12 @@ public interface SysDeptMapper extends BaseMapperPlus<SysDept, SysDeptVo> {
      * @param roleId 角色ID
      * @return SQL 语句字符串，查询角色下部门的所有父部门ID
      */
-    default String buildParentDeptByRoleSql(Long roleId) {
+    default String buildParentDeptByRoleSql(String roleId) {
         return """
                 select parent_id from sys_dept where dept_id in (
                     select srd.dept_id from sys_role_dept srd
                         left join sys_role sr on sr.role_id = srd.role_id
-                        where srd.role_id = %d and sr.status = '0'
+                        where srd.role_id = '%s' and sr.status = '0'
                 )
             """.formatted(roleId);
     }
@@ -93,7 +95,7 @@ public interface SysDeptMapper extends BaseMapperPlus<SysDept, SysDeptVo> {
     @DataPermission({
         @DataColumn(key = "deptName", value = "dept_id")
     })
-    default long countDeptById(Long deptId) {
+    default long countDeptById(String deptId) {
         return this.selectCount(new LambdaQueryWrapper<SysDept>().eq(SysDept::getDeptId, deptId));
     }
 
@@ -103,7 +105,7 @@ public interface SysDeptMapper extends BaseMapperPlus<SysDept, SysDeptVo> {
      * @param parentId 父部门ID
      * @return 包含子部门的列表
      */
-    default List<SysDept> selectListByParentId(Long parentId) {
+    default List<SysDept> selectListByParentId(String parentId) {
         return this.selectList(new LambdaQueryWrapper<SysDept>()
             .select(SysDept::getDeptId)
             .apply(DataBaseHelper.findInSet(parentId, "ancestors")));
@@ -115,11 +117,31 @@ public interface SysDeptMapper extends BaseMapperPlus<SysDept, SysDeptVo> {
      * @param parentId 父部门ID
      * @return 部门ID集合
      */
-    default List<Long> selectDeptAndChildById(Long parentId) {
-        List<SysDept> deptList = this.selectListByParentId(parentId);
-        List<Long> deptIds = StreamUtils.toList(deptList, SysDept::getDeptId);
-        deptIds.add(parentId);
+    default List<String> selectDeptAndChildById(String parentId) {
+        if (ObjectUtil.isEmpty(parentId)) {
+            return new ArrayList<>();
+        }
+        // 递归收集 parentId 自身及其所有后代部门ID
+        List<String> deptIds = new ArrayList<>();
+        collectChildDeptIds(parentId, deptIds);
         return deptIds;
+    }
+
+    /**
+     * 递归收集部门及其所有子部门的ID
+     *
+     * @param parentId 父部门ID
+     * @param deptIds  用于累积结果的部门ID集合
+     */
+    default void collectChildDeptIds(String parentId, List<String> deptIds) {
+        if (ObjectUtil.isEmpty(parentId) || deptIds.contains(parentId)) {
+            return;
+        }
+        deptIds.add(parentId);
+        List<SysDept> children = this.selectListByParentId(parentId);
+        for (SysDept child : children) {
+            collectChildDeptIds(child.getDeptId(), deptIds);
+        }
     }
 
     /**
@@ -129,7 +151,7 @@ public interface SysDeptMapper extends BaseMapperPlus<SysDept, SysDeptVo> {
      * @param deptCheckStrictly 部门树选择项是否关联显示
      * @return 选中部门列表
      */
-    default List<Long> selectDeptListByRoleId(Long roleId, boolean deptCheckStrictly) {
+    default List<String> selectDeptListByRoleId(String roleId, boolean deptCheckStrictly) {
         LambdaQueryWrapper<SysDept> wrapper = new LambdaQueryWrapper<>();
         wrapper.select(SysDept::getDeptId)
             .inSql(SysDept::getDeptId, this.buildDeptByRoleSql(roleId))
@@ -139,7 +161,7 @@ public interface SysDeptMapper extends BaseMapperPlus<SysDept, SysDeptVo> {
             wrapper.notInSql(SysDept::getDeptId, this.buildParentDeptByRoleSql(roleId));
         }
         return this.selectObjs(wrapper, x -> {
-            return Convert.toLong(x);
+            return Convert.toStr(x);
         });
     }
 

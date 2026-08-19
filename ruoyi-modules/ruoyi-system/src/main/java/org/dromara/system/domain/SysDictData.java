@@ -22,7 +22,7 @@ public class SysDictData extends TenantEntity {
      * 字典编码
      */
     @TableId(value = "dict_code")
-    private Long dictCode;
+    private String dictCode;
 
     /**
      * 字典排序

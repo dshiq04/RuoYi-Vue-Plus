@@ -31,7 +31,7 @@ public class SysUserVo implements Serializable {
     /**
      * 用户ID
      */
-    private Long userId;
+    private String userId;
 
     /**
      * 租户ID
@@ -41,7 +41,7 @@ public class SysUserVo implements Serializable {
     /**
      * 部门ID
      */
-    private Long deptId;
+    private String deptId;
 
     /**
      * 用户账号
@@ -79,7 +79,7 @@ public class SysUserVo implements Serializable {
      * 头像地址
      */
     @Translation(type = TransConstant.OSS_ID_TO_URL)
-    private Long avatar;
+    private String avatar;
 
     /**
      * 密码
@@ -114,9 +114,9 @@ public class SysUserVo implements Serializable {
     private Date createTime;
 
     /**
-     * 部门名
+     * 部门名（由 SysUserMapper.xml 中 selectPageUserList 递归 CTE 拼接，
+     * 格式：2级部门/3级部门/.../本级部门；若不存在2级部门则仅显示本级部门名称）
      */
-    @Translation(type = TransConstant.DEPT_ID_TO_NAME, mapper = "deptId")
     private String deptName;
 
     /**
@@ -127,16 +127,16 @@ public class SysUserVo implements Serializable {
     /**
      * 角色组
      */
-    private Long[] roleIds;
+    private String[] roleIds;
 
     /**
      * 岗位组
      */
-    private Long[] postIds;
+    private String[] postIds;
 
     /**
      * 数据权限 当前角色ID
      */
-    private Long roleId;
+    private String roleId;
 
 }

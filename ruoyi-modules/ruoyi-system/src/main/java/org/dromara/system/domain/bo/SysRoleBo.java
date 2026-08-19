@@ -26,7 +26,7 @@ public class SysRoleBo extends BaseEntity {
     /**
      * 角色ID
      */
-    private Long roleId;
+    private String roleId;
 
     /**
      * 角色名称
@@ -76,14 +76,14 @@ public class SysRoleBo extends BaseEntity {
     /**
      * 菜单组
      */
-    private Long[] menuIds;
+    private String[] menuIds;
 
     /**
      * 部门组（数据权限）
      */
-    private Long[] deptIds;
+    private String[] deptIds;
 
-    public SysRoleBo(Long roleId) {
+    public SysRoleBo(String roleId) {
         this.roleId = roleId;
     }
 

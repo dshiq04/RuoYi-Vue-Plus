@@ -26,7 +26,7 @@ public class SysTenantPackageBo extends BaseEntity {
      * 租户套餐id
      */
     @NotNull(message = "租户套餐id不能为空", groups = { EditGroup.class })
-    private Long packageId;
+    private String packageId;
 
     /**
      * 套餐名称
@@ -38,7 +38,7 @@ public class SysTenantPackageBo extends BaseEntity {
      * 关联菜单id
      */
     @AutoMapping(target = "menuIds", expression = "java(org.dromara.common.core.utils.StringUtils.joinComma(source.getMenuIds()))")
-    private Long[] menuIds;
+    private String[] menuIds;
 
     /**
      * 备注

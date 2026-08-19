@@ -62,7 +62,7 @@ public class SysLogininforController extends BaseController {
     @PreAuthorize("hasAuthority('monitor:logininfor:remove')")
     @Log(title = "登录日志", businessType = BusinessType.DELETE)
     @DeleteMapping("/{infoIds}")
-    public R<Void> remove(@PathVariable Long[] infoIds) {
+    public R<Void> remove(@PathVariable String[] infoIds) {
         return toAjax(logininforService.deleteLogininforByIds(infoIds));
     }
 

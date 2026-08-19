@@ -25,12 +25,12 @@ public class GenTableColumn extends BaseEntity {
      * 编号
      */
     @TableId(value = "column_id")
-    private Long columnId;
+    private String columnId;
 
     /**
      * 归属表编号
      */
-    private Long tableId;
+    private String tableId;
 
     /**
      * 列名称

@@ -75,7 +75,7 @@ public class SysTenantPackageController extends BaseController {
     @PreAuthorize("hasRole('superadmin') and hasAuthority('system:tenantPackage:query')")
     @GetMapping("/{packageId}")
     public R<SysTenantPackageVo> getInfo(@NotNull(message = "主键不能为空")
-                                     @PathVariable Long packageId) {
+                                     @PathVariable String packageId) {
         return R.ok(tenantPackageService.queryById(packageId));
     }
 
@@ -127,7 +127,7 @@ public class SysTenantPackageController extends BaseController {
     @Log(title = "租户套餐", businessType = BusinessType.DELETE)
     @DeleteMapping("/{packageIds}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long[] packageIds) {
+                          @PathVariable String[] packageIds) {
         return toAjax(tenantPackageService.deleteWithValidByIds(List.of(packageIds), true));
     }
 }

@@ -30,7 +30,7 @@ public class SysTenantVo implements Serializable {
      * id
      */
     @ExcelProperty(value = "id")
-    private Long id;
+    private String id;
 
     /**
      * 租户编号
@@ -90,7 +90,7 @@ public class SysTenantVo implements Serializable {
      * 租户套餐编号
      */
     @ExcelProperty(value = "租户套餐编号")
-    private Long packageId;
+    private String packageId;
 
     /**
      * 过期时间

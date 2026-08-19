@@ -21,12 +21,12 @@ public class DeptDTO implements Serializable {
     /**
      * 部门ID
      */
-    private Long deptId;
+    private String deptId;
 
     /**
      * 父部门ID
      */
-    private Long parentId;
+    private String parentId;
 
     /**
      * 部门名称

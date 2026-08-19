@@ -28,7 +28,7 @@ public class SysOssConfigBo extends BaseEntity {
      * 主键
      */
     @NotNull(message = "主键不能为空", groups = {EditGroup.class})
-    private Long ossConfigId;
+    private String ossConfigId;
 
     /**
      * 配置key

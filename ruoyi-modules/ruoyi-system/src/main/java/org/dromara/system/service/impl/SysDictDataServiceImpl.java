@@ -92,7 +92,7 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
      * @return 字典数据
      */
     @Override
-    public SysDictDataVo selectDictDataById(Long dictCode) {
+    public SysDictDataVo selectDictDataById(String dictCode) {
         return baseMapper.selectVoById(dictCode);
     }
 
@@ -103,7 +103,7 @@ public class SysDictDataServiceImpl implements ISysDictDataService {
      */
     @CacheEvict(cacheNames = CacheNames.SYS_DICT, allEntries = true)
     @Override
-    public void deleteDictDataByIds(List<Long> dictCodes) {
+    public void deleteDictDataByIds(List<String> dictCodes) {
         baseMapper.deleteByIds(dictCodes);
     }
 

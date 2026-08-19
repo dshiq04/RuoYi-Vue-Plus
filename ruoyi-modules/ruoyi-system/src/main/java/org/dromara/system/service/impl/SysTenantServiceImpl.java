@@ -62,7 +62,7 @@ public class SysTenantServiceImpl implements ISysTenantService {
      * 查询租户
      */
     @Override
-    public SysTenantVo queryById(Long id) {
+    public SysTenantVo queryById(String id) {
         return baseMapper.selectVoById(id);
     }
 
@@ -134,7 +134,7 @@ public class SysTenantServiceImpl implements ISysTenantService {
         bo.setId(add.getId());
 
         // 根据套餐创建角色
-        Long roleId = createTenantRole(tenantId, bo.getPackageId());
+        String roleId = createTenantRole(tenantId, bo.getPackageId());
 
         // 创建部门: 公司名是部门名称
         SysDept dept = new SysDept();
@@ -143,7 +143,7 @@ public class SysTenantServiceImpl implements ISysTenantService {
         dept.setParentId(Constants.TOP_PARENT_ID);
         dept.setAncestors(Constants.TOP_PARENT_ID.toString());
         deptMapper.insert(dept);
-        Long deptId = dept.getDeptId();
+        String deptId = dept.getDeptId();
 
         // 角色和部门关联表
         SysRoleDept roleDept = new SysRoleDept();
@@ -242,14 +242,14 @@ public class SysTenantServiceImpl implements ISysTenantService {
      * @param packageId 租户套餐id
      * @return 角色id
      */
-    private Long createTenantRole(String tenantId, Long packageId) {
+    private String createTenantRole(String tenantId, String packageId) {
         // 获取租户套餐
         SysTenantPackage tenantPackage = tenantPackageMapper.selectById(packageId);
         if (ObjectUtil.isEmpty(tenantPackage)) {
             throw new ServiceException("套餐不存在");
         }
         // 获取套餐菜单id
-        List<Long> menuIds = StringUtils.splitTo(tenantPackage.getMenuIds(), Convert::toLong);
+        List<String> menuIds = StringUtils.splitTo(tenantPackage.getMenuIds(), Convert::toStr);
         // 创建角色
         SysRole role = new SysRole();
         role.setTenantId(tenantId);
@@ -258,7 +258,7 @@ public class SysTenantServiceImpl implements ISysTenantService {
         role.setRoleSort(1);
         role.setStatus(SystemConstants.NORMAL);
         roleMapper.insert(role);
-        Long roleId = role.getRoleId();
+        String roleId = role.getRoleId();
 
         // 创建角色菜单
         List<SysRoleMenu> roleMenus = new ArrayList<>(menuIds.size());
@@ -317,7 +317,7 @@ public class SysTenantServiceImpl implements ISysTenantService {
      */
     @CacheEvict(cacheNames = CacheNames.SYS_TENANT, allEntries = true)
     @Override
-    public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
+    public Boolean deleteWithValidByIds(Collection<String> ids, Boolean isValid) {
         if (isValid) {
             // 做一些业务上的校验,判断是否需要校验
             if (ids.contains(TenantConstants.SUPER_ADMIN_ID)) {
@@ -372,12 +372,12 @@ public class SysTenantServiceImpl implements ISysTenantService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Boolean syncTenantPackage(String tenantId, Long packageId) {
+    public Boolean syncTenantPackage(String tenantId, String packageId) {
         SysTenantPackage tenantPackage = tenantPackageMapper.selectById(packageId);
         List<SysRole> roles = roleMapper.selectList(
             new LambdaQueryWrapper<SysRole>().eq(SysRole::getTenantId, tenantId));
-        List<Long> roleIds = new ArrayList<>(roles.size() - 1);
-        List<Long> menuIds = StringUtils.splitTo(tenantPackage.getMenuIds(), Convert::toLong);
+        List<String> roleIds = new ArrayList<>(roles.size() - 1);
+        List<String> menuIds = StringUtils.splitTo(tenantPackage.getMenuIds(), Convert::toStr);
         roles.forEach(item -> {
             if (TenantConstants.TENANT_ADMIN_ROLE_KEY.equals(item.getRoleKey())) {
                 List<SysRoleMenu> roleMenus = new ArrayList<>(menuIds.size());

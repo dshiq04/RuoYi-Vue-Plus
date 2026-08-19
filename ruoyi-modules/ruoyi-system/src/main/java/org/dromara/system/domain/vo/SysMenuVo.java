@@ -26,7 +26,7 @@ public class SysMenuVo implements Serializable {
     /**
      * 菜单ID
      */
-    private Long menuId;
+    private String menuId;
 
     /**
      * 菜单名称
@@ -36,7 +36,7 @@ public class SysMenuVo implements Serializable {
     /**
      * 父菜单ID
      */
-    private Long parentId;
+    private String parentId;
 
     /**
      * 显示顺序
@@ -96,7 +96,7 @@ public class SysMenuVo implements Serializable {
     /**
      * 创建部门
      */
-    private Long createDept;
+    private String createDept;
 
     /**
      * 备注

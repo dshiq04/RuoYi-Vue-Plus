@@ -20,7 +20,7 @@ public class FlowInstanceBizExtDTO implements Serializable {
     /**
      * 主键
      */
-    private Long id;
+    private String id;
 
     /**
      * 流程实例ID

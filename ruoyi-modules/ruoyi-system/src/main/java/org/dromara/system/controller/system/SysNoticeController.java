@@ -47,7 +47,7 @@ public class SysNoticeController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:notice:query')")
     @GetMapping(value = "/{noticeId}")
-    public R<SysNoticeVo> getInfo(@PathVariable Long noticeId) {
+    public R<SysNoticeVo> getInfo(@PathVariable String noticeId) {
         return R.ok(noticeService.selectNoticeById(noticeId));
     }
 
@@ -87,7 +87,7 @@ public class SysNoticeController extends BaseController {
     @PreAuthorize("hasAuthority('system:notice:remove')")
     @Log(title = "通知公告", businessType = BusinessType.DELETE)
     @DeleteMapping("/{noticeIds}")
-    public R<Void> remove(@PathVariable Long[] noticeIds) {
+    public R<Void> remove(@PathVariable String[] noticeIds) {
         return toAjax(noticeService.deleteNoticeByIds(noticeIds));
     }
 }

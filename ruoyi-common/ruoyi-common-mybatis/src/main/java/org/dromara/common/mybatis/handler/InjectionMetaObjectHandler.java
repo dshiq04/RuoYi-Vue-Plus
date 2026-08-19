@@ -25,7 +25,7 @@ public class InjectionMetaObjectHandler implements MetaObjectHandler {
     /**
      * 如果用户不存在默认注入-1代表无用户
      */
-    private static final Long DEFAULT_USER_ID = -1L;
+    private static final String DEFAULT_USER_ID = "-1";
 
     /**
      * 插入填充方法，用于在插入数据时自动填充实体对象中的创建时间、更新时间、创建人、更新人等信息
@@ -45,7 +45,7 @@ public class InjectionMetaObjectHandler implements MetaObjectHandler {
                 if (ObjectUtil.isNull(baseEntity.getCreateBy())) {
                     LoginUser loginUser = getLoginUser();
                     if (ObjectUtil.isNotNull(loginUser)) {
-                        Long userId = loginUser.getUserId();
+                        String userId = loginUser.getUserId();
                         // 填充创建人、更新人和创建部门信息
                         baseEntity.setCreateBy(userId);
                         baseEntity.setUpdateBy(userId);
@@ -81,7 +81,7 @@ public class InjectionMetaObjectHandler implements MetaObjectHandler {
                 baseEntity.setUpdateTime(current);
 
                 // 获取当前登录用户的ID，并填充更新人信息
-                Long userId = LoginHelper.getUserId();
+                String userId = LoginHelper.getUserId();
                 if (ObjectUtil.isNotNull(userId)) {
                     baseEntity.setUpdateBy(userId);
                 } else {

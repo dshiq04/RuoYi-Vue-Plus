@@ -27,12 +27,12 @@ public class SysUserBo extends BaseEntity {
     /**
      * 用户ID
      */
-    private Long userId;
+    private String userId;
 
     /**
      * 部门ID
      */
-    private Long deptId;
+    private String deptId;
 
     /**
      * 用户账号
@@ -91,17 +91,17 @@ public class SysUserBo extends BaseEntity {
      * 角色组
      */
     @Size(min = 1, message = "用户角色不能为空")
-    private Long[] roleIds;
+    private String[] roleIds;
 
     /**
      * 岗位组
      */
-    private Long[] postIds;
+    private String[] postIds;
 
     /**
      * 数据权限 当前角色ID
      */
-    private Long roleId;
+    private String roleId;
 
     /**
      * 用户ID
@@ -113,7 +113,7 @@ public class SysUserBo extends BaseEntity {
      */
     private String excludeUserIds;
 
-    public SysUserBo(Long userId) {
+    public SysUserBo(String userId) {
         this.userId = userId;
     }
 

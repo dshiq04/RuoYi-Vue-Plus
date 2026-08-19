@@ -46,14 +46,14 @@ public interface ISysDictDataService {
      * @param dictCode 字典数据ID
      * @return 字典数据
      */
-    SysDictDataVo selectDictDataById(Long dictCode);
+    SysDictDataVo selectDictDataById(String dictCode);
 
     /**
      * 批量删除字典数据信息
      *
      * @param dictCodes 需要删除的字典数据ID
      */
-    void deleteDictDataByIds(List<Long> dictCodes);
+    void deleteDictDataByIds(List<String> dictCodes);
 
     /**
      * 新增保存字典数据信息

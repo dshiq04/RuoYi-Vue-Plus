@@ -26,7 +26,7 @@ public interface DeptService {
      * @param deptId 部门ID，用于指定需要查询的部门
      * @return 返回该部门的负责人ID
      */
-    Long selectDeptLeaderById(Long deptId);
+    String selectDeptLeaderById(String deptId);
 
     /**
      * 查询部门
@@ -41,6 +41,6 @@ public interface DeptService {
      * @param deptIds 部门 ID 列表
      * @return Map，其中 key 为部门 ID，value 为对应的部门名称
      */
-    Map<Long, String> selectDeptNamesByIds(List<Long> deptIds);
+    Map<String, String> selectDeptNamesByIds(List<String> deptIds);
 
 }

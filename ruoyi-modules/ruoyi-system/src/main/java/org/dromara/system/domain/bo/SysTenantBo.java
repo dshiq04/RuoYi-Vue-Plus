@@ -27,7 +27,7 @@ public class SysTenantBo extends BaseEntity {
      * id
      */
     @NotNull(message = "id不能为空", groups = { EditGroup.class })
-    private Long id;
+    private String id;
 
     /**
      * 租户编号
@@ -94,7 +94,7 @@ public class SysTenantBo extends BaseEntity {
      * 租户套餐编号
      */
     @NotNull(message = "租户套餐不能为空", groups = { AddGroup.class })
-    private Long packageId;
+    private String packageId;
 
     /**
      * 过期时间

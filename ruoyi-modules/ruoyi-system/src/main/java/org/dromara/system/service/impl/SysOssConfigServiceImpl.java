@@ -61,7 +61,7 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
     }
 
     @Override
-    public SysOssConfigVo queryById(Long ossConfigId) {
+    public SysOssConfigVo queryById(String ossConfigId) {
         return baseMapper.selectVoById(ossConfigId);
     }
 
@@ -125,14 +125,14 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
     }
 
     @Override
-    public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
+    public Boolean deleteWithValidByIds(Collection<String> ids, Boolean isValid) {
         if (isValid) {
             if (CollUtil.containsAny(ids, OssConstant.SYSTEM_DATA_IDS)) {
                 throw new ServiceException("系统内置, 不可删除!");
             }
         }
         List<SysOssConfig> list = CollUtil.newArrayList();
-        for (Long configId : ids) {
+        for (String configId : ids) {
             SysOssConfig config = baseMapper.selectById(configId);
             list.add(config);
         }
@@ -148,11 +148,11 @@ public class SysOssConfigServiceImpl implements ISysOssConfigService {
      * 判断configKey是否唯一
      */
     private boolean checkConfigKeyUnique(SysOssConfig sysOssConfig) {
-        long ossConfigId = ObjectUtils.notNull(sysOssConfig.getOssConfigId(), -1L);
+        String ossConfigId = ObjectUtils.notNull(sysOssConfig.getOssConfigId(), "-1");
         SysOssConfig info = baseMapper.selectOne(new LambdaQueryWrapper<SysOssConfig>()
             .select(SysOssConfig::getOssConfigId, SysOssConfig::getConfigKey)
             .eq(SysOssConfig::getConfigKey, sysOssConfig.getConfigKey()));
-        if (ObjectUtil.isNotNull(info) && info.getOssConfigId() != ossConfigId) {
+        if (ObjectUtil.isNotNull(info) && !ossConfigId.equals(info.getOssConfigId())) {
             return false;
         }
         return true;

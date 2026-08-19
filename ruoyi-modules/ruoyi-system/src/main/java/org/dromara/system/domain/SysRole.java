@@ -24,7 +24,7 @@ public class SysRole extends TenantEntity {
      * 角色ID
      */
     @TableId(value = "role_id")
-    private Long roleId;
+    private String roleId;
 
     /**
      * 角色名称
@@ -72,7 +72,7 @@ public class SysRole extends TenantEntity {
      */
     private String remark;
 
-    public SysRole(Long roleId) {
+    public SysRole(String roleId) {
         this.roleId = roleId;
     }
 

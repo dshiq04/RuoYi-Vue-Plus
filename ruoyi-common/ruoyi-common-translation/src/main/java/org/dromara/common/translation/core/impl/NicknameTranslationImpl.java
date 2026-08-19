@@ -19,7 +19,7 @@ public class NicknameTranslationImpl implements TranslationInterface<String> {
 
     @Override
     public String translation(Object key, String other) {
-        if (key instanceof Long id) {
+        if (key instanceof String id) {
             return userService.selectNicknameById(id);
         } else if (key instanceof String ids) {
             return userService.selectNicknameByIds(ids);

@@ -25,7 +25,7 @@ public class SysLogininfor implements Serializable {
      * ID
      */
     @TableId(value = "info_id")
-    private Long infoId;
+    private String infoId;
 
     /**
      * 租户编号

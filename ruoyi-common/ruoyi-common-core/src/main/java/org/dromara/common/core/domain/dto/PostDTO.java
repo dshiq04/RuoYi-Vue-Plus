@@ -21,12 +21,12 @@ public class PostDTO implements Serializable {
     /**
      * 岗位ID
      */
-    private Long postId;
+    private String postId;
 
     /**
      * 部门id
      */
-    private Long deptId;
+    private String deptId;
 
     /**
      * 岗位编码

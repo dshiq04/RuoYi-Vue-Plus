@@ -23,7 +23,7 @@ public class ProfileUserVo implements Serializable {
     /**
      * 用户ID
      */
-    private Long userId;
+    private String userId;
 
     /**
      * 租户ID
@@ -33,7 +33,7 @@ public class ProfileUserVo implements Serializable {
     /**
      * 部门ID
      */
-    private Long deptId;
+    private String deptId;
 
     /**
      * 用户账号
@@ -69,7 +69,7 @@ public class ProfileUserVo implements Serializable {
      * 头像地址
      */
     @Translation(type = TransConstant.OSS_ID_TO_URL)
-    private Long avatar;
+    private String avatar;
 
     /**
      * 最后登录IP

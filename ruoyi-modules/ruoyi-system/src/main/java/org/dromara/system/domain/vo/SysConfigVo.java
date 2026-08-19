@@ -30,7 +30,7 @@ public class SysConfigVo implements Serializable {
      * 参数主键
      */
     @ExcelProperty(value = "参数主键")
-    private Long configId;
+    private String configId;
 
     /**
      * 参数名称

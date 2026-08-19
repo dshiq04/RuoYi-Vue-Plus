@@ -30,12 +30,12 @@ public class LoginUser implements Serializable {
     /**
      * 用户ID
      */
-    private Long userId;
+    private String userId;
 
     /**
      * 部门ID
      */
-    private Long deptId;
+    private String deptId;
 
     /**
      * 部门类别编码
@@ -120,7 +120,7 @@ public class LoginUser implements Serializable {
     /**
      * 数据权限 当前角色ID
      */
-    private Long roleId;
+    private String roleId;
 
     /**
      * 客户端

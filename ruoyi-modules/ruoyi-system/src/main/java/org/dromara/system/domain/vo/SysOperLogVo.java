@@ -31,7 +31,7 @@ public class SysOperLogVo implements Serializable {
      * 日志主键
      */
     @ExcelProperty(value = "日志主键")
-    private Long operId;
+    private String operId;
 
     /**
      * 租户编号

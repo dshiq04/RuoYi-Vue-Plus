@@ -61,7 +61,7 @@ public class SysDictTypeController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:dict:query')")
     @GetMapping(value = "/{dictId}")
-    public R<SysDictTypeVo> getInfo(@PathVariable Long dictId) {
+    public R<SysDictTypeVo> getInfo(@PathVariable String dictId) {
         return R.ok(dictTypeService.selectDictTypeById(dictId));
     }
 
@@ -103,7 +103,7 @@ public class SysDictTypeController extends BaseController {
     @PreAuthorize("hasAuthority('system:dict:remove')")
     @Log(title = "字典类型", businessType = BusinessType.DELETE)
     @DeleteMapping("/{dictIds}")
-    public R<Void> remove(@PathVariable Long[] dictIds) {
+    public R<Void> remove(@PathVariable String[] dictIds) {
         dictTypeService.deleteDictTypeByIds(Arrays.asList(dictIds));
         return R.ok();
     }

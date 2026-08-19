@@ -64,7 +64,7 @@ public class SysDictDataController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:dict:query')")
     @GetMapping(value = "/{dictCode}")
-    public R<SysDictDataVo> getInfo(@PathVariable Long dictCode) {
+    public R<SysDictDataVo> getInfo(@PathVariable String dictCode) {
         return R.ok(dictDataService.selectDictDataById(dictCode));
     }
 
@@ -120,7 +120,7 @@ public class SysDictDataController extends BaseController {
     @PreAuthorize("hasAuthority('system:dict:remove')")
     @Log(title = "字典数据", businessType = BusinessType.DELETE)
     @DeleteMapping("/{dictCodes}")
-    public R<Void> remove(@PathVariable Long[] dictCodes) {
+    public R<Void> remove(@PathVariable String[] dictCodes) {
         dictDataService.deleteDictDataByIds(Arrays.asList(dictCodes));
         return R.ok();
     }

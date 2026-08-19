@@ -6,10 +6,103 @@
 
     <resultMap type="org.dromara.system.domain.vo.SysUserVo" id="SysUserResult">
         <id property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="nickName" column="nick_name"/>
+        <result property="phonenumber" column="phonenumber"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="deptName" column="dept_name"/>
     </resultMap>
     <resultMap type="org.dromara.system.domain.vo.SysUserExportVo" id="SysUserExportResult">
         <id property="userId" column="user_id"/>
     </resultMap>
+
+    <!--
+        分页查询用户列表（多表 JOIN + 递归 CTE 拼接部门路径）
+        部门名称格式：2级部门/3级部门/.../本级部门
+        若没有2级部门（即本级就是1级），只显示本级部门名称
+        兼容 MySQL 8.0+ 与 PostgreSQL（均支持 WITH RECURSIVE 与 || 字符串拼接）
+    -->
+    <!--
+        分页查询用户列表（多表 JOIN + 递归 CTE 拼接部门路径）
+        部门名称格式：2级部门/3级部门/.../本级部门
+        若没有2级部门（即本级就是1级），只显示本级部门名称
+        兼容 MySQL 8.0+（CAST AS CHAR + CONCAT）与 PostgreSQL（CAST AS VARCHAR + ||）
+    -->
+    <select id="selectPageUserList" resultMap="SysUserResult">
+        <choose>
+            <when test="@org.dromara.common.mybatis.helper.DataBaseHelper@getDataBaseType().isMySql()">
+                <![CDATA[
+                WITH RECURSIVE dept_path AS (
+                    SELECT dept_id, dept_name, parent_id, tenant_id,
+                           CAST('' AS CHAR(2000)) AS path,
+                           1 AS depth,
+                           dept_name AS level1_name
+                    FROM sys_dept
+                    WHERE parent_id = '0' OR parent_id IS NULL OR parent_id = ''
+                    UNION ALL
+                    SELECT d.dept_id, d.dept_name, d.parent_id, d.tenant_id,
+                           CAST(CASE WHEN dp.depth = 1 THEN d.dept_name ELSE CONCAT(dp.path, '/', d.dept_name) END AS CHAR(2000)),
+                           dp.depth + 1,
+                           dp.level1_name
+                    FROM sys_dept d
+                    INNER JOIN dept_path dp ON d.parent_id = dp.dept_id
+                    WHERE dp.depth < 10
+                ),
+                dept_final AS (
+                    SELECT dept_id, tenant_id,
+                           CASE WHEN path = '' THEN level1_name ELSE path END AS dept_name
+                    FROM dept_path
+                )
+                SELECT u.user_id,
+                       u.user_name,
+                       u.nick_name,
+                       u.phonenumber,
+                       u.status,
+                       u.create_time,
+                       df.dept_name
+                FROM sys_user u
+                LEFT JOIN dept_final df ON u.dept_id = df.dept_id
+                ${ew.customSqlSegment}
+                ]]>
+            </when>
+            <otherwise>
+                <![CDATA[
+                WITH RECURSIVE dept_path AS (
+                    SELECT dept_id, dept_name, parent_id, tenant_id,
+                           CAST('' AS VARCHAR(2000)) AS path,
+                           1 AS depth,
+                           dept_name AS level1_name
+                    FROM sys_dept
+                    WHERE parent_id = '0' OR parent_id IS NULL OR parent_id = ''
+                    UNION ALL
+                    SELECT d.dept_id, d.dept_name, d.parent_id, d.tenant_id,
+                           CAST(CASE WHEN dp.depth = 1 THEN d.dept_name ELSE dp.path || '/' || d.dept_name END AS VARCHAR(2000)),
+                           dp.depth + 1,
+                           dp.level1_name
+                    FROM sys_dept d
+                    INNER JOIN dept_path dp ON d.parent_id = dp.dept_id
+                    WHERE dp.depth < 10
+                ),
+                dept_final AS (
+                    SELECT dept_id,
+                           CASE WHEN path = '' THEN level1_name ELSE path END AS dept_name
+                    FROM dept_path
+                )
+                SELECT u.user_id,
+                       u.user_name,
+                       u.nick_name,
+                       u.phonenumber,
+                       u.status,
+                       u.create_time,
+                       df.dept_name
+                FROM sys_user u
+                LEFT JOIN dept_final df ON u.dept_id = df.dept_id
+                ${ew.customSqlSegment}
+                ]]>
+            </otherwise>
+        </choose>
+    </select>
 
     <select id="selectUserExportList" resultMap="SysUserExportResult">
         select u.user_id, u.dept_id, u.nick_name, u.user_name, u.email, u.avatar, u.phonenumber, u.sex,

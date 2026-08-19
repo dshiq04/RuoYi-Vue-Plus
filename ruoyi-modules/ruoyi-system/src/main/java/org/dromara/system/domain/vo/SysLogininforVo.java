@@ -32,7 +32,7 @@ public class SysLogininforVo implements Serializable {
      * 访问ID
      */
     @ExcelProperty(value = "序号")
-    private Long infoId;
+    private String infoId;
 
     /**
      * 租户编号

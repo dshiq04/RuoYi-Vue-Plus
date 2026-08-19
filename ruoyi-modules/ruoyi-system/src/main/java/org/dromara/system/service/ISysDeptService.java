@@ -38,7 +38,7 @@ public interface ISysDeptService {
      * @param dept 部门信息
      * @return 部门树信息集合
      */
-    List<Tree<Long>> selectDeptTreeList(SysDeptBo dept);
+    List<Tree<String>> selectDeptTreeList(SysDeptBo dept);
 
     /**
      * 构建前端所需要下拉树结构
@@ -46,7 +46,7 @@ public interface ISysDeptService {
      * @param depts 部门列表
      * @return 下拉树结构列表
      */
-    List<Tree<Long>> buildDeptTreeSelect(List<SysDeptVo> depts);
+    List<Tree<String>> buildDeptTreeSelect(List<SysDeptVo> depts);
 
     /**
      * 根据角色ID查询部门树信息
@@ -54,7 +54,7 @@ public interface ISysDeptService {
      * @param roleId 角色ID
      * @return 选中部门列表
      */
-    List<Long> selectDeptListByRoleId(Long roleId);
+    List<String> selectDeptListByRoleId(String roleId);
 
     /**
      * 根据部门ID查询信息
@@ -62,7 +62,7 @@ public interface ISysDeptService {
      * @param deptId 部门ID
      * @return 部门信息
      */
-    SysDeptVo selectDeptById(Long deptId);
+    SysDeptVo selectDeptById(String deptId);
 
     /**
      * 通过部门ID串查询部门
@@ -70,7 +70,7 @@ public interface ISysDeptService {
      * @param deptIds 部门id串
      * @return 部门列表信息
      */
-    List<SysDeptVo> selectDeptByIds(List<Long> deptIds);
+    List<SysDeptVo> selectDeptByIds(List<String> deptIds);
 
     /**
      * 根据ID查询所有子部门数（正常状态）
@@ -78,7 +78,7 @@ public interface ISysDeptService {
      * @param deptId 部门ID
      * @return 子部门数
      */
-    long selectNormalChildrenDeptById(Long deptId);
+    long selectNormalChildrenDeptById(String deptId);
 
     /**
      * 是否存在部门子节点
@@ -86,7 +86,7 @@ public interface ISysDeptService {
      * @param deptId 部门ID
      * @return 结果
      */
-    boolean hasChildByDeptId(Long deptId);
+    boolean hasChildByDeptId(String deptId);
 
     /**
      * 查询部门是否存在用户
@@ -94,7 +94,7 @@ public interface ISysDeptService {
      * @param deptId 部门ID
      * @return 结果 true 存在 false 不存在
      */
-    boolean checkDeptExistUser(Long deptId);
+    boolean checkDeptExistUser(String deptId);
 
     /**
      * 校验部门名称是否唯一
@@ -109,7 +109,7 @@ public interface ISysDeptService {
      *
      * @param deptId 部门id
      */
-    void checkDeptDataScope(Long deptId);
+    void checkDeptDataScope(String deptId);
 
     /**
      * 新增保存部门信息
@@ -133,5 +133,5 @@ public interface ISysDeptService {
      * @param deptId 部门ID
      * @return 结果
      */
-    int deleteDeptById(Long deptId);
+    int deleteDeptById(String deptId);
 }

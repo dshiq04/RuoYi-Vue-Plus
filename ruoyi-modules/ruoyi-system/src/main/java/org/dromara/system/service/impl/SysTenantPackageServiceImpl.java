@@ -42,7 +42,7 @@ public class SysTenantPackageServiceImpl implements ISysTenantPackageService {
      * 查询租户套餐
      */
     @Override
-    public SysTenantPackageVo queryById(Long packageId){
+    public SysTenantPackageVo queryById(String packageId){
         return baseMapper.selectVoById(packageId);
     }
 
@@ -87,7 +87,7 @@ public class SysTenantPackageServiceImpl implements ISysTenantPackageService {
     public Boolean insertByBo(SysTenantPackageBo bo) {
         SysTenantPackage add = MapstructUtils.convert(bo, SysTenantPackage.class);
         // 保存菜单id
-        List<Long> menuIds = Arrays.asList(bo.getMenuIds());
+        List<String> menuIds = Arrays.asList(bo.getMenuIds());
         add.setMenuIds(CollUtil.isNotEmpty(menuIds) ? StringUtils.joinComma(menuIds) : "");
         boolean flag = baseMapper.insert(add) > 0;
         if (flag) {
@@ -104,7 +104,7 @@ public class SysTenantPackageServiceImpl implements ISysTenantPackageService {
     public Boolean updateByBo(SysTenantPackageBo bo) {
         SysTenantPackage update = MapstructUtils.convert(bo, SysTenantPackage.class);
         // 保存菜单id
-        List<Long> menuIds = Arrays.asList(bo.getMenuIds());
+        List<String> menuIds = Arrays.asList(bo.getMenuIds());
         update.setMenuIds(CollUtil.isNotEmpty(menuIds) ? StringUtils.joinComma(menuIds) : "");
         return baseMapper.updateById(update) > 0;
     }
@@ -137,7 +137,7 @@ public class SysTenantPackageServiceImpl implements ISysTenantPackageService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
+    public Boolean deleteWithValidByIds(Collection<String> ids, Boolean isValid) {
         if(isValid){
             boolean exists = tenantMapper.exists(new LambdaQueryWrapper<SysTenant>().in(SysTenant::getPackageId, ids));
             if (exists) {

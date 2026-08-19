@@ -19,7 +19,7 @@ public interface ISysClientService {
     /**
      * 查询客户端管理
      */
-    SysClientVo queryById(Long id);
+    SysClientVo queryById(String id);
 
     /**
      * 查询客户端信息基于客户端id
@@ -54,7 +54,7 @@ public interface ISysClientService {
     /**
      * 校验并批量删除客户端管理信息
      */
-    Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+    Boolean deleteWithValidByIds(Collection<String> ids, Boolean isValid);
 
     /**
      * 校验客户端key是否唯一

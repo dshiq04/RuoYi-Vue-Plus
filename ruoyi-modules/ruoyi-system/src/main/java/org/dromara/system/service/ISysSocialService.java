@@ -26,7 +26,7 @@ public interface ISysSocialService {
     /**
      * 查询社会化关系列表
      */
-    List<SysSocialVo> queryListByUserId(Long userId);
+    List<SysSocialVo> queryListByUserId(String userId);
 
     /**
      * 新增授权关系
@@ -41,7 +41,7 @@ public interface ISysSocialService {
     /**
      * 删除社会化关系信息
      */
-    Boolean deleteWithValidById(Long id);
+    Boolean deleteWithValidById(String id);
 
 
     /**

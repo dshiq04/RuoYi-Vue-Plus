@@ -30,12 +30,12 @@ public interface SysMenuMapper extends BaseMapperPlus<SysMenu, SysMenuVo> {
      * @param userId 用户ID
      * @return SQL 字符串，用于 inSql 条件
      */
-    default String buildMenuByUserSql(Long userId) {
+    default String buildMenuByUserSql(String userId) {
         return """
                 select menu_id from sys_role_menu where role_id in (
                     select sur.role_id from sys_user_role sur
                         left join sys_role sr on sr.role_id = sur.role_id
-                        where sur.user_id = %d and sr.status = '0'
+                        where sur.user_id = '%s' and sr.status = '0'
                 )
             """.formatted(userId);
     }
@@ -51,11 +51,11 @@ public interface SysMenuMapper extends BaseMapperPlus<SysMenu, SysMenuVo> {
      * @param roleId 角色ID
      * @return 查询菜单ID的 SQL 子查询字符串
      */
-    default String buildMenuByRoleSql(Long roleId) {
+    default String buildMenuByRoleSql(String roleId) {
         return """
                 select srm.menu_id from sys_role_menu srm
                     left join sys_role sr on sr.role_id = srm.role_id
-                    where srm.role_id = %d and sr.status = '0'
+                    where srm.role_id = '%s' and sr.status = '0'
             """.formatted(roleId);
     }
 
@@ -70,12 +70,12 @@ public interface SysMenuMapper extends BaseMapperPlus<SysMenu, SysMenuVo> {
      * @param roleId 角色ID
      * @return SQL 语句字符串（查询菜单的父菜单ID）
      */
-    default String buildParentMenuByRoleSql(Long roleId) {
+    default String buildParentMenuByRoleSql(String roleId) {
         return """
                 select parent_id from sys_menu where menu_id in (
                     select srm.menu_id from sys_role_menu srm
                         left join sys_role sr on sr.role_id = srm.role_id
-                        where srm.role_id = %d and sr.status = '0'
+                        where srm.role_id = '%s' and sr.status = '0'
                 )
             """.formatted(roleId);
     }
@@ -86,7 +86,7 @@ public interface SysMenuMapper extends BaseMapperPlus<SysMenu, SysMenuVo> {
      * @param userId 用户ID
      * @return 权限列表
      */
-    default Set<String> selectMenuPermsByUserId(Long userId) {
+    default Set<String> selectMenuPermsByUserId(String userId) {
         List<String> list = this.selectObjs(
             new LambdaQueryWrapper<SysMenu>()
                 .select(SysMenu::getPerms)
@@ -121,7 +121,7 @@ public interface SysMenuMapper extends BaseMapperPlus<SysMenu, SysMenuVo> {
      * @param roleId 角色ID
      * @return 权限列表
      */
-    default Set<String> selectMenuPermsByRoleId(Long roleId) {
+    default Set<String> selectMenuPermsByRoleId(String roleId) {
         List<String> list = this.selectObjs(
             new LambdaQueryWrapper<SysMenu>()
                 .select(SysMenu::getPerms)
@@ -152,7 +152,7 @@ public interface SysMenuMapper extends BaseMapperPlus<SysMenu, SysMenuVo> {
      * @param menuCheckStrictly 菜单树选择项是否关联显示
      * @return 选中菜单列表
      */
-    default List<Long> selectMenuListByRoleId(Long roleId, boolean menuCheckStrictly) {
+    default List<String> selectMenuListByRoleId(String roleId, boolean menuCheckStrictly) {
         LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
         wrapper.select(SysMenu::getMenuId)
             .inSql(SysMenu::getMenuId, buildMenuByRoleSql(roleId))
@@ -162,7 +162,7 @@ public interface SysMenuMapper extends BaseMapperPlus<SysMenu, SysMenuVo> {
             wrapper.notInSql(SysMenu::getMenuId, this.buildParentMenuByRoleSql(roleId));
         }
         return this.selectObjs(wrapper, x -> {
-            return Convert.toLong(x);
+            return Convert.toStr(x);
         });
     }
 

@@ -65,7 +65,7 @@ public class SysConfigServiceImpl implements ISysConfigService, ConfigService {
      * @return 参数配置信息
      */
     @Override
-    public SysConfigVo selectConfigById(Long configId) {
+    public SysConfigVo selectConfigById(String configId) {
         return baseMapper.selectVoById(configId);
     }
 
@@ -171,7 +171,7 @@ public class SysConfigServiceImpl implements ISysConfigService, ConfigService {
      */
     @CacheEvict(cacheNames = CacheNames.SYS_CONFIG, allEntries = true)
     @Override
-    public void deleteConfigByIds(List<Long> configIds) {
+    public void deleteConfigByIds(List<String> configIds) {
         List<SysConfig> list = baseMapper.selectByIds(configIds);
         list.forEach(config -> {
             if (StringUtils.equals(SystemConstants.YES, config.getConfigType())) {

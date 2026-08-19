@@ -16,6 +16,6 @@ public interface PostService {
      * @param postIds 岗位 ID 列表
      * @return Map，其中 key 为岗位 ID，value 为对应的岗位名称
      */
-    Map<Long, String> selectPostNamesByIds(List<Long> postIds);
+    Map<String, String> selectPostNamesByIds(List<String> postIds);
 
 }

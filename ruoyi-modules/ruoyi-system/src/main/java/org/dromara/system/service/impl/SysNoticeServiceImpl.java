@@ -55,7 +55,7 @@ public class SysNoticeServiceImpl implements ISysNoticeService {
      * @return 公告信息
      */
     @Override
-    public SysNoticeVo selectNoticeById(Long noticeId) {
+    public SysNoticeVo selectNoticeById(String noticeId) {
         return baseMapper.selectVoById(noticeId);
     }
 
@@ -114,7 +114,7 @@ public class SysNoticeServiceImpl implements ISysNoticeService {
      * @return 结果
      */
     @Override
-    public int deleteNoticeById(Long noticeId) {
+    public int deleteNoticeById(String noticeId) {
         return baseMapper.deleteById(noticeId);
     }
 
@@ -125,7 +125,7 @@ public class SysNoticeServiceImpl implements ISysNoticeService {
      * @return 结果
      */
     @Override
-    public int deleteNoticeByIds(Long[] noticeIds) {
+    public int deleteNoticeByIds(String[] noticeIds) {
         return baseMapper.deleteByIds(Arrays.asList(noticeIds));
     }
 }

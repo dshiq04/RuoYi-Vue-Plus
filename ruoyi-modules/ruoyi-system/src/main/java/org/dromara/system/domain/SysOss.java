@@ -20,7 +20,7 @@ public class SysOss extends TenantEntity {
      * 对象存储主键
      */
     @TableId(value = "oss_id")
-    private Long ossId;
+    private String ossId;
 
     /**
      * 文件名

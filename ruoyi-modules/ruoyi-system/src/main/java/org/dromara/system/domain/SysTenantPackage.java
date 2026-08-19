@@ -24,7 +24,7 @@ public class SysTenantPackage extends BaseEntity {
      * 租户套餐id
      */
     @TableId(value = "package_id")
-    private Long packageId;
+    private String packageId;
 
     /**
      * 套餐名称

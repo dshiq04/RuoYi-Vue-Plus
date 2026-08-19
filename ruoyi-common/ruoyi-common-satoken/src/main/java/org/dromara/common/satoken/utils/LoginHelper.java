@@ -55,7 +55,7 @@ public class LoginHelper {
     /**
      * 获取用户id
      */
-    public static Long getUserId() {
+    public static String getUserId() {
         LoginUser loginUser = getLoginUser();
         return loginUser != null ? loginUser.getUserId() : null;
     }
@@ -86,7 +86,7 @@ public class LoginHelper {
     /**
      * 获取部门ID
      */
-    public static Long getDeptId() {
+    public static String getDeptId() {
         LoginUser loginUser = getLoginUser();
         return loginUser != null ? loginUser.getDeptId() : null;
     }
@@ -121,7 +121,7 @@ public class LoginHelper {
     /**
      * 是否为超级管理员
      */
-    public static boolean isSuperAdmin(Long userId) {
+    public static boolean isSuperAdmin(String userId) {
         return SystemConstants.SUPER_ADMIN_ID.equals(userId);
     }
 

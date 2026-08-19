@@ -26,7 +26,7 @@ public class SysClientBo extends BaseEntity {
      * id
      */
     @NotNull(message = "id不能为空", groups = { EditGroup.class })
-    private Long id;
+    private String id;
 
     /**
      * 客户端id

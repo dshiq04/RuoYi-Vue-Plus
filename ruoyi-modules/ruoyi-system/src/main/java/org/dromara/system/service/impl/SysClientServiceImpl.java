@@ -43,7 +43,7 @@ public class SysClientServiceImpl implements ISysClientService {
      * 查询客户端管理
      */
     @Override
-    public SysClientVo queryById(Long id) {
+    public SysClientVo queryById(String id) {
         SysClientVo vo = baseMapper.selectVoById(id);
         vo.setGrantTypeList(StringUtils.splitList(vo.getGrantType()));
         return vo;
@@ -134,7 +134,7 @@ public class SysClientServiceImpl implements ISysClientService {
      */
     @CacheEvict(cacheNames = CacheNames.SYS_CLIENT, allEntries = true)
     @Override
-    public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
+    public Boolean deleteWithValidByIds(Collection<String> ids, Boolean isValid) {
         return baseMapper.deleteByIds(ids) > 0;
     }
 

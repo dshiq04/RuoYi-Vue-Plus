@@ -26,7 +26,7 @@ public class SysSocialBo extends TenantEntity {
      * 主键
      */
     @NotNull(message = "主键不能为空", groups = { EditGroup.class })
-    private Long id;
+    private String id;
 
     /**
      * 认证唯一ID
@@ -65,7 +65,7 @@ public class SysSocialBo extends TenantEntity {
      * 用户的 ID
      */
     @NotBlank(message = "用户的ID不能为空", groups = { AddGroup.class, EditGroup.class })
-    private Long userId;
+    private String userId;
 
     /**
      * 平台的授权信息，部分平台可能没有

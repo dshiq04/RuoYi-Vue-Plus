@@ -218,7 +218,7 @@ public class SysLoginService {
      */
     public LoginUser buildLoginUser(SysUserVo user) {
         LoginUser loginUser = new LoginUser();
-        Long userId = user.getUserId();
+        String userId = user.getUserId();
         loginUser.setTenantId(user.getTenantId());
         loginUser.setUserId(userId);
         loginUser.setDeptId(user.getDeptId());
@@ -244,7 +244,7 @@ public class SysLoginService {
      *
      * @param userId 用户ID
      */
-    public void recordLoginInfo(Long userId, String ip) {
+    public void recordLoginInfo(String userId, String ip) {
         SysUser sysUser = new SysUser();
         sysUser.setUserId(userId);
         sysUser.setLoginIp(ip);

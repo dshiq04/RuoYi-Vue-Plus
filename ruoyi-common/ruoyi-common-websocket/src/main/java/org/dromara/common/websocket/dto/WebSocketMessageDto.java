@@ -20,7 +20,7 @@ public class WebSocketMessageDto implements Serializable {
     /**
      * 需要推送到的session key 列表
      */
-    private List<Long> sessionKeys;
+    private List<String> sessionKeys;
 
     /**
      * 需要发送的消息

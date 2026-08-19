@@ -20,7 +20,7 @@ public class SysOssConfig extends BaseEntity {
      * 主键
      */
     @TableId(value = "oss_config_id")
-    private Long ossConfigId;
+    private String ossConfigId;
 
     /**
      * 配置key
@@ -86,4 +86,9 @@ public class SysOssConfig extends BaseEntity {
      * 桶权限类型(0private 1public 2custom)
      */
     private String accessPolicy;
+
+    /**
+     * 租户编号
+     */
+    private String tenantId;
 }

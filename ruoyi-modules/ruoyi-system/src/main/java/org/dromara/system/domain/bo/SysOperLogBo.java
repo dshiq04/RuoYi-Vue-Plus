@@ -27,7 +27,7 @@ public class SysOperLogBo {
     /**
      * 日志主键
      */
-    private Long operId;
+    private String operId;
 
     /**
      * 租户编号

@@ -32,9 +32,7 @@ public interface SysUserMapper extends BaseMapperPlus<SysUser, SysUserVo> {
         @DataColumn(key = "deptName", value = "dept_id"),
         @DataColumn(key = "userName", value = "create_by")
     })
-    default Page<SysUserVo> selectPageUserList(Page<SysUser> page, Wrapper<SysUser> queryWrapper) {
-        return this.selectVoPage(page, queryWrapper);
-    }
+    Page<SysUserVo> selectPageUserList(@Param("page") Page<SysUser> page, @Param(Constants.WRAPPER) Wrapper<SysUser> queryWrapper);
 
     /**
      * 查询用户列表，并进行数据权限控制
@@ -97,7 +95,7 @@ public interface SysUserMapper extends BaseMapperPlus<SysUser, SysUserVo> {
         @DataColumn(key = "deptName", value = "dept_id"),
         @DataColumn(key = "userName", value = "create_by")
     })
-    default long countUserById(Long userId) {
+    default long countUserById(String userId) {
         return this.selectCount(new LambdaQueryWrapper<SysUser>().eq(SysUser::getUserId, userId));
     }
 

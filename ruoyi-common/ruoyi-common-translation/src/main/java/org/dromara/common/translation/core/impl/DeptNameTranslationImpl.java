@@ -21,7 +21,7 @@ public class DeptNameTranslationImpl implements TranslationInterface<String> {
     public String translation(Object key, String other) {
         if (key instanceof String ids) {
             return deptService.selectDeptNameByIds(ids);
-        } else if (key instanceof Long id) {
+        } else if (key instanceof String id) {
             return deptService.selectDeptNameByIds(id.toString());
         }
         return null;

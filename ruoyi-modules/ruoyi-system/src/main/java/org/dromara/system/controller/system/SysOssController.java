@@ -55,7 +55,7 @@ public class SysOssController extends BaseController {
     @PreAuthorize("hasAuthority('system:oss:query')")
     @GetMapping("/listByIds/{ossIds}")
     public R<List<SysOssVo>> listByIds(@NotEmpty(message = "主键不能为空")
-                                       @PathVariable Long[] ossIds) {
+                                       @PathVariable String[] ossIds) {
         List<SysOssVo> list = ossService.listByIds(Arrays.asList(ossIds));
         return R.ok(list);
     }
@@ -84,7 +84,7 @@ public class SysOssController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:oss:download')")
     @GetMapping("/download/{ossId}")
-    public void download(@PathVariable Long ossId, HttpServletResponse response) throws IOException {
+    public void download(@PathVariable String ossId, HttpServletResponse response) throws IOException {
         ossService.download(ossId, response);
     }
 
@@ -97,7 +97,7 @@ public class SysOssController extends BaseController {
     @Log(title = "OSS对象存储", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ossIds}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long[] ossIds) {
+                          @PathVariable String[] ossIds) {
         return toAjax(ossService.deleteWithValidByIds(List.of(ossIds), true));
     }
 

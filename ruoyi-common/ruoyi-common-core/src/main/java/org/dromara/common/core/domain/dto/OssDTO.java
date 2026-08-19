@@ -21,7 +21,7 @@ public class OssDTO implements Serializable {
     /**
      * 对象存储主键
      */
-    private Long ossId;
+    private String ossId;
 
     /**
      * 文件名

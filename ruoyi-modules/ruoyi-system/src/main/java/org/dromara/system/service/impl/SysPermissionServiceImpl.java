@@ -31,7 +31,7 @@ public class SysPermissionServiceImpl implements ISysPermissionService, Permissi
      * @return 角色权限信息
      */
     @Override
-    public Set<String> getRolePermission(Long userId) {
+    public Set<String> getRolePermission(String userId) {
         Set<String> roles = new HashSet<>();
         // 管理员拥有所有权限
         if (LoginHelper.isSuperAdmin(userId)) {
@@ -49,7 +49,7 @@ public class SysPermissionServiceImpl implements ISysPermissionService, Permissi
      * @return 菜单权限信息
      */
     @Override
-    public Set<String> getMenuPermission(Long userId) {
+    public Set<String> getMenuPermission(String userId) {
         Set<String> perms = new HashSet<>();
         // 管理员拥有所有权限
         if (LoginHelper.isSuperAdmin(userId)) {

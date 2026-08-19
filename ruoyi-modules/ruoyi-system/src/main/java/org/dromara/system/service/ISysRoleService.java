@@ -39,7 +39,7 @@ public interface ISysRoleService {
      * @param userId 用户ID
      * @return 角色列表
      */
-    List<SysRoleVo> selectRolesByUserId(Long userId);
+    List<SysRoleVo> selectRolesByUserId(String userId);
 
     /**
      * 根据用户ID查询角色列表(包含被授权状态)
@@ -47,7 +47,7 @@ public interface ISysRoleService {
      * @param userId 用户ID
      * @return 角色列表
      */
-    List<SysRoleVo> selectRolesAuthByUserId(Long userId);
+    List<SysRoleVo> selectRolesAuthByUserId(String userId);
 
     /**
      * 根据用户ID查询角色权限
@@ -55,7 +55,7 @@ public interface ISysRoleService {
      * @param userId 用户ID
      * @return 权限列表
      */
-    Set<String> selectRolePermissionByUserId(Long userId);
+    Set<String> selectRolePermissionByUserId(String userId);
 
     /**
      * 查询所有角色
@@ -70,7 +70,7 @@ public interface ISysRoleService {
      * @param userId 用户ID
      * @return 选中角色ID列表
      */
-    List<Long> selectRoleListByUserId(Long userId);
+    List<String> selectRoleListByUserId(String userId);
 
     /**
      * 通过角色ID查询角色
@@ -78,7 +78,7 @@ public interface ISysRoleService {
      * @param roleId 角色ID
      * @return 角色对象信息
      */
-    SysRoleVo selectRoleById(Long roleId);
+    SysRoleVo selectRoleById(String roleId);
 
     /**
      * 通过角色ID串查询角色
@@ -86,7 +86,7 @@ public interface ISysRoleService {
      * @param roleIds 角色ID串
      * @return 角色列表信息
      */
-    List<SysRoleVo> selectRoleByIds(List<Long> roleIds);
+    List<SysRoleVo> selectRoleByIds(List<String> roleIds);
 
     /**
      * 校验角色名称是否唯一
@@ -116,14 +116,14 @@ public interface ISysRoleService {
      *
      * @param roleId 角色id
      */
-    void checkRoleDataScope(Long roleId);
+    void checkRoleDataScope(String roleId);
 
     /**
      * 校验角色是否有数据权限
      *
      * @param roleIds 角色ID列表（支持传单个ID）
      */
-    void checkRoleDataScope(List<Long> roleIds);
+    void checkRoleDataScope(List<String> roleIds);
 
     /**
      * 通过角色ID查询角色使用数量
@@ -131,7 +131,7 @@ public interface ISysRoleService {
      * @param roleId 角色ID
      * @return 结果
      */
-    long countUserRoleByRoleId(Long roleId);
+    long countUserRoleByRoleId(String roleId);
 
     /**
      * 新增保存角色信息
@@ -156,7 +156,7 @@ public interface ISysRoleService {
      * @param status 角色状态
      * @return 结果
      */
-    int updateRoleStatus(Long roleId, String status);
+    int updateRoleStatus(String roleId, String status);
 
     /**
      * 修改数据权限信息
@@ -172,7 +172,7 @@ public interface ISysRoleService {
      * @param roleId 角色ID
      * @return 结果
      */
-    int deleteRoleById(Long roleId);
+    int deleteRoleById(String roleId);
 
     /**
      * 批量删除角色信息
@@ -180,7 +180,7 @@ public interface ISysRoleService {
      * @param roleIds 需要删除的角色ID
      * @return 结果
      */
-    int deleteRoleByIds(List<Long> roleIds);
+    int deleteRoleByIds(List<String> roleIds);
 
     /**
      * 取消授权用户角色
@@ -197,7 +197,7 @@ public interface ISysRoleService {
      * @param userIds 需要取消授权的用户数据ID
      * @return 结果
      */
-    int deleteAuthUsers(Long roleId, Long[] userIds);
+    int deleteAuthUsers(String roleId, String[] userIds);
 
     /**
      * 批量选择授权用户角色
@@ -206,7 +206,7 @@ public interface ISysRoleService {
      * @param userIds 需要删除的用户数据ID
      * @return 结果
      */
-    int insertAuthUsers(Long roleId, Long[] userIds);
+    int insertAuthUsers(String roleId, String[] userIds);
 
     /**
      * 根据角色ID清除该角色关联的所有在线用户的登录状态（踢出在线用户）
@@ -219,7 +219,7 @@ public interface ISysRoleService {
      *
      * @param roleId 角色ID
      */
-    void cleanOnlineUserByRole(Long roleId);
+    void cleanOnlineUserByRole(String roleId);
 
     /**
      * 根据用户ID列表清除对应在线用户的登录状态（踢出指定用户）
@@ -231,6 +231,6 @@ public interface ISysRoleService {
      *
      * @param userIds 需要清除的用户ID列表
      */
-    void cleanOnlineUser(List<Long> userIds);
+    void cleanOnlineUser(List<String> userIds);
 
 }

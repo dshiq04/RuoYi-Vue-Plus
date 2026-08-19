@@ -21,7 +21,7 @@ public class SysConfig extends TenantEntity {
      * 参数主键
      */
     @TableId(value = "config_id")
-    private Long configId;
+    private String configId;
 
     /**
      * 参数名称

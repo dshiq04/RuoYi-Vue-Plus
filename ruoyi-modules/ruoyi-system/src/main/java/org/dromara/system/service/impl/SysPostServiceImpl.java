@@ -72,7 +72,7 @@ public class SysPostServiceImpl implements ISysPostService, PostService {
      * @return 岗位ID
      */
     @Override
-    public List<SysPostVo> selectPostsByUserId(Long userId) {
+    public List<SysPostVo> selectPostsByUserId(String userId) {
         return baseMapper.selectPostsByUserId(userId);
     }
 
@@ -98,7 +98,7 @@ public class SysPostServiceImpl implements ISysPostService, PostService {
         } else if (ObjectUtil.isNotNull(bo.getBelongDeptId())) {
             //部门树搜索
             wrapper.and(x -> {
-                List<Long> deptIds = deptMapper.selectDeptAndChildById(bo.getBelongDeptId());
+                List<String> deptIds = deptMapper.selectDeptAndChildById(bo.getBelongDeptId());
                 x.in(SysPost::getDeptId, deptIds);
             });
         }
@@ -122,7 +122,7 @@ public class SysPostServiceImpl implements ISysPostService, PostService {
      * @return 角色对象信息
      */
     @Override
-    public SysPostVo selectPostById(Long postId) {
+    public SysPostVo selectPostById(String postId) {
         return baseMapper.selectVoById(postId);
     }
 
@@ -133,7 +133,7 @@ public class SysPostServiceImpl implements ISysPostService, PostService {
      * @return 选中岗位ID列表
      */
     @Override
-    public List<Long> selectPostListByUserId(Long userId) {
+    public List<String> selectPostListByUserId(String userId) {
         List<SysPostVo> list = baseMapper.selectPostsByUserId(userId);
         return StreamUtils.toList(list, SysPostVo::getPostId);
     }
@@ -145,7 +145,7 @@ public class SysPostServiceImpl implements ISysPostService, PostService {
      * @return 岗位列表信息
      */
     @Override
-    public List<SysPostVo> selectPostByIds(List<Long> postIds) {
+    public List<SysPostVo> selectPostByIds(List<String> postIds) {
         return baseMapper.selectVoList(new LambdaQueryWrapper<SysPost>()
             .select(SysPost::getPostId, SysPost::getPostName, SysPost::getPostCode)
             .eq(SysPost::getStatus, SystemConstants.NORMAL)
@@ -188,7 +188,7 @@ public class SysPostServiceImpl implements ISysPostService, PostService {
      * @return 结果
      */
     @Override
-    public long countUserPostById(Long postId) {
+    public long countUserPostById(String postId) {
         return userPostMapper.selectCount(new LambdaQueryWrapper<SysUserPost>().eq(SysUserPost::getPostId, postId));
     }
 
@@ -199,7 +199,7 @@ public class SysPostServiceImpl implements ISysPostService, PostService {
      * @return 结果
      */
     @Override
-    public long countPostByDeptId(Long deptId) {
+    public long countPostByDeptId(String deptId) {
         return baseMapper.selectCount(new LambdaQueryWrapper<SysPost>().eq(SysPost::getDeptId, deptId));
     }
 
@@ -210,7 +210,7 @@ public class SysPostServiceImpl implements ISysPostService, PostService {
      * @return 结果
      */
     @Override
-    public int deletePostById(Long postId) {
+    public int deletePostById(String postId) {
         return baseMapper.deleteById(postId);
     }
 
@@ -221,7 +221,7 @@ public class SysPostServiceImpl implements ISysPostService, PostService {
      * @return 结果
      */
     @Override
-    public int deletePostByIds(List<Long> postIds) {
+    public int deletePostByIds(List<String> postIds) {
         List<SysPost> list = baseMapper.selectByIds(postIds);
         for (SysPost post : list) {
             if (this.countUserPostById(post.getPostId()) > 0) {
@@ -262,7 +262,7 @@ public class SysPostServiceImpl implements ISysPostService, PostService {
      * @return Map，其中 key 为岗位 ID，value 为对应的岗位名称
      */
     @Override
-    public Map<Long, String> selectPostNamesByIds(List<Long> postIds) {
+    public Map<String, String> selectPostNamesByIds(List<String> postIds) {
         if (CollUtil.isEmpty(postIds)) {
             return Collections.emptyMap();
         }

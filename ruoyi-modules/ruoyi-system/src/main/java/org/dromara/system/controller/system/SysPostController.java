@@ -67,7 +67,7 @@ public class SysPostController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:post:query')")
     @GetMapping(value = "/{postId}")
-    public R<SysPostVo> getInfo(@PathVariable Long postId) {
+    public R<SysPostVo> getInfo(@PathVariable String postId) {
         return R.ok(postService.selectPostById(postId));
     }
 
@@ -114,7 +114,7 @@ public class SysPostController extends BaseController {
     @PreAuthorize("hasAuthority('system:post:remove')")
     @Log(title = "岗位管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{postIds}")
-    public R<Void> remove(@PathVariable Long[] postIds) {
+    public R<Void> remove(@PathVariable String[] postIds) {
         return toAjax(postService.deletePostByIds(Arrays.asList(postIds)));
     }
 
@@ -126,7 +126,7 @@ public class SysPostController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:post:query')")
     @GetMapping("/optionselect")
-    public R<List<SysPostVo>> optionselect(@RequestParam(required = false) Long[] postIds, @RequestParam(required = false) Long deptId) {
+    public R<List<SysPostVo>> optionselect(@RequestParam(required = false) String[] postIds, @RequestParam(required = false) String deptId) {
         List<SysPostVo> list = new ArrayList<>();
         if (ObjectUtil.isNotNull(deptId)) {
             SysPostBo post = new SysPostBo();
@@ -143,7 +143,7 @@ public class SysPostController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:post:list')")
     @GetMapping("/deptTree")
-    public R<List<Tree<Long>>> deptTree(SysDeptBo dept) {
+    public R<List<Tree<String>>> deptTree(SysDeptBo dept) {
         return R.ok(deptService.selectDeptTreeList(dept));
     }
 

@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class WebSocketSessionHolder {
 
-    private static final Map<Long, WebSocketSession> USER_SESSION_MAP = new ConcurrentHashMap<>();
+    private static final Map<String, WebSocketSession> USER_SESSION_MAP = new ConcurrentHashMap<>();
 
     /**
      * 将WebSocket会话添加到用户会话Map中
@@ -25,7 +25,7 @@ public class WebSocketSessionHolder {
      * @param sessionKey 会话键，用于检索会话
      * @param session    要添加的WebSocket会话
      */
-    public static void addSession(Long sessionKey, WebSocketSession session) {
+    public static void addSession(String sessionKey, WebSocketSession session) {
         removeSession(sessionKey);
         USER_SESSION_MAP.put(sessionKey, session);
     }
@@ -35,7 +35,7 @@ public class WebSocketSessionHolder {
      *
      * @param sessionKey 要移除的会话键
      */
-    public static void removeSession(Long sessionKey) {
+    public static void removeSession(String sessionKey) {
         WebSocketSession session = USER_SESSION_MAP.remove(sessionKey);
         try {
             session.close(CloseStatus.BAD_DATA);
@@ -49,7 +49,7 @@ public class WebSocketSessionHolder {
      * @param sessionKey 要获取的会话键
      * @return 与给定会话键对应的WebSocket会话，如果不存在则返回null
      */
-    public static WebSocketSession getSessions(Long sessionKey) {
+    public static WebSocketSession getSessions(String sessionKey) {
         return USER_SESSION_MAP.get(sessionKey);
     }
 
@@ -58,7 +58,7 @@ public class WebSocketSessionHolder {
      *
      * @return 所有WebSocket会话的会话键集合
      */
-    public static Set<Long> getSessionsAll() {
+    public static Set<String> getSessionsAll() {
         return USER_SESSION_MAP.keySet();
     }
 
@@ -68,7 +68,7 @@ public class WebSocketSessionHolder {
      * @param sessionKey 要检查的会话键
      * @return 如果存在对应的会话键，则返回true；否则返回false
      */
-    public static Boolean existSession(Long sessionKey) {
+    public static Boolean existSession(String sessionKey) {
         return USER_SESSION_MAP.containsKey(sessionKey);
     }
 }

@@ -65,7 +65,7 @@ public class SysClientController extends BaseController {
     @PreAuthorize("hasAuthority('system:client:query')")
     @GetMapping("/{id}")
     public R<SysClientVo> getInfo(@NotNull(message = "主键不能为空")
-                                  @PathVariable Long id) {
+                                  @PathVariable String id) {
         return R.ok(sysClientService.queryById(id));
     }
 
@@ -116,7 +116,7 @@ public class SysClientController extends BaseController {
     @Log(title = "客户端管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public R<Void> remove(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long[] ids) {
+                          @PathVariable String[] ids) {
         return toAjax(sysClientService.deleteWithValidByIds(List.of(ids), true));
     }
 }

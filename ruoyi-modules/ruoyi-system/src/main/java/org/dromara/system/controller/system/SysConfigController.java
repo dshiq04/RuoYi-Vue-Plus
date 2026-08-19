@@ -60,7 +60,7 @@ public class SysConfigController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:config:query')")
     @GetMapping(value = "/{configId}")
-    public R<SysConfigVo> getInfo(@PathVariable Long configId) {
+    public R<SysConfigVo> getInfo(@PathVariable String configId) {
         return R.ok(configService.selectConfigById(configId));
     }
 
@@ -124,7 +124,7 @@ public class SysConfigController extends BaseController {
     @PreAuthorize("hasAuthority('system:config:remove')")
     @Log(title = "参数管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{configIds}")
-    public R<Void> remove(@PathVariable Long[] configIds) {
+    public R<Void> remove(@PathVariable String[] configIds) {
         configService.deleteConfigByIds(Arrays.asList(configIds));
         return R.ok();
     }

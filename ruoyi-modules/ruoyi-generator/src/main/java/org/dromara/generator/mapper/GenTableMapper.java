@@ -28,7 +28,7 @@ public interface GenTableMapper extends BaseMapperPlus<GenTable, GenTable> {
      * @param id 业务ID
      * @return 业务信息
      */
-    GenTable selectGenTableById(Long id);
+    GenTable selectGenTableById(String id);
 
     /**
      * 查询表名称业务信息

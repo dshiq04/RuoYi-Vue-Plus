@@ -19,7 +19,7 @@ public class SysOssBo extends BaseEntity {
     /**
      * ossId
      */
-    private Long ossId;
+    private String ossId;
 
     /**
      * 文件名

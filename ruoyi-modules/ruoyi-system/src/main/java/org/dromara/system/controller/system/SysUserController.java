@@ -130,14 +130,14 @@ public class SysUserController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:user:query')")
     @GetMapping(value = {"/", "/{userId}"})
-    public R<SysUserInfoVo> getInfo(@PathVariable(value = "userId", required = false) Long userId) {
+    public R<SysUserInfoVo> getInfo(@PathVariable(value = "userId", required = false) String userId) {
         SysUserInfoVo userInfoVo = new SysUserInfoVo();
         if (ObjectUtil.isNotNull(userId)) {
             userService.checkUserDataScope(userId);
             SysUserVo sysUser = userService.selectUserById(userId);
             userInfoVo.setUser(sysUser);
             userInfoVo.setRoleIds(roleService.selectRoleListByUserId(userId));
-            Long deptId = sysUser.getDeptId();
+            String deptId = sysUser.getDeptId();
             if (ObjectUtil.isNotNull(deptId)) {
                 SysPostBo postBo = new SysPostBo();
                 postBo.setDeptId(deptId);
@@ -206,7 +206,7 @@ public class SysUserController extends BaseController {
     @PreAuthorize("hasAuthority('system:user:remove')")
     @Log(title = "用户管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{userIds}")
-    public R<Void> remove(@PathVariable Long[] userIds) {
+    public R<Void> remove(@PathVariable String[] userIds) {
         if (ArrayUtil.contains(userIds, LoginHelper.getUserId())) {
             return R.fail("当前用户不能删除");
         }
@@ -221,8 +221,8 @@ public class SysUserController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:user:query')")
     @GetMapping("/optionselect")
-    public R<List<SysUserVo>> optionselect(@RequestParam(required = false) Long[] userIds,
-                                           @RequestParam(required = false) Long deptId) {
+    public R<List<SysUserVo>> optionselect(@RequestParam(required = false) String[] userIds,
+                                           @RequestParam(required = false) String deptId) {
         return R.ok(userService.selectUserByIds(ArrayUtil.isEmpty(userIds) ? null : List.of(userIds), deptId));
     }
 
@@ -261,7 +261,7 @@ public class SysUserController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:user:query')")
     @GetMapping("/authRole/{userId}")
-    public R<SysUserInfoVo> authRole(@PathVariable Long userId) {
+    public R<SysUserInfoVo> authRole(@PathVariable String userId) {
         userService.checkUserDataScope(userId);
         SysUserVo user = userService.selectUserById(userId);
         List<SysRoleVo> roles = roleService.selectRolesAuthByUserId(userId);
@@ -281,7 +281,7 @@ public class SysUserController extends BaseController {
     @Log(title = "用户管理", businessType = BusinessType.GRANT)
     @RepeatSubmit()
     @PutMapping("/authRole")
-    public R<Void> insertAuthRole(Long userId, Long[] roleIds) {
+    public R<Void> insertAuthRole(String userId, String[] roleIds) {
         userService.checkUserDataScope(userId);
         userService.insertUserAuth(userId, roleIds);
         return R.ok();
@@ -292,7 +292,7 @@ public class SysUserController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:user:list')")
     @GetMapping("/deptTree")
-    public R<List<Tree<Long>>> deptTree(SysDeptBo dept) {
+    public R<List<Tree<String>>> deptTree(SysDeptBo dept) {
         return R.ok(deptService.selectDeptTreeList(dept));
     }
 
@@ -301,7 +301,7 @@ public class SysUserController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:user:list')")
     @GetMapping("/list/dept/{deptId}")
-    public R<List<SysUserVo>> listByDept(@PathVariable @NotNull Long deptId) {
+    public R<List<SysUserVo>> listByDept(@PathVariable @NotNull String deptId) {
         return R.ok(userService.selectUserListByDept(deptId));
     }
 

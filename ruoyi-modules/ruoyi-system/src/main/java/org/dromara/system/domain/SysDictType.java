@@ -21,7 +21,7 @@ public class SysDictType extends TenantEntity {
      * 字典主键
      */
     @TableId(value = "dict_id")
-    private Long dictId;
+    private String dictId;
 
     /**
      * 字典名称

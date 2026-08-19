@@ -29,7 +29,7 @@ public class SysUserExportVo implements Serializable {
      * 用户ID
      */
     @ExcelProperty(value = "用户序号")
-    private Long userId;
+    private String userId;
 
     /**
      * 用户账号

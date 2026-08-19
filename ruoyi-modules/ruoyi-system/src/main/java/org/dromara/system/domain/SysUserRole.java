@@ -19,11 +19,11 @@ public class SysUserRole {
      * 用户ID
      */
     @TableId(type = IdType.INPUT)
-    private Long userId;
+    private String userId;
 
     /**
      * 角色ID
      */
-    private Long roleId;
+    private String roleId;
 
 }

@@ -92,7 +92,7 @@ public class SocialAuthStrategy implements IAuthStrategy {
         return loginVo;
     }
 
-    private SysUserVo loadUser(Long userId) {
+    private SysUserVo loadUser(String userId) {
         SysUserVo user = userMapper.selectVoById(userId);
         if (ObjectUtil.isNull(user)) {
             log.info("登录用户：{} 不存在.", "");

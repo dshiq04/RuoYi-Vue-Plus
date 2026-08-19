@@ -34,7 +34,7 @@ public interface ISysOssService {
      * @param ossIds 一组文件在数据库中的唯一标识集合
      * @return 包含 SysOssVo 对象的列表
      */
-    List<SysOssVo> listByIds(Collection<Long> ossIds);
+    List<SysOssVo> listByIds(Collection<String> ossIds);
 
     /**
      * 根据 ossId 从缓存或数据库中获取 SysOssVo 对象
@@ -42,7 +42,7 @@ public interface ISysOssService {
      * @param ossId 文件在数据库中的唯一标识
      * @return SysOssVo 对象，包含文件信息
      */
-    SysOssVo getById(Long ossId);
+    SysOssVo getById(String ossId);
 
     /**
      * 上传 MultipartFile 到对象存储服务，并保存文件信息到数据库
@@ -66,7 +66,7 @@ public interface ISysOssService {
      * @param ossId    OSS对象ID
      * @param response HttpServletResponse对象，用于设置响应头和向客户端发送文件内容
      */
-    void download(Long ossId, HttpServletResponse response) throws IOException;
+    void download(String ossId, HttpServletResponse response) throws IOException;
 
     /**
      * 删除OSS对象存储
@@ -75,6 +75,6 @@ public interface ISysOssService {
      * @param isValid 判断是否需要校验
      * @return 结果
      */
-    Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+    Boolean deleteWithValidByIds(Collection<String> ids, Boolean isValid);
 
 }

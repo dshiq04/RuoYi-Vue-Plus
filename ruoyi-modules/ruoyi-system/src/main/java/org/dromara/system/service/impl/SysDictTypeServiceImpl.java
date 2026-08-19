@@ -116,7 +116,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService, DictService 
      * @return 字典类型
      */
     @Override
-    public SysDictTypeVo selectDictTypeById(Long dictId) {
+    public SysDictTypeVo selectDictTypeById(String dictId) {
         return baseMapper.selectVoById(dictId);
     }
 
@@ -142,7 +142,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService, DictService 
         @CacheEvict(cacheNames = CacheNames.SYS_DICT_TYPE, allEntries = true)
     })
     @Override
-    public void deleteDictTypeByIds(List<Long> dictIds) {
+    public void deleteDictTypeByIds(List<String> dictIds) {
         List<SysDictType> list = baseMapper.selectByIds(dictIds);
         list.forEach(x -> {
             boolean assigned = dictDataMapper.exists(new LambdaQueryWrapper<SysDictData>()

@@ -50,7 +50,7 @@ public class SysDeptController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:dept:list')")
     @GetMapping("/list/exclude/{deptId}")
-    public R<List<SysDeptVo>> excludeChild(@PathVariable(value = "deptId", required = false) Long deptId) {
+    public R<List<SysDeptVo>> excludeChild(@PathVariable(value = "deptId", required = false) String deptId) {
         List<SysDeptVo> depts = deptService.selectDeptList(new SysDeptBo());
         depts.removeIf(d -> d.getDeptId().equals(deptId)
             || StringUtils.splitList(d.getAncestors()).contains(Convert.toStr(deptId)));
@@ -64,7 +64,7 @@ public class SysDeptController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:dept:query')")
     @GetMapping(value = "/{deptId}")
-    public R<SysDeptVo> getInfo(@PathVariable Long deptId) {
+    public R<SysDeptVo> getInfo(@PathVariable String deptId) {
         deptService.checkDeptDataScope(deptId);
         return R.ok(deptService.selectDeptById(deptId));
     }
@@ -91,7 +91,7 @@ public class SysDeptController extends BaseController {
     @RepeatSubmit()
     @PutMapping
     public R<Void> edit(@Validated @RequestBody SysDeptBo dept) {
-        Long deptId = dept.getDeptId();
+        String deptId = dept.getDeptId();
         deptService.checkDeptDataScope(deptId);
         if (!deptService.checkDeptNameUnique(dept)) {
             return R.fail("修改部门'" + dept.getDeptName() + "'失败，部门名称已存在");
@@ -115,7 +115,7 @@ public class SysDeptController extends BaseController {
     @PreAuthorize("hasAuthority('system:dept:remove')")
     @Log(title = "部门管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{deptId}")
-    public R<Void> remove(@PathVariable Long deptId) {
+    public R<Void> remove(@PathVariable String deptId) {
         if (SystemConstants.DEFAULT_DEPT_ID.equals(deptId)) {
             return R.warn("默认部门,不允许删除");
         }
@@ -139,7 +139,7 @@ public class SysDeptController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:dept:query')")
     @GetMapping("/optionselect")
-    public R<List<SysDeptVo>> optionselect(@RequestParam(required = false) Long[] deptIds) {
+    public R<List<SysDeptVo>> optionselect(@RequestParam(required = false) String[] deptIds) {
         return R.ok(deptService.selectDeptByIds(deptIds == null ? null : List.of(deptIds)));
     }
 

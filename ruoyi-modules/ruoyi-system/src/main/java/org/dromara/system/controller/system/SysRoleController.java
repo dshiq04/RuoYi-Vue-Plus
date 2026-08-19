@@ -68,7 +68,7 @@ public class SysRoleController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:role:query')")
     @GetMapping(value = "/{roleId}")
-    public R<SysRoleVo> getInfo(@PathVariable Long roleId) {
+    public R<SysRoleVo> getInfo(@PathVariable String roleId) {
         roleService.checkRoleDataScope(roleId);
         return R.ok(roleService.selectRoleById(roleId));
     }
@@ -147,7 +147,7 @@ public class SysRoleController extends BaseController {
     @PreAuthorize("hasAuthority('system:role:remove')")
     @Log(title = "角色管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{roleIds}")
-    public R<Void> remove(@PathVariable Long[] roleIds) {
+    public R<Void> remove(@PathVariable String[] roleIds) {
         return toAjax(roleService.deleteRoleByIds(List.of(roleIds)));
     }
 
@@ -158,7 +158,7 @@ public class SysRoleController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:role:query')")
     @GetMapping("/optionselect")
-    public R<List<SysRoleVo>> optionselect(@RequestParam(required = false) Long[] roleIds) {
+    public R<List<SysRoleVo>> optionselect(@RequestParam(required = false) String[] roleIds) {
         return R.ok(roleService.selectRoleByIds(roleIds == null ? null : List.of(roleIds)));
     }
 
@@ -201,7 +201,7 @@ public class SysRoleController extends BaseController {
     @Log(title = "角色管理", businessType = BusinessType.GRANT)
     @RepeatSubmit()
     @PutMapping("/authUser/cancelAll")
-    public R<Void> cancelAuthUserAll(Long roleId, Long[] userIds) {
+    public R<Void> cancelAuthUserAll(String roleId, String[] userIds) {
         return toAjax(roleService.deleteAuthUsers(roleId, userIds));
     }
 
@@ -215,7 +215,7 @@ public class SysRoleController extends BaseController {
     @Log(title = "角色管理", businessType = BusinessType.GRANT)
     @RepeatSubmit()
     @PutMapping("/authUser/selectAll")
-    public R<Void> selectAuthUserAll(Long roleId, Long[] userIds) {
+    public R<Void> selectAuthUserAll(String roleId, String[] userIds) {
         roleService.checkRoleDataScope(roleId);
         return toAjax(roleService.insertAuthUsers(roleId, userIds));
     }
@@ -227,7 +227,7 @@ public class SysRoleController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:role:list')")
     @GetMapping(value = "/deptTree/{roleId}")
-    public R<DeptTreeSelectVo> roleDeptTreeselect(@PathVariable("roleId") Long roleId) {
+    public R<DeptTreeSelectVo> roleDeptTreeselect(@PathVariable("roleId") String roleId) {
         DeptTreeSelectVo selectVo = new DeptTreeSelectVo(
             deptService.selectDeptListByRoleId(roleId),
             deptService.selectDeptTreeList(new SysDeptBo()));
@@ -240,6 +240,6 @@ public class SysRoleController extends BaseController {
      * @param checkedKeys 选中部门列表
      * @param depts       下拉树结构列表
      */
-    public record DeptTreeSelectVo(List<Long> checkedKeys, List<Tree<Long>> depts) {}
+    public record DeptTreeSelectVo(List<String> checkedKeys, List<Tree<String>> depts) {}
 
 }

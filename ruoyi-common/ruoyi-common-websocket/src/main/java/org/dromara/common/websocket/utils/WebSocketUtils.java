@@ -34,7 +34,7 @@ public class WebSocketUtils {
      * @param sessionKey 要发送消息的用户id
      * @param message    要发送的消息内容
      */
-    public static void sendMessage(Long sessionKey, String message) {
+    public static void sendMessage(String sessionKey, String message) {
         WebSocketSession session = WebSocketSessionHolder.getSessions(sessionKey);
         sendMessage(session, message);
     }
@@ -54,9 +54,9 @@ public class WebSocketUtils {
      * @param webSocketMessage 要发布的WebSocket消息对象
      */
     public static void publishMessage(WebSocketMessageDto webSocketMessage) {
-        List<Long> unsentSessionKeys = new ArrayList<>();
+        List<String> unsentSessionKeys = new ArrayList<>();
         // 当前服务内session,直接发送消息
-        for (Long sessionKey : webSocketMessage.getSessionKeys()) {
+        for (String sessionKey : webSocketMessage.getSessionKeys()) {
             if (WebSocketSessionHolder.existSession(sessionKey)) {
                 WebSocketUtils.sendMessage(sessionKey, webSocketMessage.getMessage());
                 continue;

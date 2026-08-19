@@ -25,12 +25,12 @@ public class SysUser extends TenantEntity {
      * 用户ID
      */
     @TableId(value = "user_id")
-    private Long userId;
+    private String userId;
 
     /**
      * 部门ID
      */
-    private Long deptId;
+    private String deptId;
 
     /**
      * 用户账号
@@ -65,7 +65,7 @@ public class SysUser extends TenantEntity {
     /**
      * 用户头像
      */
-    private Long avatar;
+    private String avatar;
 
     /**
      * 密码
@@ -104,7 +104,7 @@ public class SysUser extends TenantEntity {
     private String remark;
 
 
-    public SysUser(Long userId) {
+    public SysUser(String userId) {
         this.userId = userId;
     }
 

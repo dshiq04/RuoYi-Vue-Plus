@@ -25,7 +25,7 @@ public class SysClient extends BaseEntity {
      * id
      */
     @TableId(value = "id")
-    private Long id;
+    private String id;
 
     /**
      * 客户端id

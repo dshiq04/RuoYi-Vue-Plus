@@ -63,7 +63,7 @@ public class SysMenuController extends BaseController {
      */
     @PreAuthorize("hasAnyRole('superadmin', 'admin') and hasAuthority('system:menu:query')")
     @GetMapping(value = "/{menuId}")
-    public R<SysMenuVo> getInfo(@PathVariable Long menuId) {
+    public R<SysMenuVo> getInfo(@PathVariable String menuId) {
         return R.ok(menuService.selectMenuById(menuId));
     }
 
@@ -72,7 +72,7 @@ public class SysMenuController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:menu:query')")
     @GetMapping("/treeselect")
-    public R<List<Tree<Long>>> treeselect(SysMenuBo menu) {
+    public R<List<Tree<String>>> treeselect(SysMenuBo menu) {
         List<SysMenuVo> menus = menuService.selectMenuList(menu, LoginHelper.getUserId());
         return R.ok(menuService.buildMenuTreeSelect(menus));
     }
@@ -84,7 +84,7 @@ public class SysMenuController extends BaseController {
      */
     @PreAuthorize("hasAuthority('system:menu:query')")
     @GetMapping(value = "/roleMenuTreeselect/{roleId}")
-    public R<MenuTreeSelectVo> roleMenuTreeselect(@PathVariable("roleId") Long roleId) {
+    public R<MenuTreeSelectVo> roleMenuTreeselect(@PathVariable("roleId") String roleId) {
         List<SysMenuVo> menus = menuService.selectMenuList(LoginHelper.getUserId());
         MenuTreeSelectVo selectVo = new MenuTreeSelectVo(
             menuService.selectMenuListByRoleId(roleId),
@@ -99,13 +99,13 @@ public class SysMenuController extends BaseController {
      */
     @PreAuthorize("hasRole('superadmin') and hasAuthority('system:menu:query')")
     @GetMapping(value = "/tenantPackageMenuTreeselect/{packageId}")
-    public R<MenuTreeSelectVo> tenantPackageMenuTreeselect(@PathVariable("packageId") Long packageId) {
+    public R<MenuTreeSelectVo> tenantPackageMenuTreeselect(@PathVariable("packageId") String packageId) {
         List<SysMenuVo> menus = menuService.selectMenuList(LoginHelper.getUserId());
-        List<Tree<Long>> list = menuService.buildMenuTreeSelect(menus);
+        List<Tree<String>> list = menuService.buildMenuTreeSelect(menus);
         // 删除租户管理菜单
-        list.removeIf(menu -> menu.getId() == 6L);
-        List<Long> ids = new ArrayList<>();
-        if (packageId > 0L) {
+        list.removeIf(menu -> menu.getId().equals("6"));
+        List<String> ids = new ArrayList<>();
+        if (Long.parseLong(packageId) > 0) {
             ids = menuService.selectMenuListByPackageId(packageId);
         }
         MenuTreeSelectVo selectVo = new MenuTreeSelectVo(ids, list);
@@ -158,7 +158,7 @@ public class SysMenuController extends BaseController {
     @PreAuthorize("hasRole('superadmin') and hasAuthority('system:menu:remove')")
     @Log(title = "菜单管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{menuId}")
-    public R<Void> remove(@PathVariable("menuId") Long menuId) {
+    public R<Void> remove(@PathVariable("menuId") String menuId) {
         if (menuService.hasChildByMenuId(menuId)) {
             return R.warn("存在子菜单,不允许删除");
         }
@@ -174,7 +174,7 @@ public class SysMenuController extends BaseController {
      * @param checkedKeys 选中菜单列表
      * @param menus       菜单下拉树结构列表
      */
-    public record MenuTreeSelectVo(List<Long> checkedKeys, List<Tree<Long>> menus) {
+    public record MenuTreeSelectVo(List<String> checkedKeys, List<Tree<String>> menus) {
     }
 
     /**
@@ -185,8 +185,8 @@ public class SysMenuController extends BaseController {
     @PreAuthorize("hasRole('superadmin') and hasAuthority('system:menu:remove')")
     @Log(title = "菜单管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/cascade/{menuIds}")
-    public R<Void> remove(@PathVariable("menuIds") Long[] menuIds) {
-        List<Long> menuIdList = List.of(menuIds);
+    public R<Void> remove(@PathVariable("menuIds") String[] menuIds) {
+        List<String> menuIdList = List.of(menuIds);
         if (menuService.hasChildByMenuId(menuIdList)) {
             return R.warn("存在子菜单,不允许删除");
         }

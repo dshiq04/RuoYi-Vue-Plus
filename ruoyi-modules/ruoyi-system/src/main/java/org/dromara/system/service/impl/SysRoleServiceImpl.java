@@ -101,7 +101,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
      * @return 角色列表
      */
     @Override
-    public List<SysRoleVo> selectRolesByUserId(Long userId) {
+    public List<SysRoleVo> selectRolesByUserId(String userId) {
         return baseMapper.selectRolesByUserId(userId);
     }
 
@@ -112,11 +112,11 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
      * @return 角色列表
      */
     @Override
-    public List<SysRoleVo> selectRolesAuthByUserId(Long userId) {
+    public List<SysRoleVo> selectRolesAuthByUserId(String userId) {
         List<SysRoleVo> userRoles = baseMapper.selectRolesByUserId(userId);
         List<SysRoleVo> roles = selectRoleAll();
         // 使用HashSet提高查找效率
-        Set<Long> userRoleIds = StreamUtils.toSet(userRoles, SysRoleVo::getRoleId);
+        Set<String> userRoleIds = StreamUtils.toSet(userRoles, SysRoleVo::getRoleId);
         for (SysRoleVo role : roles) {
             if (userRoleIds.contains(role.getRoleId())) {
                 role.setFlag(true);
@@ -132,7 +132,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
      * @return 权限列表
      */
     @Override
-    public Set<String> selectRolePermissionByUserId(Long userId) {
+    public Set<String> selectRolePermissionByUserId(String userId) {
         List<SysRoleVo> perms = baseMapper.selectRolesByUserId(userId);
         Set<String> permsSet = new HashSet<>();
         for (SysRoleVo perm : perms) {
@@ -160,7 +160,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
      * @return 选中角色ID列表
      */
     @Override
-    public List<Long> selectRoleListByUserId(Long userId) {
+    public List<String> selectRoleListByUserId(String userId) {
         List<SysRoleVo> list = baseMapper.selectRolesByUserId(userId);
         return StreamUtils.toList(list, SysRoleVo::getRoleId);
     }
@@ -172,7 +172,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
      * @return 角色对象信息
      */
     @Override
-    public SysRoleVo selectRoleById(Long roleId) {
+    public SysRoleVo selectRoleById(String roleId) {
         return baseMapper.selectRoleById(roleId);
     }
 
@@ -183,7 +183,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
      * @return 角色列表信息
      */
     @Override
-    public List<SysRoleVo> selectRoleByIds(List<Long> roleIds) {
+    public List<SysRoleVo> selectRoleByIds(List<String> roleIds) {
         return baseMapper.selectRoleList(new LambdaQueryWrapper<SysRole>()
             .eq(SysRole::getStatus, SystemConstants.NORMAL)
             .in(CollUtil.isNotEmpty(roleIds), SysRole::getRoleId, roleIds));
@@ -253,7 +253,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
      * @param roleId 角色id
      */
     @Override
-    public void checkRoleDataScope(Long roleId) {
+    public void checkRoleDataScope(String roleId) {
         if (ObjectUtil.isNull(roleId)) {
             return;
         }
@@ -266,7 +266,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
      * @param roleIds 角色ID列表（支持传单个ID）
      */
     @Override
-    public void checkRoleDataScope(List<Long> roleIds) {
+    public void checkRoleDataScope(List<String> roleIds) {
         if (CollUtil.isEmpty(roleIds) || LoginHelper.isSuperAdmin()) {
             return;
         }
@@ -283,7 +283,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
      * @return 结果
      */
     @Override
-    public long countUserRoleByRoleId(Long roleId) {
+    public long countUserRoleByRoleId(String roleId) {
         return userRoleMapper.selectCount(new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getRoleId, roleId));
     }
 
@@ -335,7 +335,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
      * @return 结果
      */
     @Override
-    public int updateRoleStatus(Long roleId, String status) {
+    public int updateRoleStatus(String roleId, String status) {
         if (SystemConstants.DISABLE.equals(status) && this.countUserRoleByRoleId(roleId) > 0) {
             throw new ServiceException("角色已分配，不能禁用!");
         }
@@ -373,7 +373,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
         int rows = 1;
         // 新增用户与角色管理
         List<SysRoleMenu> list = new ArrayList<>();
-        for (Long menuId : role.getMenuIds()) {
+        for (String menuId : role.getMenuIds()) {
             SysRoleMenu rm = new SysRoleMenu();
             rm.setRoleId(role.getRoleId());
             rm.setMenuId(menuId);
@@ -394,7 +394,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
         int rows = 1;
         // 新增角色与部门（数据权限）管理
         List<SysRoleDept> list = new ArrayList<>();
-        for (Long deptId : role.getDeptIds()) {
+        for (String deptId : role.getDeptIds()) {
             SysRoleDept rd = new SysRoleDept();
             rd.setRoleId(role.getRoleId());
             rd.setDeptId(deptId);
@@ -415,7 +415,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
     @CacheEvict(cacheNames = CacheNames.SYS_ROLE_CUSTOM, key = "#roleId")
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int deleteRoleById(Long roleId) {
+    public int deleteRoleById(String roleId) {
         // 删除角色与菜单关联
         roleMenuMapper.delete(new LambdaQueryWrapper<SysRoleMenu>().eq(SysRoleMenu::getRoleId, roleId));
         // 删除角色与部门关联
@@ -432,7 +432,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
     @CacheEvict(cacheNames = CacheNames.SYS_ROLE_CUSTOM, allEntries = true)
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int deleteRoleByIds(List<Long> roleIds) {
+    public int deleteRoleByIds(List<String> roleIds) {
         this.checkRoleDataScope(roleIds);
         List<SysRole> roles = baseMapper.selectByIds(roleIds);
         for (SysRole role : roles) {
@@ -476,8 +476,8 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
      * @return 结果
      */
     @Override
-    public int deleteAuthUsers(Long roleId, Long[] userIds) {
-        List<Long> ids = List.of(userIds);
+    public int deleteAuthUsers(String roleId, String[] userIds) {
+        List<String> ids = List.of(userIds);
         if (ids.contains(LoginHelper.getUserId())) {
             throw new ServiceException("不允许修改当前用户角色!");
         }
@@ -498,10 +498,10 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
      * @return 结果
      */
     @Override
-    public int insertAuthUsers(Long roleId, Long[] userIds) {
+    public int insertAuthUsers(String roleId, String[] userIds) {
         // 新增用户与角色管理
         int rows = 1;
-        List<Long> ids = List.of(userIds);
+        List<String> ids = List.of(userIds);
         if (ids.contains(LoginHelper.getUserId())) {
             throw new ServiceException("不允许修改当前用户角色!");
         }
@@ -532,7 +532,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
      * @param roleId 角色ID
      */
     @Override
-    public void cleanOnlineUserByRole(Long roleId) {
+    public void cleanOnlineUserByRole(String roleId) {
         // 如果角色未绑定用户 直接返回
         Long num = userRoleMapper.selectCount(new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getRoleId, roleId));
         if (num == 0) {
@@ -575,7 +575,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
      * @param userIds 需要清除的用户ID列表
      */
     @Override
-    public void cleanOnlineUser(List<Long> userIds) {
+    public void cleanOnlineUser(List<String> userIds) {
         List<String> keys = new ArrayList<>(RedisUtils.keys(CacheConstants.ONLINE_TOKEN_KEY + "*"));
         if (CollUtil.isEmpty(keys)) {
             return;
@@ -609,7 +609,7 @@ public class SysRoleServiceImpl implements ISysRoleService, RoleService {
      * @return Map，其中 key 为角色 ID，value 为对应的角色名称
      */
     @Override
-    public Map<Long, String> selectRoleNamesByIds(List<Long> roleIds) {
+    public Map<String, String> selectRoleNamesByIds(List<String> roleIds) {
         if (CollUtil.isEmpty(roleIds)) {
             return Collections.emptyMap();
         }

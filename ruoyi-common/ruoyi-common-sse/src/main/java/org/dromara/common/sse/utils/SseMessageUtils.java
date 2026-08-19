@@ -31,7 +31,7 @@ public class SseMessageUtils {
      * @param userId  要发送消息的用户id
      * @param message 要发送的消息内容
      */
-    public static void sendMessage(Long userId, String message) {
+    public static void sendMessage(String userId, String message) {
         if (!isEnable()) {
             return;
         }

@@ -18,7 +18,7 @@ public interface ISysTenantService {
     /**
      * 查询租户
      */
-    SysTenantVo queryById(Long id);
+    SysTenantVo queryById(String id);
 
     /**
      * 基于租户ID查询租户
@@ -58,7 +58,7 @@ public interface ISysTenantService {
     /**
      * 校验并批量删除租户信息
      */
-    Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+    Boolean deleteWithValidByIds(Collection<String> ids, Boolean isValid);
 
     /**
      * 校验企业名称是否唯一
@@ -78,7 +78,7 @@ public interface ISysTenantService {
     /**
      * 同步租户套餐
      */
-    Boolean syncTenantPackage(String tenantId, Long packageId);
+    Boolean syncTenantPackage(String tenantId, String packageId);
 
     /**
      * 同步租户字典

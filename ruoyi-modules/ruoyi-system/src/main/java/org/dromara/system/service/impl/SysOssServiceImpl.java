@@ -78,10 +78,10 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
      * @return 包含 SysOssVo 对象的列表
      */
     @Override
-    public List<SysOssVo> listByIds(Collection<Long> ossIds) {
+    public List<SysOssVo> listByIds(Collection<String> ossIds) {
         List<SysOssVo> list = new ArrayList<>();
         SysOssServiceImpl ossService = SpringUtils.getAopProxy(this);
-        for (Long id : ossIds) {
+        for (String id : ossIds) {
             SysOssVo vo = ossService.getById(id);
             if (ObjectUtil.isNotNull(vo)) {
                 try {
@@ -105,7 +105,7 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
     public String selectUrlByIds(String ossIds) {
         List<String> list = new ArrayList<>();
         SysOssServiceImpl ossService = SpringUtils.getAopProxy(this);
-        for (Long id : StringUtils.splitTo(ossIds, Convert::toLong)) {
+        for (String id : StringUtils.splitTo(ossIds, Convert::toStr)) {
             SysOssVo vo = ossService.getById(id);
             if (ObjectUtil.isNotNull(vo)) {
                 try {
@@ -122,7 +122,7 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
     @Override
     public List<OssDTO> selectByIds(String ossIds) {
         List<OssDTO> list = new ArrayList<>();
-        for (Long id : StringUtils.splitTo(ossIds, Convert::toLong)) {
+        for (String id : StringUtils.splitTo(ossIds, Convert::toStr)) {
             SysOssVo vo = SpringUtils.getAopProxy(this).getById(id);
             if (ObjectUtil.isNotNull(vo)) {
                 try {
@@ -160,7 +160,7 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
      */
     @Cacheable(cacheNames = CacheNames.SYS_OSS, key = "#ossId")
     @Override
-    public SysOssVo getById(Long ossId) {
+    public SysOssVo getById(String ossId) {
         return baseMapper.selectVoById(ossId);
     }
 
@@ -172,7 +172,7 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
      * @param response HttpServletResponse对象，用于设置响应头和向客户端发送文件内容
      */
     @Override
-    public void download(Long ossId, HttpServletResponse response) throws IOException {
+    public void download(String ossId, HttpServletResponse response) throws IOException {
         SysOssVo sysOss = SpringUtils.getAopProxy(this).getById(ossId);
         if (ObjectUtil.isNull(sysOss)) {
             throw new ServiceException("文件数据不存在!");
@@ -255,7 +255,7 @@ public class SysOssServiceImpl implements ISysOssService, OssService {
      * @return 结果
      */
     @Override
-    public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
+    public Boolean deleteWithValidByIds(Collection<String> ids, Boolean isValid) {
         if (isValid) {
             // 做一些业务上的校验,判断是否需要校验
         }

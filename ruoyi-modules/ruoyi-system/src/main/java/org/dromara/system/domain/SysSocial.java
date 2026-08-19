@@ -25,12 +25,12 @@ public class SysSocial extends TenantEntity {
      * 主键
      */
     @TableId(value = "id")
-    private Long id;
+    private String id;
 
     /**
      * 用户ID
      */
-    private Long userId;
+    private String userId;
 
     /**
      * 的唯一ID
@@ -132,5 +132,9 @@ public class SysSocial extends TenantEntity {
      */
     private String oauthTokenSecret;
 
+    /**
+     * 删除标志（0代表存在 1代表删除）
+     */
+    private String delFlag;
 
 }
