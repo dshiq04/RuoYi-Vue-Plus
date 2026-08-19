@@ -150,6 +150,10 @@ public class JwtUtils {
             return;
         }
         RedisUtils.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + token);
+        // 在线令牌按租户隔离写入(带租户前缀)。销毁时删除的 key 经由 RedisUtils 的
+        // 租户前缀处理器自动拼接【当前线程租户上下文】的前缀，因此调用方需在已设置
+        // 令牌所属租户上下文的线程中执行(普通登出请求由 TenantInterceptor 设置，
+        // 强退场景中管理员与目标同租户)，即可正确删除对应在线记录。
         RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + token);
     }
 

@@ -159,13 +159,11 @@ public class SysUserOnlineController extends BaseController {
         long onlineCount = countOnlineToken(keys, username);
         if (onlineCount <= 1) {
             // 该用户的 ONLINE_TOKENS 只剩 1 个或没有 直接删除该用户的全部在线信息并注销令牌
+            // 使用 invalidateToken 按令牌所属租户精准删除 避免直接 delete 因租户前缀不一致而删不到
             keys.stream()
                 .map(key -> (UserOnlineDTO) RedisUtils.getCacheObject(key))
                 .filter(dto -> dto != null && StringUtils.equals(username, dto.getUserName()))
-                .forEach(dto -> {
-                    RedisUtils.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + dto.getTokenId());
-                    RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + dto.getTokenId());
-                });
+                .forEach(dto -> jwtUtils.invalidateToken(dto.getTokenId()));
         } else {
             // 还有其他在线设备 仅注销当前令牌
             jwtUtils.invalidateToken(tokenId);

@@ -1,5 +1,6 @@
 package org.dromara;
 
+import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.core.utils.NetUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,6 +13,7 @@ import org.springframework.core.env.Environment;
  *
  * @author Lion Li
  */
+@Slf4j
 @SpringBootApplication
 public class DromaraApplication {
 
@@ -38,11 +40,11 @@ public class DromaraApplication {
         } catch (Exception e) {
             networkHost = localHost;
         }
-        System.out.println("----------------------------------------------------------");
-        System.out.println("当前环境(spring.profiles.active): " + activeProfile);
-        System.out.println("本地Swagger文档: http://" + localHost + ":" + port + prefix + "/swagger-ui/index.html");
-        System.out.println("网络Swagger文档: http://" + networkHost + ":" + port + prefix + "/swagger-ui/index.html");
-        System.out.println("----------------------------------------------------------");
+        DromaraApplication.log.info("----------------------------------------------------------");
+        DromaraApplication.log.info("当前环境: {}", activeProfile);
+        DromaraApplication.log.info("本地Swagger文档: http://{}:{}{}/swagger-ui/index.html", localHost, port, prefix);
+        DromaraApplication.log.info("网络Swagger文档: http://{}:{}{}/swagger-ui/index.html", networkHost, port, prefix);
+        DromaraApplication.log.info("----------------------------------------------------------");
     }
 
 }

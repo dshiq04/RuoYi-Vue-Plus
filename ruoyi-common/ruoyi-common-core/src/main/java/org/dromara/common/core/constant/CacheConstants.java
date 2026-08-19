@@ -15,8 +15,11 @@ public interface CacheConstants {
 
     /**
      * 在线用户 redis key
+     * 按租户隔离：登录时在 TenantHelper.dynamic(tenantId) 内写入，会被自动加上租户前缀；
+     * 过滤器校验与复用扫描也必须处于对应租户上下文(TenantHelper.dynamic)下执行，
+     * 保证写入与读取的 key 前缀一致。与 LOGIN_TOKEN_KEY(全局)不同，此处刻意保留租户隔离。
      */
-    String ONLINE_TOKEN_KEY = "ONLINE_TOKENS:";
+    String ONLINE_TOKEN_KEY = "ONLINE_TOKEN:";
 
     /**
      * 参数管理 cache key

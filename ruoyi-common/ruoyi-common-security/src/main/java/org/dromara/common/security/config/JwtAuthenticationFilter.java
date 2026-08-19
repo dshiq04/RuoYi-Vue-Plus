@@ -18,6 +18,7 @@ import org.dromara.common.satoken.utils.JwtUtils;
 import org.dromara.common.satoken.utils.LoginAuthenticationToken;
 import org.dromara.common.satoken.utils.LoginUserDetails;
 import org.dromara.common.security.config.properties.SecurityProperties;
+import org.dromara.common.tenant.helper.TenantHelper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -80,7 +81,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         // 在线令牌校验：前端令牌需与后端ONLINE_TOKEN比对 不存在则视为未登录或被清退
-        if (!RedisUtils.hasKey(CacheConstants.ONLINE_TOKEN_KEY + token)) {
+        // 在线令牌按租户隔离写入(带租户前缀)，需在当前令牌所属租户上下文中校验，否则因前缀不一致而查不到
+        String tenantId = loginUser.getTenantId();
+        boolean online = TenantHelper.dynamic(tenantId, () -> RedisUtils.hasKey(CacheConstants.ONLINE_TOKEN_KEY + token));
+        if (!online) {
             writeError(response, HttpStatus.HTTP_UNAUTHORIZED, "用户在本平台未登录或者被清退");
             return;
         }
