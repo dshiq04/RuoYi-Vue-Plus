@@ -58,6 +58,7 @@ public class PageQuery implements Serializable {
 
     /**
      * 构建分页对象
+     * @author QING
      */
     public <T> Page<T> build() {
         Integer pageNum = ObjectUtil.defaultIfNull(getPageNum(), DEFAULT_PAGE_NUM);

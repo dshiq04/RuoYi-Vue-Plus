@@ -50,7 +50,7 @@
                     WHERE dp.depth < 10
                 ),
                 dept_final AS (
-                    SELECT dept_id, tenant_id,
+                    SELECT dept_id AS df_dept_id, tenant_id,
                            CASE WHEN path = '' THEN level1_name ELSE path END AS dept_name
                     FROM dept_path
                 )
@@ -62,7 +62,7 @@
                        u.create_time,
                        df.dept_name
                 FROM sys_user u
-                LEFT JOIN dept_final df ON u.dept_id = df.dept_id
+                LEFT JOIN dept_final df ON u.dept_id = df.df_dept_id
                 ${ew.customSqlSegment}
                 ]]>
             </when>
@@ -85,7 +85,7 @@
                     WHERE dp.depth < 10
                 ),
                 dept_final AS (
-                    SELECT dept_id,
+                    SELECT dept_id AS df_dept_id,
                            CASE WHEN path = '' THEN level1_name ELSE path END AS dept_name
                     FROM dept_path
                 )
@@ -97,7 +97,7 @@
                        u.create_time,
                        df.dept_name
                 FROM sys_user u
-                LEFT JOIN dept_final df ON u.dept_id = df.dept_id
+                LEFT JOIN dept_final df ON u.dept_id = df.df_dept_id
                 ${ew.customSqlSegment}
                 ]]>
             </otherwise>

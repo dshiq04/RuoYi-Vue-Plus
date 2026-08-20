@@ -71,11 +71,9 @@ public class SysMenuServiceImpl implements ISysMenuService {
     public List<SysMenuVo> selectMenuList(SysMenuBo menu, String userId) {
         List<SysMenuVo> menuList;
         LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
-        // 管理员显示所有菜单信息 不是管理员 按用户id过滤菜单
-        if (!LoginHelper.isSuperAdmin(userId)) {
-            // 通过用户id获取角色id 通过角色id获取菜单id 然后in菜单
-            wrapper.inSql(SysMenu::getMenuId, baseMapper.buildMenuByUserSql(userId));
-        }
+        // 菜单为全局表(已在多租户 excludes 中排除)，且菜单管理/分配接口均限定 hasAnyRole('superadmin','admin')
+        // 因此这里展示全部菜单，不再按当前用户角色过滤；否则新增菜单未分配角色前既查不出来、也无法分配。
+        // 用户侧边栏路由的权限过滤由 selectMenuTreeByUserId 单独控制，互不影响。
         menuList = baseMapper.selectVoList(
             wrapper.like(StringUtils.isNotBlank(menu.getMenuName()), SysMenu::getMenuName, menu.getMenuName())
                 .eq(StringUtils.isNotBlank(menu.getVisible()), SysMenu::getVisible, menu.getVisible())

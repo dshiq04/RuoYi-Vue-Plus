@@ -29,8 +29,8 @@ public interface SysUserMapper extends BaseMapperPlus<SysUser, SysUserVo> {
      * @return 分页的用户信息
      */
     @DataPermission({
-        @DataColumn(key = "deptName", value = "dept_id"),
-        @DataColumn(key = "userName", value = "create_by")
+        @DataColumn(key = "deptName", value = "u.dept_id"),
+        @DataColumn(key = "userName", value = "u.create_by")
     })
     Page<SysUserVo> selectPageUserList(@Param("page") Page<SysUser> page, @Param(Constants.WRAPPER) Wrapper<SysUser> queryWrapper);
 
