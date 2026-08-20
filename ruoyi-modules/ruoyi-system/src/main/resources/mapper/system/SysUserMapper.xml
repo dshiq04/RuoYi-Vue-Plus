@@ -85,7 +85,7 @@
                     WHERE dp.depth < 10
                 ),
                 dept_final AS (
-                    SELECT dept_id AS df_dept_id,
+                    SELECT dept_id AS df_dept_id, tenant_id,
                            CASE WHEN path = '' THEN level1_name ELSE path END AS dept_name
                     FROM dept_path
                 )
