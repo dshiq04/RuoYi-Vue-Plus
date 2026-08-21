@@ -13,16 +13,16 @@ spring:
       datasource:
         # 主库数据源
         master:
-#          type: ${spring.datasource.type}
-#          driverClassName: com.mysql.cj.jdbc.Driver
-#          url: jdbc:mysql://192.168.150.10:3306/ruoyi_vue?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&autoReconnect=true&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true
-#          username: root
-#          password: tomori
           type: ${spring.datasource.type}
-          driverClassName: org.postgresql.Driver
-          url: jdbc:postgresql://192.168.150.10:5432/ruoyi_vue
-          username: postgres
+          driverClassName: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://192.168.150.10:3306/ruoyi_vue?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&autoReconnect=true&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true
+          username: root
           password: tomori
+#          type: ${spring.datasource.type}
+#          driverClassName: org.postgresql.Driver
+#          url: jdbc:postgresql://192.168.150.10:5432/ruoyi_vue
+#          username: postgres
+#          password: tomori
 #        # 从库数据源
 #        slave:
 #          lazy: true

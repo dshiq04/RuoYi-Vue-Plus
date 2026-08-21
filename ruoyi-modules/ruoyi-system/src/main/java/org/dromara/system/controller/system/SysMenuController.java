@@ -49,7 +49,7 @@ public class SysMenuController extends BaseController {
     /**
      * 获取菜单列表
      */
-    @PreAuthorize("hasAnyRole('superadmin', 'admin') and hasAuthority('system:menu:list')")
+    @PreAuthorize(" hasAuthority('system:menu:list')")
     @GetMapping("/list")
     public R<List<SysMenuVo>> list(SysMenuBo menu) {
         List<SysMenuVo> menus = menuService.selectMenuList(menu, LoginHelper.getUserId());
@@ -61,7 +61,7 @@ public class SysMenuController extends BaseController {
      *
      * @param menuId 菜单ID
      */
-    @PreAuthorize("hasAnyRole('superadmin', 'admin') and hasAuthority('system:menu:query')")
+    @PreAuthorize("hasAuthority('system:menu:query')")
     @GetMapping(value = "/{menuId}")
     public R<SysMenuVo> getInfo(@PathVariable String menuId) {
         return R.ok(menuService.selectMenuById(menuId));
@@ -97,7 +97,7 @@ public class SysMenuController extends BaseController {
      *
      * @param packageId 租户套餐ID
      */
-    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:menu:query')")
+    @PreAuthorize("hasAuthority('system:menu:query')")
     @GetMapping(value = "/tenantPackageMenuTreeselect/{packageId}")
     public R<MenuTreeSelectVo> tenantPackageMenuTreeselect(@PathVariable("packageId") String packageId) {
         List<SysMenuVo> menus = menuService.selectMenuList(LoginHelper.getUserId());
@@ -115,7 +115,7 @@ public class SysMenuController extends BaseController {
     /**
      * 新增菜单
      */
-    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:menu:add')")
+    @PreAuthorize("hasAuthority('system:menu:add')")
     @Log(title = "菜单管理", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping
@@ -133,7 +133,7 @@ public class SysMenuController extends BaseController {
     /**
      * 修改菜单
      */
-    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:menu:edit')")
+    @PreAuthorize("hasAuthority('system:menu:edit')")
     @Log(title = "菜单管理", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping
@@ -155,7 +155,7 @@ public class SysMenuController extends BaseController {
      *
      * @param menuId 菜单ID
      */
-    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:menu:remove')")
+    @PreAuthorize("hasAuthority('system:menu:remove')")
     @Log(title = "菜单管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{menuId}")
     public R<Void> remove(@PathVariable("menuId") String menuId) {
@@ -182,7 +182,7 @@ public class SysMenuController extends BaseController {
      *
      * @param menuIds 菜单ID串
      */
-    @PreAuthorize("hasRole('superadmin') and hasAuthority('system:menu:remove')")
+    @PreAuthorize("hasAuthority('system:menu:remove')")
     @Log(title = "菜单管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/cascade/{menuIds}")
     public R<Void> remove(@PathVariable("menuIds") String[] menuIds) {
