@@ -1,6 +1,8 @@
 package org.dromara.common.ai.domain.vo;
 
+import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
+import org.dromara.common.ai.domain.AiConversation;
 
 import java.util.Date;
 
@@ -10,6 +12,7 @@ import java.util.Date;
  * @author ruoyi
  */
 @Data
+@AutoMapper(target = AiConversation.class)
 public class AiConversationVo {
 
     /**

@@ -304,7 +304,8 @@ spring.ai:
       initialize-schema: false
   openai:
     # OpenAI 兼容接口地址 (可替换为任意兼容 OpenAI 协议的中转/代理地址)
-    base-url: http://192.168.100.1:1234
+    # 注意: Spring AI 2.x 基于 openai-java SDK 直接在此地址后拼接 /chat/completions 等路径 必须包含 /v1
+    base-url: http://192.168.100.1:1234/v1
     # API Key
     api-key: kusunoki-tomori
     chat:

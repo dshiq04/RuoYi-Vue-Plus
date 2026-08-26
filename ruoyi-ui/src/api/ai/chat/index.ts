@@ -3,6 +3,17 @@ import { AxiosPromise } from 'axios';
 import { AiChatForm, AiConversationVO, AiFileUploadVO, AiImageUploadVO, AiMessageVO } from './types';
 
 /**
+ * 查询 AI 功能是否开启 (不受后端 ai.enabled 开关控制)
+ */
+export function getAiStatus(): AxiosPromise<boolean> {
+  return request({
+    url: '/ai/status',
+    method: 'get'
+  });
+}
+
+
+/**
  * 创建会话
  */
 export function createConversation(title?: string): AxiosPromise<AiConversationVO> {

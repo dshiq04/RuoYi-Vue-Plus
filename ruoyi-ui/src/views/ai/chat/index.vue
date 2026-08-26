@@ -1,5 +1,18 @@
 <template>
   <div class="ai-chat">
+    <!-- AI 功能关闭提示页 -->
+    <el-result
+      v-if="aiDisabled"
+      class="disabled-result"
+      icon="error"
+      title="AI 功能已关闭"
+      :sub-title="aiDisabledMsg"
+    >
+      <template #extra>
+        <el-button type="primary" @click="init">刷新状态</el-button>
+      </template>
+    </el-result>
+    <template v-else>
     <!-- 左侧会话列表 -->
     <el-card class="conversation-panel" shadow="never">
       <template #header>
@@ -88,6 +101,7 @@
         </div>
       </div>
     </el-card>
+    </template>
   </div>
 </template>
 
@@ -102,7 +116,8 @@ import {
   listMessages,
   uploadImage,
   uploadKnowledgeFile,
-  streamChat
+  streamChat,
+  getAiStatus
 } from '@/api/ai/chat';
 import { AiConversationVO } from '@/api/ai/chat/types';
 
@@ -131,6 +146,9 @@ const imageInputRef = ref<HTMLInputElement>();
 const fileInputRef = ref<HTMLInputElement>();
 // 附件上传总开关 (暂时关闭)
 const enableUpload = ref(false);
+// AI 功能关闭状态 (后端 application.yml -> ai.enabled = false)
+const aiDisabled = ref(false);
+const aiDisabledMsg = ref('');
 let abortFn: (() => void) | null = null;
 
 /** HTML 转义 */
@@ -304,7 +322,28 @@ async function handleFileChange(e: Event) {
   }
 }
 
-loadConversations();
+/** 检查 AI 功能状态, 关闭时抛出异常 */
+async function checkAiStatus() {
+  const res = await getAiStatus();
+  if (res.data === false) {
+    throw new Error('AI 功能已关闭，请等待再次开放');
+  }
+}
+
+/** 页面初始化: 先校验 AI 功能状态, 开启时才加载会话列表 */
+async function init() {
+  aiDisabled.value = false;
+  try {
+    await checkAiStatus();
+    await loadConversations();
+  } catch (e: any) {
+    aiDisabledMsg.value = e.message || 'AI 功能已关闭，请等待再次开放';
+    aiDisabled.value = true;
+    ElMessage.error(aiDisabledMsg.value);
+  }
+}
+
+init();
 </script>
 
 <style lang="scss" scoped>
@@ -313,6 +352,12 @@ loadConversations();
   gap: 12px;
   height: calc(100vh - 100px);
   min-height: 480px;
+
+  .disabled-result {
+    width: 100%;
+    margin: 0;
+    align-self: center;
+  }
 }
 
 .conversation-panel {

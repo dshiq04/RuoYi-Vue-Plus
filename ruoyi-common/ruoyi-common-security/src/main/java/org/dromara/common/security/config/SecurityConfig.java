@@ -2,6 +2,7 @@ package org.dromara.common.security.config;
 
 import cn.hutool.http.HttpStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,6 +65,8 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> {
+                // 放行异步派发 (SseEmitter 异步写入会触发 ASYNC dispatch 重入安全过滤链)
+                auth.dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll();
                 auth.requestMatchers(securityProperties.getExcludes()).permitAll();
                 auth.requestMatchers(ssePath).permitAll();
                 auth.anyRequest().authenticated();
