@@ -29,6 +29,12 @@
             <artifactId>ruoyi-common-ai</artifactId>
         </dependency>
 
+        <!-- ================= 性能监控 (Spring Boot Admin) ================= -->
+        <dependency>
+            <groupId>org.dromara</groupId>
+            <artifactId>ruoyi-common-monitor</artifactId>
+        </dependency>
+
 <!--        &lt;!&ndash; mp支持的数据库均支持 只需要增加对应的jdbc依赖即可 &ndash;&gt;-->
 <!--        &lt;!&ndash; Oracle &ndash;&gt;-->
 <!--        <dependency>-->

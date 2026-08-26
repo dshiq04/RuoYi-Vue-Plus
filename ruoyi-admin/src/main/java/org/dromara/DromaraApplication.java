@@ -44,7 +44,24 @@ public class DromaraApplication {
         DromaraApplication.log.info("当前环境: {}", activeProfile);
         DromaraApplication.log.info("本地Swagger文档: http://{}:{}{}/swagger-ui/index.html", localHost, port, prefix);
         DromaraApplication.log.info("网络Swagger文档: http://{}:{}{}/swagger-ui/index.html", networkHost, port, prefix);
+        printMonitorInfo(env, localHost, networkHost, port, prefix);
         DromaraApplication.log.info("----------------------------------------------------------");
+    }
+
+    /**
+     * 性能监控信息：开关状态 + 内部/外部监控平台地址 (账号见 performance-monitor 配置)
+     */
+    private static void printMonitorInfo(Environment env, String localHost, String networkHost, String port, String prefix) {
+        boolean monitorEnabled = env.getProperty("performance-monitor.enabled", Boolean.class, false);
+        if (!monitorEnabled) {
+            DromaraApplication.log.info("性能监控: 已关闭 (performance-monitor.enabled=false)");
+            return;
+        }
+        String username = env.getProperty("performance-monitor.username", "admin");
+        String monitorPath = env.getProperty("spring.boot.admin.context-path", "");
+        DromaraApplication.log.info("性能监控 (Spring Boot Admin) 已启用 登录账号: {}", username);
+        DromaraApplication.log.info("性能监控内部地址: http://{}:{}{}{}/", localHost, port, prefix, monitorPath);
+        DromaraApplication.log.info("性能监控外部地址: http://{}:{}{}{}/", networkHost, port, prefix, monitorPath);
     }
 
 }

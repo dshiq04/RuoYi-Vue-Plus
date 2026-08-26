@@ -17,6 +17,8 @@
         <spring-boot.version>4.1.0</spring-boot.version>
         <!-- Spring AI 版本 (chatmodel / chat-memory-jdbc / pgvector) -->
         <spring-ai.version>2.0.1</spring-ai.version>
+        <!-- Spring Boot Admin 版本 (需与 Spring Boot 主次版本对应: 4.1.x) -->
+        <spring-boot-admin.version>4.1.2</spring-boot-admin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>21</java.version>
@@ -178,6 +180,20 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
                 <version>${spring-boot.version}</version>
+            </dependency>
+
+            <!-- Spring Boot Admin 服务端 (性能监控面板) -->
+            <dependency>
+                <groupId>de.codecentric</groupId>
+                <artifactId>spring-boot-admin-starter-server</artifactId>
+                <version>${spring-boot-admin.version}</version>
+            </dependency>
+
+            <!-- Spring Boot Admin 客户端 (被监控应用注册) -->
+            <dependency>
+                <groupId>de.codecentric</groupId>
+                <artifactId>spring-boot-admin-starter-client</artifactId>
+                <version>${spring-boot-admin.version}</version>
             </dependency>
 
             <!-- dynamic-datasource 多数据源-->

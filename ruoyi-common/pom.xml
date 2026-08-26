@@ -35,6 +35,7 @@
         <module>ruoyi-common-websocket</module>
         <module>ruoyi-common-sse</module>
         <module>ruoyi-common-ai</module>
+        <module>ruoyi-common-monitor</module>
     </modules>
 
     <artifactId>ruoyi-common</artifactId>

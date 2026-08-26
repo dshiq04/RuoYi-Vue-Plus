@@ -49,6 +49,8 @@ nbdist/
 *.xml.versionsBackup
 *.swp
 .claude
+.workbuddy
+logs
 
 !*/build/*.java
 !*/build/*.html

@@ -34,7 +34,6 @@ logging:
     org.springframework: warn
     org.mybatis.spring.mapper: error
     org.apache.fury: warn
-    org.springframework.security: trace
 
   config: classpath:logback-plus.xml
 
@@ -50,6 +49,25 @@ user:
 spring:
   application:
     name: RuoYi-Vue-Plus
+  # Spring Boot Admin 配置 (随性能监控开关启停)
+  boot:
+    admin:
+      # 监控面板上下文路径 (避免与业务接口路径冲突)
+      context-path: /monitor
+      client:
+        enabled: ${performance-monitor.enabled}
+        url: http://127.0.0.1:${server.port}
+        # 服务端 API 前缀随 context-path 变化 客户端注册需对齐 (默认 instances)
+        api-path: /monitor/instances
+        username: ${performance-monitor.username}
+        password: ${performance-monitor.password}
+        instance:
+          # 注册实例优先使用IP地址 (SBA 4.x 中 prefer-ip 已迁移为 service-host-type)
+          service-host-type: ip
+          # 服务端轮询本实例监控端点使用的凭证 (Basic 认证)
+          metadata:
+            user.name: ${performance-monitor.username}
+            user.password: ${performance-monitor.password}
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
@@ -235,6 +253,9 @@ xss:
     - /system/notice
     - /warm-flow/save-json
     - /ai/**
+    - /monitor/login
+    - /monitor/logout
+    - /monitor/instances
 
 --- # 分布式锁 lock4j 全局配置
 lock4j:
@@ -243,10 +264,21 @@ lock4j:
   # 分布式锁的超时时间，默认为 30 秒
   expire: 30000
 
+--- # 性能监控配置 (Spring Boot Admin)
+performance-monitor:
+  # 总开关: true 启动性能监控平台 false 不启动
+  enabled: true
+  # 监控平台登录用户名
+  username: admin
+  # 监控平台登录密码
+  password: tomori
+
 --- # Actuator 监控端点的配置项
 management:
   endpoints:
     web:
+      # 端点基路径挂到监控上下文下 由监控安全链 Basic 认证保护 (避免被业务 JWT 链拦截)
+      base-path: /monitor/actuator
       exposure:
         include: '*'
   endpoint:
