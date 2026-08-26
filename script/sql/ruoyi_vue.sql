@@ -231,6 +231,8 @@ INSERT INTO `sys_menu` (`menu_id`, `menu_name`, `parent_id`, `order_num`, `path`
 
 INSERT INTO `sys_menu` (`menu_id`, `menu_name`, `parent_id`, `order_num`, `path`, `component`, `query_param`, `is_frame`, `is_cache`, `menu_type`, `visible`, `status`, `perms`, `icon`, `create_dept`, `create_by`, `create_time`, `update_by`, `update_time`, `remark`) VALUES ('2', '系统监控', '0', 3, 'monitor', NULL, '', '1', '0', 'M', '0', '0', '', 'monitor', '103', '1', '2026-07-23 16:28:37', NULL, NULL, '系统监控目录'), ('3', '系统工具', '0', 4, 'tool', NULL, '', '1', '0', 'M', '0', '0', '', 'tool', '103', '1', '2026-07-23 16:28:37', NULL, NULL, '系统工具目录'), ('500', '操作日志', '108', 1, 'operlog', 'monitor/operlog/index', '', '1', '0', 'C', '0', '0', 'monitor:operlog:list', 'form', '103', '1', '2026-07-23 16:28:37', NULL, NULL, '操作日志菜单'), ('501', '登录日志', '108', 2, 'logininfor', 'monitor/logininfor/index', '', '1', '0', 'C', '0', '0', 'monitor:logininfor:list', 'logininfor', '103', '1', '2026-07-23 16:28:37', NULL, NULL, '登录日志菜单'), ('6', '租户管理', '0', 2, 'tenant', NULL, '', '1', '0', 'M', '0', '0', '', 'chart', '103', '1', '2026-07-23 16:28:37', NULL, NULL, '租户管理目录');
 
+INSERT INTO `sys_menu` (`menu_id`, `menu_name`, `parent_id`, `order_num`, `path`, `component`, `query_param`, `is_frame`, `is_cache`, `menu_type`, `visible`, `status`, `perms`, `icon`, `create_dept`, `create_by`, `create_time`, `update_by`, `update_time`, `remark`) VALUES ('9000', 'AI 助手', '0', 9, 'ai', NULL, '', '1', '0', 'M', '0', '0', '', 'education', '103', '1', '2026-07-23 16:28:37', NULL, NULL, 'AI 助手目录'), ('9001', 'AI 对话', '9000', 1, 'chat', 'ai/chat/index', '', '1', '0', 'C', '0', '0', 'ai:chat:list', 'message', '103', '1', '2026-07-23 16:28:37', NULL, NULL, 'AI 对话菜单');
+
 DROP TABLE IF EXISTS `sys_notice`;
 
 CREATE TABLE `sys_notice` (
@@ -403,6 +405,8 @@ INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES ('2090366421866766339'
 
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES ('3', '1041'), ('3', '1042'), ('3', '1043'), ('3', '1044'), ('3', '1045'), ('3', '105'), ('3', '1050'), ('3', '1055'), ('3', '1056'), ('3', '1057'), ('3', '1058'), ('3', '1059'), ('3', '106'), ('3', '1060'), ('3', '1061'), ('3', '1062'), ('3', '1063'), ('3', '1064'), ('3', '1065'), ('3', '107'), ('3', '108'), ('3', '115'), ('3', '116'), ('3', '118'), ('3', '123'), ('3', '130'), ('3', '131'), ('3', '132'), ('3', '133'), ('3', '1600'), ('3', '1601'), ('3', '1602'), ('3', '1603'), ('3', '1620'), ('3', '1621'), ('3', '1622'), ('3', '1623'), ('3', '3'), ('3', '500'), ('3', '501');
 
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES ('1', '9000'), ('1', '9001'), ('2090358936082690050', '9000'), ('2090358936082690050', '9001'), ('3', '9000'), ('3', '9001');
+
 DROP TABLE IF EXISTS `sys_social`;
 
 CREATE TABLE `sys_social` (
@@ -484,7 +488,7 @@ CREATE TABLE `sys_tenant_package` (
   PRIMARY KEY (`package_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='租户套餐表';
 
-INSERT INTO `sys_tenant_package` (`package_id`, `package_name`, `menu_ids`, `remark`, `menu_check_strictly`, `status`, `del_flag`, `create_dept`, `create_by`, `create_time`, `update_by`, `update_time`) VALUES ('2083322840400281601', 'TEST', '1,100,1001,1002,1003,1004,1005,1006,1007,131,130,101,1008,1009,1010,1011,1012,102,1013,1014,1015,1016,103,1017,1018,1019,1020,104,1021,1022,1023,1024,1025,132,105,1026,1027,1028,1029,1030,106,1031,1032,1033,1034,1035,107,1036,1037,1038,1039,108,500,1040,1041,1042,501,1043,1044,1045,1050,133,118,1600,1601,1602,1603,1620,1623,1622,1621,123,1061,1062,1063,1064,1065,3,115,1055,1056,1058,1057,1059,1060,116', '', 1, '0', '0', '103', '1', '2026-08-01 06:44:06', '1', '2026-08-20 17:23:13');
+INSERT INTO `sys_tenant_package` (`package_id`, `package_name`, `menu_ids`, `remark`, `menu_check_strictly`, `status`, `del_flag`, `create_dept`, `create_by`, `create_time`, `update_by`, `update_time`) VALUES ('2083322840400281601', 'TEST', '1,100,1001,1002,1003,1004,1005,1006,1007,131,130,101,1008,1009,1010,1011,1012,102,1013,1014,1015,1016,103,1017,1018,1019,1020,104,1021,1022,1023,1024,1025,132,105,1026,1027,1028,1029,1030,106,1031,1032,1033,1034,1035,107,1036,1037,1038,1039,108,500,1040,1041,1042,501,1043,1044,1045,1050,133,118,1600,1601,1602,1603,1620,1623,1622,1621,123,1061,1062,1063,1064,1065,3,115,1055,1056,1058,1057,1059,1060,116,9000,9001', '', 1, '0', '0', '103', '1', '2026-08-01 06:44:06', '1', '2026-08-20 17:23:13');
 
 DROP TABLE IF EXISTS `sys_user`;
 

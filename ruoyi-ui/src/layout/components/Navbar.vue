@@ -32,6 +32,12 @@
             <svg-icon class-name="search-icon" icon-class="search" />
           </div>
         </el-tooltip>
+        <!-- AI 对话入口 -->
+        <el-tooltip content="AI对话" effect="dark" placement="bottom">
+          <div class="right-menu-item hover-effect" @click="goAiChat">
+            <span class="ai-logo">AI</span>
+          </div>
+        </el-tooltip>
         <!-- 消息 -->
         <el-tooltip :content="proxy.$t('navbar.message')" effect="dark" placement="bottom">
           <div style="display:flex;align-items:center">
@@ -131,6 +137,11 @@ const searchMenuRef = ref<InstanceType<typeof SearchMenu>>();
 
 const openSearchMenu = () => {
   searchMenuRef.value?.openSearch();
+};
+
+// 跳转 AI 对话页面
+const goAiChat = () => {
+  router.push('/ai/chat');
 };
 
 // 动态切换
@@ -307,6 +318,21 @@ watch(
       font-size: 18px;
       color: var(--el-text-color-regular);
       border-radius: var(--app-radius-md);
+
+      .ai-logo {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 22px;
+        font-size: 12px;
+        font-weight: 700;
+        font-style: italic;
+        color: #fff;
+        background: linear-gradient(135deg, #409eff, #7c3aed);
+        border-radius: 6px;
+        letter-spacing: 0.5px;
+      }
 
       &.hover-effect {
         cursor: pointer;

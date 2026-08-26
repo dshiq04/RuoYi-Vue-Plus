@@ -15,6 +15,8 @@
     <properties>
         <revision>5.6.2</revision>
         <spring-boot.version>4.1.0</spring-boot.version>
+        <!-- Spring AI 版本 (chatmodel / chat-memory-jdbc / pgvector) -->
+        <spring-ai.version>2.0.1</spring-ai.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>21</java.version>
@@ -97,6 +99,15 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Spring AI 的依赖配置 (2.0.1, 适配 Spring Boot 4.x) -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

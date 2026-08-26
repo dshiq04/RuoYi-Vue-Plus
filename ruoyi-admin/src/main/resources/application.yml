@@ -234,6 +234,7 @@ xss:
   excludeUrls:
     - /system/notice
     - /warm-flow/save-json
+    - /ai/**
 
 --- # 分布式锁 lock4j 全局配置
 lock4j:
@@ -267,5 +268,49 @@ websocket:
   path: /resource/websocket
   # 设置访问源地址
   allowedOrigins: '*'
+
+--- # AI 智能对话配置 (Spring AI 2.0.1)
+# 总开关: false 时不加载任何 AI 功能 不影响项目正常启动; true 时加载全部 AI 能力
+ai:
+  enabled: true
+  # AI 专用 PostgreSQL 数据源 (会话记忆 + pgvector 向量库 手动配置)
+  datasource:
+    url: jdbc:postgresql://192.168.150.10:5432/ruoyi_vue
+    username: postgres
+    password: tomori
+  chat:
+    # 会话记忆窗口大小(条数)
+    max-messages: 30
+  vector:
+    # 向量表名
+    table-name: ai_vector_store
+    # 向量维度 需与 embedding 模型输出维度一致 (text-embedding-3-small 为 1536)
+    dimensions: 1536
+    # 知识库相似度检索 topK
+    top-k: 4
+    # 是否自动初始化向量表结构(需要数据库账号具备创建扩展权限)
+    initialize-schema: true
+
+--- # Spring AI OpenAI 配置 (仅 ai.enabled 为 true 时生效)
+spring.ai:
+  # 防御性配置: 会话记忆与向量库均由本系统手动配置 关闭其自动初始化避免误操作业务主库
+  chat:
+    memory:
+      repository:
+        jdbc:
+          initialize-schema: embedded
+  vectorstore:
+    pgvector:
+      initialize-schema: false
+  openai:
+    # OpenAI 兼容接口地址 (可替换为任意兼容 OpenAI 协议的中转/代理地址)
+    base-url: http://192.168.100.1:1234
+    # API Key
+    api-key: kusunoki-tomori
+    chat:
+      temperature: 0.7
+      model: qwen3.5-2b
+    embedding:
+      model: text-embedding-nomic-embed-text-v1.5
 
 
