@@ -47,7 +47,11 @@
       <el-table v-loading="loading" border :data="noticeList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column v-if="false" label="序号" align="center" prop="noticeId" width="100" />
-        <el-table-column label="公告标题" align="center" prop="noticeTitle" :show-overflow-tooltip="true" />
+        <el-table-column label="公告标题" align="center" prop="noticeTitle">
+          <template #default="scope">
+            <el-link type="primary" @click="handleView(scope.row)">{{ scope.row.noticeTitle }}</el-link>
+          </template>
+        </el-table-column>
         <el-table-column label="公告类型" align="center" prop="noticeType" width="100">
           <template #default="scope">
             <dict-tag :options="sys_notice_type" :value="scope.row.noticeType" />
@@ -131,13 +135,43 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 通知内容与已读/未读人员对话框 -->
+    <el-dialog v-model="detail.visible" :title="detail.title || '通知详情'" width="720px" append-to-body>
+      <div v-loading="detail.loading">
+        <div class="detail-content" v-html="detail.content"></div>
+        <el-divider />
+        <div class="reader-title">已读人员（{{ detail.readUsers.length }} 人）</div>
+        <div class="reader-list">
+          <template v-if="detail.readUsers.length > 0">
+            <el-tag v-for="(u, k) in detail.readUsers" :key="'read-' + k" type="success" class="reader-tag">
+              {{ u.tenantName || u.tenantId }} / {{ u.nickName }}
+            </el-tag>
+          </template>
+          <span v-else class="reader-empty">暂无已读人员</span>
+        </div>
+        <div class="reader-title">未读人员（{{ detail.unreadUsers.length }} 人）</div>
+        <div class="reader-list">
+          <template v-if="detail.unreadUsers.length > 0">
+            <el-tag v-for="(u, k) in detail.unreadUsers" :key="'unread-' + k" type="danger" class="reader-tag">
+              {{ u.tenantName || u.tenantId }} / {{ u.nickName }}
+            </el-tag>
+          </template>
+          <span v-else class="reader-empty">暂无未读人员</span>
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="detail.visible = false">关 闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup name="Notice" lang="ts">
-import { listNotice, getNotice, delNotice, addNotice, updateNotice } from '@/api/system/notice';
-import { NoticeForm, NoticeQuery, NoticeVO } from '@/api/system/notice/types';
+import { listNotice, getNotice, delNotice, addNotice, updateNotice, getNoticeReadUsers } from '@/api/system/notice';
+import { NoticeForm, NoticeQuery, NoticeVO, NoticeReadUser } from '@/api/system/notice/types';
 import { useUserStore } from '@/store/modules/user';
+import { useNoticeStore } from '@/store/modules/notice';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_notice_status, sys_notice_type } = toRefs<any>(proxy?.useDict('sys_notice_status', 'sys_notice_type'));
@@ -247,8 +281,35 @@ const submitForm = () => {
       proxy?.$modal.msgSuccess('操作成功');
       dialog.visible = false;
       await getList();
+      // 发布/修改成功后立即刷新本机消息列表(新未读会触发页面与浏览器提示, 不依赖SSE)
+      useNoticeStore().initNotices();
     }
   });
+};
+
+/** 查看通知: 弹出公告内容与已读/未读人员明细 */
+const detail = reactive({
+  visible: false,
+  loading: false,
+  title: '',
+  content: '',
+  readUsers: [] as NoticeReadUser[],
+  unreadUsers: [] as NoticeReadUser[]
+});
+const handleView = async (row: NoticeVO) => {
+  detail.title = row.noticeTitle;
+  detail.content = row.noticeContent;
+  detail.readUsers = [];
+  detail.unreadUsers = [];
+  detail.visible = true;
+  detail.loading = true;
+  try {
+    const res = await getNoticeReadUsers(row.noticeId);
+    detail.readUsers = res.data?.readUsers ?? [];
+    detail.unreadUsers = res.data?.unreadUsers ?? [];
+  } finally {
+    detail.loading = false;
+  }
 };
 /** 删除按钮操作 */
 const handleDelete = async (row?: NoticeVO) => {
@@ -263,3 +324,38 @@ onMounted(() => {
   getList();
 });
 </script>
+
+<style lang="scss" scoped>
+.detail-content {
+  max-height: 280px;
+  overflow: auto;
+  padding: 8px 12px;
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: var(--el-border-radius-base);
+  line-height: 1.7;
+}
+
+.reader-title {
+  font-weight: bold;
+  color: var(--el-text-color-primary);
+  margin: 10px 0 8px;
+}
+
+.reader-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 220px;
+  overflow: auto;
+
+  .reader-tag {
+    margin-right: 6px;
+    margin-bottom: 6px;
+  }
+}
+
+.reader-empty {
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+}
+</style>

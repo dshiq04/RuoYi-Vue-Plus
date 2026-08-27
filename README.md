@@ -120,6 +120,44 @@ Topiam IAM/IDaaS身份管理平台 - https://www.topiam.cn/ <br>
 | 缓存监控   | 对系统的缓存信息查询，命令统计等。                                                    | 支持  | 支持               |
 | 使用案例   | 系统的一些功能案例                                                            | 支持  | 不支持              |
 
+## 本分支新增功能（ai-chat 分支）
+
+> 以下为基于 5.6.2 版本二次开发的功能，详见各提交记录
+
+### 1. AI 智能对话模块（ruoyi-common-ai）
+
+- 基于 Spring AI（OpenAI 协议）实现的系统内置 AI 对话功能，新增独立插件模块 `ruoyi-common-ai`
+- 支持多轮会话管理：会话持久化（`AiConversation`）、历史消息上下文（可配置最大上下文条数 `ai.chat.max-messages`）
+- 支持文件上传解析（`AiFileParseUtils`）与图片上传识别，内置向量存储（`ai.vector`，默认表 `ai_vector_store`，可配置向量维度）
+- 提供聊天接口（SSE 流式输出）、状态查询接口与文件/图片上传接口
+- 通过 `ai.enabled` 开关控制，默认关闭；引入 `AiAutoConfigurationImportFilter`，未启用时自动跳过相关自动装配
+- 前端新增 `ruoyi-ui/src/views/ai/chat/index.vue` 对话页面及配套 API（`src/api/ai/chat`），支持流式打字机效果
+- 新增数据源配置 `ai.datasource`，AI 相关存储独立于业务库
+
+### 2. 通知公告 Redis 消息机制
+
+- 通知公告由简单表查询升级为 Redis 消息推送机制，公告发布后实时触达在线用户
+- 支持向全体租户发送公告，跨租户可见
+- 支持已读统计：记录每条公告的已读状态与已读人数（`SysNoticeVo` 扩展字段、前端已读回执）
+- 新增 `NoticeSyncRunner`，应用启动时将存量公告同步至 Redis
+- 前端导航栏（`Navbar`）公告组件改为轮询/实时刷新，新增 Pinia `notice` store 管理
+
+### 3. 性能监控组件（ruoyi-common-monitor）
+
+- 新增独立监控模块 `ruoyi-common-monitor`，基于 Spring Boot Actuator 探针
+- 提供集群实例监控接口（`/monitor/instances`），支持在线日志查看
+- 独立的安全认证配置（`MonitorSecurityConfig`，`performance-monitor.username/password`）与 Spring Security 主链路隔离
+
+### 4. 首页改版
+
+- 首页（`views/index.vue`）重构为组件化布局：`HeroBanner`（欢迎横幅）、`StatCards`（统计卡片）、`ProjectCard`、`QuickAccess`（快捷入口）、`TechStackCard`（技术栈展示）
+
+### 5. 其他修复与优化
+
+- 修复菜单管理页面搜索/刷新后一直 loading 不显示数据的问题
+- 调整首页欢迎横幅与统计卡片间距
+- SQL 脚本更新（`script/sql/ruoyi_vue.sql`、postgres 脚本），包含 AI 模块与公告已读相关表结构
+
 ## 参考文档
 
 使用框架前请仔细阅读文档重点注意事项

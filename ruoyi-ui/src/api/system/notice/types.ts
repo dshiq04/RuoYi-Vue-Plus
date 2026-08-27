@@ -32,3 +32,14 @@ export interface NoticeForm {
   remark: string;
   createByName: string;
 }
+
+export interface NoticeReadUser {
+  tenantId: string;
+  tenantName: string;
+  nickName: string;
+}
+
+export interface NoticeReadList {
+  readUsers: NoticeReadUser[];
+  unreadUsers: NoticeReadUser[];
+}

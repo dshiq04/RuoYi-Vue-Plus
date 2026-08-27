@@ -29,6 +29,7 @@ import { useSettingsStore } from '@/store/modules/settings';
 import { NavTypeEnum } from '@/enums/NavTypeEnum';
 import { initWebSocket } from '@/utils/websocket';
 import { initSSE } from '@/utils/sse';
+import { useNoticeStore } from '@/store/modules/notice';
 
 const settingsStore = useSettingsStore();
 const theme = computed(() => settingsStore.theme);
@@ -84,6 +85,19 @@ onMounted(() => {
   initSSE(import.meta.env.VITE_APP_BASE_API + '/resource/sse');
 });
 
+// 前端启动(整页加载/登录进入)时立即从Redis获取一次消息, 新未读将触发页面与浏览器提示;
+// 并开启兜底轮询: SSE不可用时最迟60秒内也能感知发布/修改产生的未读提醒
+onMounted(() => {
+  const noticeStore = useNoticeStore();
+  noticeStore.initNotices();
+  window.setInterval(() => {
+    // 后台标签页不请求, 回到前台时自然触发下一轮
+    if (!document.hidden) {
+      noticeStore.initNotices();
+    }
+  }, 60_000);
+});
+
 const handleClickOutside = () => {
   useAppStore().closeSideBar({ withoutAnimation: false });
 };
@@ -127,7 +141,7 @@ const setLayout = () => {
   width: calc(100% - #{$base-sidebar-width});
   transition: width 0.28s;
   background: $fixed-header-bg;
-  box-shadow: 0 2px 8px rgba(0, 21, 41, 0.10);
+  box-shadow: 0 2px 8px rgba(0, 21, 41, 0.1);
 }
 
 .hideSidebar .fixed-header {

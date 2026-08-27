@@ -3,6 +3,7 @@ package org.dromara.system.service;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.system.domain.bo.SysNoticeBo;
+import org.dromara.system.domain.vo.NoticeReadListVo;
 import org.dromara.system.domain.vo.SysNoticeVo;
 
 import java.util.List;
@@ -90,4 +91,12 @@ public interface ISysNoticeService {
      * 启动时比对MySQL与Redis: Redis中无用户消息列表时, 将数据库中正常状态的公告全量同步到Redis
      */
     void syncNoticeMsgFromDb();
+
+    /**
+     * 查询通知公告的已读/未读人员明细(区分租户)
+     *
+     * @param noticeId 公告ID
+     * @return 已读/未读人员列表
+     */
+    NoticeReadListVo selectNoticeReadUsers(String noticeId);
 }

@@ -10,6 +10,7 @@ import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.system.domain.bo.SysNoticeBo;
+import org.dromara.system.domain.vo.NoticeReadListVo;
 import org.dromara.system.domain.vo.SysNoticeVo;
 import org.dromara.system.service.ISysNoticeService;
 import org.springframework.validation.annotation.Validated;
@@ -55,6 +56,17 @@ public class SysNoticeController extends BaseController {
     @PutMapping("/push/read")
     public R<Void> pushRead(@RequestBody List<String> noticeIds) {
         return toAjax(noticeService.markNoticeRead(noticeIds));
+    }
+
+    /**
+     * 获取通知公告的已读/未读人员明细(区分租户)
+     *
+     * @param noticeId 公告ID
+     */
+    @PreAuthorize("hasAuthority('system:notice:query')")
+    @GetMapping("/readUsers/{noticeId}")
+    public R<NoticeReadListVo> readUsers(@PathVariable String noticeId) {
+        return R.ok(noticeService.selectNoticeReadUsers(noticeId));
     }
 
     /**

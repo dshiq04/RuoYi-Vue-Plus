@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-import { NoticeForm, NoticeQuery, NoticeVO } from './types';
+import { NoticeForm, NoticeQuery, NoticeVO, NoticeReadList } from './types';
 import { AxiosPromise } from 'axios';
 // 查询公告列表
 export function listNotice(query: NoticeQuery): AxiosPromise<NoticeVO[]> {
@@ -58,5 +58,13 @@ export function readPushNotice(noticeIds: Array<string | number>) {
     url: '/system/notice/push/read',
     method: 'put',
     data: noticeIds
+  });
+}
+
+// 获取通知公告已读/未读人员明细(区分租户)
+export function getNoticeReadUsers(noticeId: string | number): AxiosPromise<NoticeReadList> {
+  return request({
+    url: '/system/notice/readUsers/' + noticeId,
+    method: 'get'
   });
 }
