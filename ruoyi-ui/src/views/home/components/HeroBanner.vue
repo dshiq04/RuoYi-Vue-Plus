@@ -47,7 +47,7 @@ const weekText = ['星期日', '星期一', '星期二', '星期三', '星期四
   justify-content: space-between;
   gap: 16px;
   padding: 28px 32px;
-  margin-bottom: 64px;
+  margin-bottom: 24px;
   border-radius: 12px;
   overflow: hidden;
   color: #fff;
@@ -136,7 +136,7 @@ const weekText = ['星期日', '星期一', '星期二', '星期三', '星期四
 @media only screen and (max-width: 767px) {
   .hero-banner {
     padding: 20px;
-    margin-bottom: 56px;
+    margin-bottom: 20px;
   }
 
   .greeting {
