@@ -44,7 +44,7 @@
         :default-expand-all="false"
         lazy
         :load="getChildrenList"
-        :expand-change="expandMenuHandle"
+        @expand-change="expandMenuHandle"
       >
         <el-table-column prop="menuName" label="菜单名称" :show-overflow-tooltip="true" width="160"></el-table-column>
         <el-table-column prop="icon" label="图标" align="center" width="100">
@@ -382,48 +382,56 @@ const refreshLoadTree = (parentId: string | number) => {
     const { row, treeNode, resolve } = menuExpandMap.value[parentId];
     if (row) {
       getChildrenList(row, treeNode, resolve);
-      if (row.parentId) {
-        const grandpaMenu = menuExpandMap.value[row.parentId];
+      // postgres 下 parentId 序列化为字符串，"0" 为真值，需判断祖父节点的展开记录是否存在
+      const grandpaMenu = row.parentId && menuExpandMap.value[row.parentId];
+      if (grandpaMenu) {
         getChildrenList(grandpaMenu.row, grandpaMenu.treeNode, grandpaMenu.resolve);
       }
     }
   }
 };
 
-/** 重新加载所有已展开的菜单的数据 */
-const refreshAllExpandMenuData = () => {
+/** 重新加载所有已展开的菜单的数据，仅处理仍存在于当前数据中的节点 */
+const refreshAllExpandMenuData = (currentIds: Set<string>) => {
   for (const menuId in menuExpandMap.value) {
-    refreshLoadTree(menuId);
+    // 节点被搜索过滤或删除后已不在树中，跳过刷新，避免对已卸载的树节点调用 load 报错
+    if (currentIds.has(menuId)) {
+      refreshLoadTree(menuId);
+    }
   }
 };
 
 /** 查询菜单列表 */
 const getList = async () => {
   loading.value = true;
-  const res = await listMenu(queryParams.value);
+  try {
+    const res = await listMenu(queryParams.value);
 
-  const tempMap = {};
-  // 存储 父菜单:子菜单列表
-  for (const menu of res.data) {
-    const parentId = menu.parentId;
-    if (!tempMap[parentId]) {
-      tempMap[parentId] = [];
+    const tempMap = {};
+    // 存储 父菜单:子菜单列表
+    for (const menu of res.data) {
+      const parentId = menu.parentId;
+      if (!tempMap[parentId]) {
+        tempMap[parentId] = [];
+      }
+      tempMap[parentId].push(menu);
     }
-    tempMap[parentId].push(menu);
+    // 创建一个当前所有 menuId 的 Set，用于查找父菜单是否存在于当前数据中
+    const menuIdSet = new Set();
+    // 设置有没有子菜单
+    for (const menu of res.data) {
+      menu['hasChildren'] = tempMap[menu.menuId]?.length > 0;
+      menuIdSet.add(menu.menuId);
+    }
+    menuChildrenListMap.value = tempMap;
+    // 找出所有父ID不在当前菜单ID集合中的菜单项，作为新的顶层菜单
+    menuList.value = res.data.filter((menu) => !menuIdSet.has(menu.parentId));
+    // 根据新数据重新加载子菜单数据
+    refreshAllExpandMenuData(new Set(res.data.map((menu) => String(menu.menuId))));
+  } finally {
+    // 无论查询过程是否异常都需要关闭loading，避免页面一直转圈
+    loading.value = false;
   }
-  // 创建一个当前所有 menuId 的 Set，用于查找父菜单是否存在于当前数据中
-  const menuIdSet = new Set();
-  // 设置有没有子菜单
-  for (const menu of res.data) {
-    menu['hasChildren'] = tempMap[menu.menuId]?.length > 0;
-    menuIdSet.add(menu.menuId);
-  }
-  menuChildrenListMap.value = tempMap;
-  // 找出所有父ID不在当前菜单ID集合中的菜单项，作为新的顶层菜单
-  menuList.value = res.data.filter((menu) => !menuIdSet.has(menu.parentId));
-  // 根据新数据重新加载子菜单数据
-  refreshAllExpandMenuData();
-  loading.value = false;
 };
 /** 查询菜单下拉树结构 */
 const getTreeselect = async () => {
