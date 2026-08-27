@@ -1,6 +1,6 @@
 /**
  * 首页数据文件
- * 所有数据均在此本地文件中维护，页面通过 import 直接引用
+ * 所有静态数据均在此本地文件中维护，页面组件通过 import 直接引用
  */
 
 export interface HomeLink {
@@ -17,11 +17,13 @@ export interface ProjectVO {
   links: HomeLink[];
 }
 
+export type TechCategory = '前端' | '后端' | '中间件' | '数据库' | '部署' | '监控';
+
 export interface TechItem {
   name: string;
   desc: string;
   icon: string;
-  tag: string;
+  category: TechCategory;
 }
 
 export interface StatItem {
@@ -32,12 +34,54 @@ export interface StatItem {
   color: string;
 }
 
+export interface QuickLink {
+  title: string;
+  desc: string;
+  icon: string;
+  color: string;
+  path: string;
+  /** 访问该入口所需权限，为空则不做权限过滤 */
+  permission?: string;
+}
+
+/** 时间段问候语配置，start 为起始小时（含） */
+const greetings: Array<{ start: number; text: string }> = [
+  { start: 5, text: '清晨好' },
+  { start: 8, text: '早上好' },
+  { start: 11, text: '上午好' },
+  { start: 13, text: '中午好' },
+  { start: 14, text: '下午好' },
+  { start: 18, text: '傍晚好' },
+  { start: 22, text: '夜深了' }
+];
+
+/** 根据当前小时获取问候语 */
+export const getGreeting = (hour: number): string => {
+  return [...greetings].reverse().find((item) => hour >= item.start)?.text ?? '你好';
+};
+
 /** 顶部数据概览卡片 */
 export const stats: StatItem[] = [
   { title: '总访问量', value: 6281, suffix: '', icon: 'View', color: '#409eff' },
   { title: 'Star 数', value: 4000, suffix: '+', icon: 'Star', color: '#e6a23c' },
   { title: 'Fork 数', value: 1800, suffix: '+', icon: 'Share', color: '#67c23a' },
   { title: '贡献者', value: 120, suffix: '+', icon: 'User', color: '#f56c6c' }
+];
+
+/** 快捷导航入口（按用户权限动态显示） */
+export const quickLinks: QuickLink[] = [
+  { title: 'AI 对话', desc: '智能助手随时待命', icon: 'ChatDotRound', color: '#722ed1', path: '/ai/chat', permission: 'ai:chat:list' },
+  { title: '用户管理', desc: '账号与角色分配', icon: 'User', color: '#409eff', path: '/system/user', permission: 'system:user:list' },
+  { title: '角色管理', desc: '角色与菜单授权', icon: 'Avatar', color: '#67c23a', path: '/system/role', permission: 'system:role:list' },
+  { title: '菜单管理', desc: '系统菜单配置', icon: 'Menu', color: '#e6a23c', path: '/system/menu', permission: 'system:menu:list' },
+  { title: '代码生成', desc: '一键生成前后端代码', icon: 'MagicStick', color: '#f56c6c', path: '/tool/gen', permission: 'tool:gen:list' },
+  { title: '缓存监控', desc: 'Redis 运行状态', icon: 'Cpu', color: '#13c2c2', path: '/monitor/cache', permission: 'monitor:cache:list' },
+  { title: '在线用户', desc: '实时会话管理', icon: 'Headset', color: '#fa8c16', path: '/monitor/online', permission: 'monitor:online:list' },
+  { title: '操作日志', desc: '系统操作留痕审计', icon: 'Document', color: '#52c41a', path: '/monitor/operlog', permission: 'monitor:operlog:list' },
+  { title: '登录日志', desc: '登录行为记录查询', icon: 'Key', color: '#eb2f96', path: '/monitor/logininfor', permission: 'monitor:logininfor:list' },
+  { title: '通知公告', desc: '平台消息发布', icon: 'Bell', color: '#2f54eb', path: '/system/notice', permission: 'system:notice:list' },
+  { title: '参数设置', desc: '系统参数调优', icon: 'Setting', color: '#8b5cf6', path: '/system/config', permission: 'system:config:list' },
+  { title: '字典管理', desc: '业务枚举统一维护', icon: 'Collection', color: '#36cfc9', path: '/system/dict', permission: 'system:dict:list' }
 ];
 
 /** 项目列表 */
@@ -109,18 +153,18 @@ export const projects: ProjectVO[] = [
 
 /** 技术栈卡片 */
 export const techStack: TechItem[] = [
-  { name: 'Vue3', desc: '渐进式前端框架', icon: 'ElementPlus', tag: '前端' },
-  { name: 'TypeScript', desc: 'JavaScript 的超集', icon: 'Monitor', tag: '前端' },
-  { name: 'Element Plus', desc: '企业级 UI 组件库', icon: 'Box', tag: '前端' },
-  { name: 'Vite', desc: '下一代前端构建工具', icon: 'Lightning', tag: '前端' },
-  { name: 'Pinia', desc: 'Vue 生态状态管理', icon: 'DataLine', tag: '前端' },
-  { name: 'Vue Router', desc: 'Vue 官方路由', icon: 'Guide', tag: '前端' },
-  { name: 'Spring Boot', desc: '后端开发框架', icon: 'Cpu', tag: '后端' },
-  { name: 'Sa-Token', desc: '轻量级权限认证框架', icon: 'Key', tag: '后端' },
-  { name: 'Mybatis-Plus', desc: '快速 CRUD 开发增强', icon: 'Coin', tag: '后端' },
-  { name: 'Redis', desc: '高性能缓存数据库', icon: 'Connection', tag: '中间件' },
-  { name: 'Redisson', desc: 'Redis 客户端 性能强劲', icon: 'SetUp', tag: '中间件' },
-  { name: 'MySQL', desc: '关系数据库', icon: 'Coin', tag: '数据库' },
-  { name: 'Docker', desc: '容器编排 一键部署', icon: 'Platform', tag: '部署' },
-  { name: 'SkyWalking', desc: '分布式链路追踪', icon: 'Aim', tag: '监控' }
+  { name: 'Vue3', desc: '渐进式前端框架', icon: 'ElementPlus', category: '前端' },
+  { name: 'TypeScript', desc: 'JavaScript 的超集', icon: 'Monitor', category: '前端' },
+  { name: 'Element Plus', desc: '企业级 UI 组件库', icon: 'Box', category: '前端' },
+  { name: 'Vite', desc: '下一代前端构建工具', icon: 'Lightning', category: '前端' },
+  { name: 'Pinia', desc: 'Vue 生态状态管理', icon: 'DataLine', category: '前端' },
+  { name: 'Vue Router', desc: 'Vue 官方路由', icon: 'Guide', category: '前端' },
+  { name: 'Spring Boot', desc: '后端开发框架', icon: 'Cpu', category: '后端' },
+  { name: 'Sa-Token', desc: '轻量级权限认证框架', icon: 'Key', category: '后端' },
+  { name: 'Mybatis-Plus', desc: '快速 CRUD 开发增强', icon: 'Coin', category: '后端' },
+  { name: 'Redis', desc: '高性能缓存数据库', icon: 'Connection', category: '中间件' },
+  { name: 'Redisson', desc: 'Redis 客户端 性能强劲', icon: 'SetUp', category: '中间件' },
+  { name: 'MySQL', desc: '关系数据库', icon: 'Coin', category: '数据库' },
+  { name: 'Docker', desc: '容器编排 一键部署', icon: 'Platform', category: '部署' },
+  { name: 'SkyWalking', desc: '分布式链路追踪', icon: 'Aim', category: '监控' }
 ];
