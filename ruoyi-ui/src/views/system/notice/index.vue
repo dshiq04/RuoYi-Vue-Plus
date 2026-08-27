@@ -58,6 +58,14 @@
             <dict-tag :options="sys_notice_status" :value="scope.row.status" />
           </template>
         </el-table-column>
+        <el-table-column label="发送对象" align="center" prop="scope" width="90">
+          <template #default="scope">
+            <span v-if="scope.row.scope === '1'">全体租户</span>
+            <span v-else>本租户</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="已读人数" align="center" prop="readCount" width="90" />
+        <el-table-column label="未读人数" align="center" prop="unreadCount" width="90" />
         <el-table-column label="创建者" align="center" prop="createByName" width="100" />
         <el-table-column label="创建时间" align="center" prop="createTime" width="100">
           <template #default="scope">
@@ -101,6 +109,14 @@
               </el-radio-group>
             </el-form-item>
           </el-col>
+          <el-col v-if="form.noticeId === undefined" :span="24">
+            <el-form-item label="发送对象">
+              <el-radio-group v-model="form.scope" :disabled="!isSuperAdmin">
+                <el-radio value="0">本租户</el-radio>
+                <el-radio v-if="isSuperAdmin" value="1">全体租户</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
           <el-col :span="24">
             <el-form-item label="内容">
               <editor v-model="form.noticeContent" :min-height="192" />
@@ -121,9 +137,14 @@
 <script setup name="Notice" lang="ts">
 import { listNotice, getNotice, delNotice, addNotice, updateNotice } from '@/api/system/notice';
 import { NoticeForm, NoticeQuery, NoticeVO } from '@/api/system/notice/types';
+import { useUserStore } from '@/store/modules/user';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_notice_status, sys_notice_type } = toRefs<any>(proxy?.useDict('sys_notice_status', 'sys_notice_type'));
+
+const userStore = useUserStore();
+// 是否超级管理员(user_id=1): 超管可选择发送全体租户
+const isSuperAdmin = computed(() => Number(userStore.userId) === 1);
 
 const noticeList = ref<NoticeVO[]>([]);
 const loading = ref(true);
@@ -147,6 +168,7 @@ const initFormData: NoticeForm = {
   noticeType: '',
   noticeContent: '',
   status: '0',
+  scope: '0',
   remark: '',
   createByName: ''
 };

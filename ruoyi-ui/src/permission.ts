@@ -8,6 +8,7 @@ import { isRelogin } from '@/utils/request';
 import { useUserStore } from '@/store/modules/user';
 import { useSettingsStore } from '@/store/modules/settings';
 import { usePermissionStore, loadRouters } from '@/store/modules/permission';
+import { useNoticeStore } from '@/store/modules/notice';
 import { ElMessage } from 'element-plus/es';
 
 // 首屏守卫需要等待 getInfo/getRouters 接口返回，默认的 trickle 推进极慢(0.02/200ms)
@@ -65,6 +66,10 @@ router.beforeEach(async (to, from, next) => {
                 router.addRoute(route); // 动态添加可访问路由表
               }
             });
+            // 登录/刷新后从Redis拉取通知消息列表(不阻塞路由跳转)
+            useNoticeStore()
+              .initNotices()
+              .catch(() => {});
             // @ts-expect-error hack方法 确保addRoutes已完成
             next({ path: to.path, replace: true, params: to.params, query: to.query, hash: to.hash, name: to.name as string }); // hack方法 确保addRoutes已完成
           }

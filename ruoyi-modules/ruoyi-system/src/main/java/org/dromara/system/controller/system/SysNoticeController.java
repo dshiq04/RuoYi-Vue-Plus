@@ -3,19 +3,19 @@ package org.dromara.system.controller.system;
 import org.springframework.security.access.prepost.PreAuthorize;
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.domain.R;
-import org.dromara.common.core.service.DictService;
 import org.dromara.common.idempotent.annotation.RepeatSubmit;
 import org.dromara.common.log.annotation.Log;
 import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.mybatis.core.page.PageQuery;
 import org.dromara.common.mybatis.core.page.TableDataInfo;
-import org.dromara.common.sse.utils.SseMessageUtils;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.system.domain.bo.SysNoticeBo;
 import org.dromara.system.domain.vo.SysNoticeVo;
 import org.dromara.system.service.ISysNoticeService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 公告 信息操作处理
@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.*;
 public class SysNoticeController extends BaseController {
 
     private final ISysNoticeService noticeService;
-    private final DictService dictService;
 
     /**
      * 获取通知公告列表
@@ -38,6 +37,24 @@ public class SysNoticeController extends BaseController {
     @GetMapping("/list")
     public TableDataInfo<SysNoticeVo> list(SysNoticeBo notice, PageQuery pageQuery) {
         return noticeService.selectPageNoticeList(notice, pageQuery);
+    }
+
+    /**
+     * 获取当前登录用户的通知消息列表(从Redis读取, 供顶部铃铛展示)
+     */
+    @GetMapping("/push/list")
+    public R<List<SysNoticeVo>> pushList() {
+        return R.ok(noticeService.selectPushNoticeList());
+    }
+
+    /**
+     * 标记通知消息已读(写入Redis已读集合)
+     *
+     * @param noticeIds 公告ID集合
+     */
+    @PutMapping("/push/read")
+    public R<Void> pushRead(@RequestBody List<String> noticeIds) {
+        return toAjax(noticeService.markNoticeRead(noticeIds));
     }
 
     /**
@@ -52,20 +69,14 @@ public class SysNoticeController extends BaseController {
     }
 
     /**
-     * 新增通知公告
+     * 新增通知公告(同步按发送对象投递到Redis用户消息列表)
      */
     @PreAuthorize("hasAuthority('system:notice:add')")
     @Log(title = "通知公告", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping
     public R<Void> add(@Validated @RequestBody SysNoticeBo notice) {
-        int rows = noticeService.insertNotice(notice);
-        if (rows <= 0) {
-            return R.fail();
-        }
-        String type = dictService.getDictLabel("sys_notice_type", notice.getNoticeType());
-        SseMessageUtils.publishAll("[" + type + "] " + notice.getNoticeTitle());
-        return R.ok();
+        return toAjax(noticeService.insertNotice(notice));
     }
 
     /**

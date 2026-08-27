@@ -44,6 +44,11 @@ public class SysNotice extends TenantEntity {
     private String status;
 
     /**
+     * 发送对象（0本租户 1全体租户）
+     */
+    private String scope;
+
+    /**
      * 备注
      */
     private String remark;

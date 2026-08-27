@@ -4,8 +4,15 @@ export interface NoticeVO extends BaseEntity {
   noticeType: string;
   noticeContent: string;
   status: string;
+  scope: string;
   remark: string;
   createByName: string;
+  /** 当前用户是否已读（推送消息列表接口返回） */
+  isRead?: boolean;
+  /** 已读人数（管理列表接口返回） */
+  readCount?: number;
+  /** 未读人数（管理列表接口返回） */
+  unreadCount?: number;
 }
 
 export interface NoticeQuery extends PageQuery {
@@ -21,6 +28,7 @@ export interface NoticeForm {
   noticeType: string;
   noticeContent: string;
   status: string;
+  scope: string;
   remark: string;
   createByName: string;
 }

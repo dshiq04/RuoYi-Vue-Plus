@@ -401,6 +401,7 @@ CREATE TABLE "public"."sys_notice" (
   "notice_type" character(1) NOT NULL,
   "notice_content" text,
   "status" character(1),
+  "scope" character(1) DEFAULT '0',
   "create_dept" character varying(64),
   "create_by" character varying(64),
   "create_time" timestamp without time zone,
@@ -417,6 +418,7 @@ COMMENT ON COLUMN "public"."sys_notice"."notice_title" IS '公告标题';
 COMMENT ON COLUMN "public"."sys_notice"."notice_type" IS '公告类型（1通知 2公告）';
 COMMENT ON COLUMN "public"."sys_notice"."notice_content" IS '公告内容';
 COMMENT ON COLUMN "public"."sys_notice"."status" IS '公告状态（0正常 1关闭）';
+COMMENT ON COLUMN "public"."sys_notice"."scope" IS '发送对象（0本租户 1全体租户）';
 COMMENT ON COLUMN "public"."sys_notice"."create_dept" IS '创建部门';
 COMMENT ON COLUMN "public"."sys_notice"."create_by" IS '创建者';
 COMMENT ON COLUMN "public"."sys_notice"."create_time" IS '创建时间';

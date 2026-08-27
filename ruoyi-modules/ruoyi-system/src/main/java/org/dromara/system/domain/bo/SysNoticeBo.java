@@ -49,6 +49,11 @@ public class SysNoticeBo extends BaseEntity {
     private String status;
 
     /**
+     * 发送对象（0本租户 1全体租户，仅超级管理员可发全体）
+     */
+    private String scope;
+
+    /**
      * 备注
      */
     private String remark;

@@ -50,6 +50,11 @@ public class SysNoticeVo implements Serializable {
     private String status;
 
     /**
+     * 发送对象（0本租户 1全体租户）
+     */
+    private String scope;
+
+    /**
      * 备注
      */
     private String remark;
@@ -69,5 +74,20 @@ public class SysNoticeVo implements Serializable {
      * 创建时间
      */
     private Date createTime;
+
+    /**
+     * 当前用户是否已读（仅推送消息列表接口返回）
+     */
+    private Boolean isRead;
+
+    /**
+     * 已读人数（仅管理列表接口返回）
+     */
+    private Long readCount;
+
+    /**
+     * 未读人数（仅管理列表接口返回）
+     */
+    private Long unreadCount;
 
 }

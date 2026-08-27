@@ -43,3 +43,20 @@ export function delNotice(noticeId: string | number | Array<string | number>) {
     method: 'delete'
   });
 }
+
+// 获取当前用户的通知消息列表(Redis)
+export function listPushNotice(): AxiosPromise<NoticeVO[]> {
+  return request({
+    url: '/system/notice/push/list',
+    method: 'get'
+  });
+}
+
+// 标记通知消息已读(写入Redis已读集合)
+export function readPushNotice(noticeIds: Array<string | number>) {
+  return request({
+    url: '/system/notice/push/read',
+    method: 'put',
+    data: noticeIds
+  });
+}

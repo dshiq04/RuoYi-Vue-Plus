@@ -70,4 +70,24 @@ public interface ISysNoticeService {
      * @return 结果
      */
     int deleteNoticeByIds(String[] noticeIds);
+
+    /**
+     * 查询当前登录用户的通知推送消息列表(从Redis获取)
+     *
+     * @return 消息列表(新消息在前, 附带已读状态)
+     */
+    List<SysNoticeVo> selectPushNoticeList();
+
+    /**
+     * 标记通知公告为已读(写入Redis已读集合)
+     *
+     * @param noticeIds 公告ID集合
+     * @return 标记条数
+     */
+    int markNoticeRead(List<String> noticeIds);
+
+    /**
+     * 启动时比对MySQL与Redis: Redis中无用户消息列表时, 将数据库中正常状态的公告全量同步到Redis
+     */
+    void syncNoticeMsgFromDb();
 }

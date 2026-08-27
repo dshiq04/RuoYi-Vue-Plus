@@ -1,12 +1,12 @@
 <template>
-  <div v-loading="state.loading" class="layout-navbars-breadcrumb-user-news">
+  <div class="layout-navbars-breadcrumb-user-news">
     <div class="head-box">
       <div class="head-box-title">通知公告</div>
-      <div class="head-box-btn" @click="readAll">全部已读</div>
+      <div class="head-box-btn" @click="handleReadAll">全部已读</div>
     </div>
-    <div v-loading="state.loading" class="content-box">
+    <div v-loading="loading" class="content-box">
       <template v-if="newsList.length > 0">
-        <div v-for="(v, k) in newsList" :key="k" class="content-box-item" @click="onNewsClick(k)">
+        <div v-for="(v, k) in newsList" :key="v.noticeId || k" class="content-box-item" @click="onNewsClick(v)">
           <div class="item-conten">
             <div>{{ v.message }}</div>
             <div class="content-box-msg"></div>
@@ -20,36 +20,69 @@
       <el-empty v-else :description="'消息为空'"></el-empty>
     </div>
     <div v-if="newsList.length > 0" class="foot-box" @click="onGoToGiteeClick">前往gitee</div>
+
+    <!-- 消息内容弹窗 -->
+    <el-dialog v-model="dialog.visible" :title="dialog.title || '通知公告'" width="520px" append-to-body>
+      <div class="notice-detail">
+        <div class="notice-detail-time">{{ dialog.time }}</div>
+        <div class="notice-detail-content" v-html="dialog.content"></div>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" :disabled="dialog.read" @click="handleMarkRead">{{ dialog.read ? '已读' : '我 已 阅 读' }}</el-button>
+          <el-button @click="dialog.visible = false">关 闭</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts" name="layoutBreadcrumbUserNews">
-import { useNoticeStore } from '@/store/modules/notice';
+import { storeToRefs } from 'pinia';
+import { useNoticeStore, NoticeItem } from '@/store/modules/notice';
 
 const noticeStore = useNoticeStore();
-const { readAll } = useNoticeStore();
+const { state } = storeToRefs(noticeStore);
 
-// 定义变量内容
-const state = reactive({
-  loading: false
+const newsList = computed(() => state.value.notices);
+const loading = computed(() => state.value.loading);
+
+// 消息内容弹窗
+const dialog = reactive({
+  visible: false,
+  title: '',
+  content: '',
+  time: '',
+  read: false,
+  noticeId: ''
 });
-const newsList = ref([]) as any;
 
 /**
- * 初始化数据
- * @returns
+ * 点击消息: 弹出消息内容
  */
-const getTableData = async () => {
-  state.loading = true;
-  newsList.value = noticeStore.state.notices;
-  state.loading = false;
+const onNewsClick = (item: NoticeItem) => {
+  dialog.title = item.title ?? '';
+  dialog.content = item.content ?? '';
+  dialog.time = item.time;
+  dialog.read = item.read;
+  dialog.noticeId = item.noticeId ?? '';
+  dialog.visible = true;
 };
 
-//点击消息，写入已读
-const onNewsClick = (item: any) => {
-  newsList.value[item].read = true;
-  //并且写入pinia
-  noticeStore.state.notices = newsList.value;
+/** 弹窗内点击已读按钮: 写入Redis已读集合 */
+const handleMarkRead = async () => {
+  if (!dialog.noticeId || dialog.read) return;
+  try {
+    await noticeStore.markRead(dialog.noticeId);
+    dialog.read = true;
+  } catch (error) {
+    console.error('标记已读失败', error);
+  }
+};
+
+/** 全部已读 */
+const handleReadAll = () => {
+  noticeStore.readAll();
 };
 
 // 前往通知中心点击
@@ -58,9 +91,8 @@ const onGoToGiteeClick = () => {
 };
 
 onMounted(() => {
-  nextTick(() => {
-    getTableData();
-  });
+  // 兜底刷新(登录守卫中已拉取过, 打开面板时Navbar会再触发)
+  noticeStore.initNotices();
 });
 </script>
 
@@ -91,6 +123,7 @@ onMounted(() => {
     .content-box-item {
       padding-top: 12px;
       display: flex;
+      cursor: pointer;
       &:last-of-type {
         padding-bottom: 12px;
       }
@@ -125,6 +158,19 @@ onMounted(() => {
   }
   :deep(.el-empty__description p) {
     font-size: 13px;
+  }
+
+  .notice-detail {
+    .notice-detail-time {
+      color: var(--el-text-color-secondary);
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    .notice-detail-content {
+      max-height: 400px;
+      overflow: auto;
+      line-height: 1.7;
+    }
   }
 }
 </style>

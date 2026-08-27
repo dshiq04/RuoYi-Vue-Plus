@@ -41,7 +41,7 @@
         <!-- 消息 -->
         <el-tooltip :content="proxy.$t('navbar.message')" effect="dark" placement="bottom">
           <div style="display:flex;align-items:center">
-            <el-popover placement="bottom" trigger="click" transition="el-zoom-in-top" :width="300" :persistent="false">
+            <el-popover placement="bottom" trigger="click" transition="el-zoom-in-top" :width="300" :persistent="false" @show="refreshNotice">
               <template #reference>
                 <el-badge :value="newNotice > 0 ? newNotice : ''" :max="99">
                   <div class="right-menu-item hover-effect"><svg-icon icon-class="message" /></div>
@@ -220,6 +220,11 @@ watch(
   },
   { deep: true }
 );
+
+// 打开通知面板时从Redis刷新消息列表
+const refreshNotice = () => {
+  useNoticeStore().initNotices();
+};
 </script>
 
 <style lang="scss" scoped>
