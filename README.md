@@ -27,7 +27,7 @@
 
 > 文档地址: [plus-doc](https://plus-doc.dromara.org) 国内加速: [plus-doc.top](https://plus-doc.top)
 
-# 🔑本项目基于ruoyi-vue-plus项目二次升级开发
+# ！！！！！本项目基于ruoyi-vue-plus项目二次升级开发
 
 # 本框架与RuoYi的功能差异
 
