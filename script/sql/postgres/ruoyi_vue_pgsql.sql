@@ -8,6 +8,36 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "public";
 
 CREATE EXTENSION IF NOT EXISTS "vector" WITH SCHEMA "public";
 
+DROP TABLE IF EXISTS "public"."ai_conversation";
+
+CREATE TABLE "public"."ai_conversation" (
+  "conversation_id" character varying(64) NOT NULL,
+  "user_id" character varying(64) NOT NULL,
+  "title" character varying(200) DEFAULT '新的对话'::character varying,
+  "tenant_id" character varying(20) DEFAULT '000000'::character varying,
+  "create_dept" character varying(64),
+  "create_by" character varying(64),
+  "create_time" timestamp without time zone,
+  "update_by" character varying(64),
+  "update_time" timestamp without time zone,
+  PRIMARY KEY ("conversation_id")
+);
+
+CREATE INDEX "idx_ai_conversation_user" ON "public"."ai_conversation" USING btree ("user_id");
+
+COMMENT ON TABLE "public"."ai_conversation" IS 'AI 会话表';
+COMMENT ON COLUMN "public"."ai_conversation"."conversation_id" IS '会话ID';
+COMMENT ON COLUMN "public"."ai_conversation"."user_id" IS '所属用户ID';
+COMMENT ON COLUMN "public"."ai_conversation"."title" IS '会话标题';
+COMMENT ON COLUMN "public"."ai_conversation"."tenant_id" IS '租户编号';
+COMMENT ON COLUMN "public"."ai_conversation"."create_dept" IS '创建部门';
+COMMENT ON COLUMN "public"."ai_conversation"."create_by" IS '创建者';
+COMMENT ON COLUMN "public"."ai_conversation"."create_time" IS '创建时间';
+COMMENT ON COLUMN "public"."ai_conversation"."update_by" IS '更新者';
+COMMENT ON COLUMN "public"."ai_conversation"."update_time" IS '更新时间';
+
+INSERT INTO "public"."ai_conversation" ("conversation_id", "user_id", "title", "tenant_id", "create_dept", "create_by", "create_time", "update_by", "update_time") VALUES ('2092515311969673216', '1', '接口测试会话', '000000', '103', '1', '2026-08-26 15:31:42', '1', '2026-08-26 15:31:42'), ('2092519953818492928', '1', '接口测试会话', '000000', '103', '1', '2026-08-26 15:50:09', '1', '2026-08-26 15:50:09'), ('2092522527019839488', '1', '接口测试会话', '000000', '103', '1', '2026-08-26 16:00:22', '1', '2026-08-26 16:00:22'), ('2092524055214526464', '1', '接口测试会话', '000000', '103', '1', '2026-08-26 16:06:27', '1', '2026-08-26 16:06:27'), ('2092525630897090560', '1', '接口测试会话', '000000', '103', '1', '2026-08-26 16:12:42', '1', '2026-08-26 16:12:42'), ('2092527093295611904', '1', '接口测试会话', '000000', '103', '1', '2026-08-26 16:18:31', '1', '2026-08-26 16:18:31'), ('2092527948744908800', '1', '接口测试会话', '000000', '103', '1', '2026-08-26 16:21:55', '1', '2026-08-26 16:21:55'), ('2092531757076471808', '1', '你好，请用一句话介绍你自己', '000000', '103', '1', '2026-08-26 16:37:03', '-1', '2026-08-26 16:37:54'), ('2092540828420714496', '1', '用一句话说明 1+1 等于几', '000000', '103', '1', '2026-08-26 17:13:06', '-1', '2026-08-26 17:14:07');
+
 DROP TABLE IF EXISTS "public"."ai_vector_store";
 
 CREATE TABLE "public"."ai_vector_store" (
@@ -18,7 +48,9 @@ CREATE TABLE "public"."ai_vector_store" (
   PRIMARY KEY ("id")
 );
 
-CREATE INDEX "ai_vector_store_index" ON "public"."ai_vector_store" USING hnsw ("embedding");
+-- 注意: pgvector 的 vector 类型没有 hnsw 默认操作符类, 必须显式指定;
+-- 项目检索使用 COSINE_DISTANCE, 故使用 vector_cosine_ops 保持一致
+CREATE INDEX "ai_vector_store_index" ON "public"."ai_vector_store" USING hnsw ("embedding" vector_cosine_ops);
 
 DROP TABLE IF EXISTS "public"."gen_table";
 
@@ -131,7 +163,6 @@ INSERT INTO "public"."gen_table_column" ("column_id", "table_id", "column_name",
 DROP TABLE IF EXISTS "public"."spring_ai_chat_memory";
 
 CREATE TABLE "public"."spring_ai_chat_memory" (
-  "conversation_id" character varying(36) NOT NULL,
   "conversation_id" character varying(36) NOT NULL,
   "content" text NOT NULL,
   "type" character varying(10) NOT NULL,
@@ -436,6 +467,7 @@ CREATE TABLE "public"."sys_notice" (
   "notice_type" character(1) NOT NULL,
   "notice_content" text,
   "status" character(1),
+  "scope" character(1) DEFAULT '0'::bpchar,
   "create_dept" character varying(64),
   "create_by" character varying(64),
   "create_time" timestamp without time zone,
@@ -445,6 +477,10 @@ CREATE TABLE "public"."sys_notice" (
   PRIMARY KEY ("notice_id")
 );
 
+-- 存量库增量升级执行:
+-- ALTER TABLE "public"."sys_notice" ADD COLUMN "scope" character(1) DEFAULT '0';
+-- COMMENT ON COLUMN "public"."sys_notice"."scope" IS '发送对象（0本租户 1全体租户）';
+
 COMMENT ON TABLE "public"."sys_notice" IS '通知公告表';
 COMMENT ON COLUMN "public"."sys_notice"."notice_id" IS '公告ID';
 COMMENT ON COLUMN "public"."sys_notice"."tenant_id" IS '租户编号';
@@ -452,6 +488,7 @@ COMMENT ON COLUMN "public"."sys_notice"."notice_title" IS '公告标题';
 COMMENT ON COLUMN "public"."sys_notice"."notice_type" IS '公告类型（1通知 2公告）';
 COMMENT ON COLUMN "public"."sys_notice"."notice_content" IS '公告内容';
 COMMENT ON COLUMN "public"."sys_notice"."status" IS '公告状态（0正常 1关闭）';
+COMMENT ON COLUMN "public"."sys_notice"."scope" IS '发送对象（0本租户 1全体租户）';
 COMMENT ON COLUMN "public"."sys_notice"."create_dept" IS '创建部门';
 COMMENT ON COLUMN "public"."sys_notice"."create_by" IS '创建者';
 COMMENT ON COLUMN "public"."sys_notice"."create_time" IS '创建时间';

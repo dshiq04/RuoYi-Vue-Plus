@@ -106,7 +106,7 @@
 </template>
 
 <script setup lang="ts" name="AiChat">
-import { ref, nextTick } from 'vue';
+import { ref, reactive, nextTick } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Plus, Delete, Picture, FolderAdd, Promotion, VideoPause, CircleClose } from '@element-plus/icons-vue';
 import {
@@ -231,7 +231,8 @@ async function handleSend() {
   const images = pendingImages.value.map((i) => i.url);
   const imageIds = pendingImages.value.map((i) => i.imageId);
   messages.value.push({ role: 'user', content, images: images.length ? images : undefined });
-  const assistantMsg: MsgItem = { role: 'assistant', content: '' };
+  // 必须使用响应式代理对象 直接修改裸对象不会触发视图更新 导致流式内容无法实时渲染
+  const assistantMsg = reactive<MsgItem>({ role: 'assistant', content: '' });
   messages.value.push(assistantMsg);
   input.value = '';
   pendingImages.value = [];
